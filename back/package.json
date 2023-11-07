@@ -1,0 +1,17 @@
+{
+  "name": "sns-nora-back",
+  "version": "0.0.1",
+  "description": "sns프로젝트",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "nora",
+  "license": "ISC",
+  "dependencies": {
+    "mysql2": "^3.6.2",
+    "sequelize": "^6.33.0",
+    "sequelize-cli": "^6.6.1"
+  }
+}
