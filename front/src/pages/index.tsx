@@ -20,7 +20,7 @@ const Home: React.FC = () => {
 
   return (
     <AppLayout>
-      <div>ㅎㅇ</div>
+      <div></div>
     </AppLayout>
   );
 };

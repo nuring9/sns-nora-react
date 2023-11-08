@@ -54,6 +54,7 @@ export default function LoginForm({ setIsLoggedIn }: LoginFormProps) {
           placeholder="Password"
         />
       </Form.Group>
+
       <Button variant="primary" type="submit">
         로그인
       </Button>
