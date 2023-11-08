@@ -1,0 +1,18 @@
+@import "./utils.scss";
+
+.Signup {
+  //   display: flex;
+
+  @include mobile {
+    width: 80%;
+    /*브라우저 사이즈767px이하일때*/
+  }
+  @include tablet {
+    width: 50%;
+    /*브라우저 사이즈1023px이하일때*/
+  }
+  @include desktop {
+    width: 30%;
+    /*브라우저 사이즈1024px이상일때*/
+  }
+}
