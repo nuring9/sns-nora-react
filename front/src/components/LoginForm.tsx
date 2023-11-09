@@ -1,7 +1,8 @@
-import React, { useCallback, useState, ChangeEvent } from "react";
+import React, { useCallback } from "react";
 import { Form, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import useInput from "../hooks/useInput";
 
 const LinkStyle = styled(Link)`
   margin-left: 10px;
@@ -12,15 +13,8 @@ interface LoginFormProps {
 }
 
 export default function LoginForm({ setIsLoggedIn }: LoginFormProps) {
-  const [id, setId] = useState("");
-  const [password, setPassword] = useState("");
-
-  const onChangeId = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setId(e.target.value);
-  }, []);
-  const onChangePassword = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  }, []);
+  const [id, onChangeId] = useInput("");
+  const [password, onChangePassword] = useInput("");
 
   const onSubmitForm = useCallback(
     (e: React.SyntheticEvent) => {

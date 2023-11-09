@@ -3,12 +3,12 @@ import routes from "../routes";
 import { useLocation } from "react-router-dom";
 import AppLayout from "../components/AppLayout";
 
-import NavbarLayout from "../components/NavbarLayout";
 import NickEditForm from "../components/NickEditForm";
 import FollowList from "../components/FollowList";
-import { Container, Col, Row } from "react-bootstrap";
-import DirectMessage from "../components/DirectMessage";
-import UserProfile from "../components/UserProfile";
+import { Container, Row } from "react-bootstrap";
+// import NavbarLayout from "../components/NavbarLayout";
+// import DirectMessage from "../components/DirectMessage";
+// import UserProfile from "../components/UserProfile";
 
 export default function Profile() {
   const location = useLocation(); // 현재 페이지 location
