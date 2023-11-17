@@ -1,6 +1,8 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
 import { Container, Row, Col, Image, ListGroup, Button } from "react-bootstrap";
+import { useDispatch } from "react-redux";
+import { logOut } from "../reducers/user";
 
 const ContainerWrapper = styled(Container)`
   background-color: #ffffff;
@@ -13,14 +15,17 @@ const ImageStyled = styled(Image)`
   border-radius: 20px;
 `;
 
-interface LoginFormProps {
-  setIsLoggedIn?: (value: boolean) => void;
-}
+// interface LoginFormProps {
+//   setIsLoggedIn?: (value: boolean) => void;
+// }
 
-export default function UserProfile({ setIsLoggedIn }: LoginFormProps) {
+export default function UserProfile() {
+  const dispatch = useDispatch();
+
   const onLogOut = useCallback(() => {
-    setIsLoggedIn?.(false);
-  }, [setIsLoggedIn]);
+    dispatch(logOut());
+    // setIsLoggedIn?.(false);
+  }, [dispatch]);
 
   return (
     <ContainerWrapper>

@@ -3,26 +3,35 @@ import { Form, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import useInput from "../hooks/useInput";
+import { useDispatch } from "react-redux";
+import { logIn } from "../reducers/user";
 
 const LinkStyle = styled(Link)`
   margin-left: 10px;
 `;
 
-interface LoginFormProps {
-  setIsLoggedIn: (value: boolean) => void;
-}
+// type LoginPayload = {
+//   email: string;
+//   password: string;
+// };
 
-export default function LoginForm({ setIsLoggedIn }: LoginFormProps) {
-  const [id, onChangeId] = useInput("");
+// interface LoginFormProps {p
+//   setIsLoggedIn: (value: boolean) => void;
+// }
+
+export default function LoginForm() {
+  const dispatch = useDispatch();
+  const [email, onChangeEmail] = useInput("");
   const [password, onChangePassword] = useInput("");
 
   const onSubmitForm = useCallback(
-    (e: React.SyntheticEvent) => {
+    async (e: React.SyntheticEvent) => {
       e.preventDefault();
-      console.log(id, password);
-      setIsLoggedIn(true);
+      console.log(email, password);
+
+      dispatch(logIn({ email, password }));
     },
-    [id, password, setIsLoggedIn]
+    [email, password, dispatch]
   );
 
   return (
@@ -31,9 +40,9 @@ export default function LoginForm({ setIsLoggedIn }: LoginFormProps) {
         <Form.Label>이메일을 입력하세요</Form.Label>
         <Form.Control
           name="user-id"
-          value={id}
+          value={email}
           type="email"
-          onChange={onChangeId}
+          onChange={onChangeEmail}
           placeholder="Enter email"
         />
       </Form.Group>

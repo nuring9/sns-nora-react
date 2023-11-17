@@ -1,5 +1,15 @@
-import React from "react";
+import { combineReducers } from "@reduxjs/toolkit";
+import axios from "axios";
 
-export default function index() {
-  return <div></div>;
-}
+import userSlice from "./user";
+import postSlice from "./post";
+
+axios.defaults.baseURL = "http://localhost:3065";
+axios.defaults.withCredentials = true;
+
+const rootReducer = combineReducers({
+  user: userSlice.reducer,
+  post: postSlice,
+});
+
+export default rootReducer;

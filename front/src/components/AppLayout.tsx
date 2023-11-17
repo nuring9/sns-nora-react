@@ -5,6 +5,8 @@ import UserProfile from "./UserProfile";
 import LoginForm from "./LoginForm";
 import DirectMessage from "./DirectMessage";
 import NavbarLayout from "./NavbarLayout";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/ configureStore";
 
 interface LayoutProps {
   children: ReactNode;
@@ -38,7 +40,8 @@ const LeftCol = styled(Col)`
 // `;
 
 const AppLayout: React.FC<LayoutProps> = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  // const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const { user } = useSelector((state: RootState) => state.user);
 
   return (
     <>
@@ -46,24 +49,14 @@ const AppLayout: React.FC<LayoutProps> = ({ children }) => {
       <Container>
         <Row>
           <LeftCol xs={0} md={2} lg={3} className="d-none d-md-block">
-            {isLoggedIn ? <DirectMessage /> : null}
+            {user ? <DirectMessage /> : null}
           </LeftCol>
 
           <Col xs={12} md={6} lg={6} className="d-flex justify-content-center">
-            {isLoggedIn ? children : null}
+            {user ? children : null}
           </Col>
-          <StyledCol
-            xs={0}
-            md={4}
-            lg={3}
-            isLoggedIn={isLoggedIn}
-            className="d-none d-md-block"
-          >
-            {isLoggedIn ? (
-              <UserProfile setIsLoggedIn={setIsLoggedIn} />
-            ) : (
-              <LoginForm setIsLoggedIn={setIsLoggedIn} />
-            )}
+          <StyledCol xs={0} md={4} lg={3} className="d-none d-md-block">
+            {user ? <UserProfile /> : <LoginForm />}
           </StyledCol>
         </Row>
       </Container>
