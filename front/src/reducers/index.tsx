@@ -9,7 +9,7 @@ axios.defaults.withCredentials = true;
 
 const rootReducer = combineReducers({
   user: userSlice.reducer,
-  post: postSlice,
+  post: postSlice.reducer,
 });
 
 export default rootReducer;

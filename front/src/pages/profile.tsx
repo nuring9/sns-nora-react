@@ -23,14 +23,14 @@ export default function Profile() {
   }, [location.pathname, title]);
 
   const followerList = [
-    { nickname: "제로초" },
-    { nickname: "바보" },
-    { nickname: "노드버드오피셜" },
+    { nickname: "눌1" },
+    { nickname: "눌2" },
+    { nickname: "눌3" },
   ];
   const followingList = [
-    { nickname: "제로초" },
-    { nickname: "바보" },
-    { nickname: "노드버드오피셜" },
+    { nickname: "눌4" },
+    { nickname: "눌눌눌" },
+    { nickname: "눌눌눌눌" },
   ];
 
   return (

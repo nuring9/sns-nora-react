@@ -1,46 +1,71 @@
 import { createSlice } from "@reduxjs/toolkit";
-
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-}
-
-interface PostsState {
-  posts: Post[];
-}
+import { PostsState, Post } from "../types";
 
 const initialState: PostsState = {
-  posts: [
+  mainPosts: [
     {
       id: 1,
-      title: "First Post",
-      content: "This is the content of the first post.",
+      User: {
+        id: 1,
+        nickname: "눌1",
+      },
+      content: "첫 번째 게시글",
+      Images: [
+        {
+          src: "https://bookthumb-phinf.pstatic.net/cover/137/995/13799585.jpg?udate=20180726",
+        },
+        {
+          src: "https://gimg.gilbut.co.kr/book/BN001958/rn_view_BN001958.jpg",
+        },
+        {
+          src: "https://gimg.gilbut.co.kr/book/BN001998/rn_view_BN001998.jpg",
+        },
+      ],
+      Comments: [
+        {
+          User: {
+            nickname: "눌2",
+          },
+          content: "우와 개정판이 나왔군요~",
+        },
+        {
+          User: {
+            nickname: "hero",
+          },
+          content: "얼른 사고싶어요~",
+        },
+      ],
     },
-    {
-      id: 2,
-      title: "Second Post",
-      content: "This is the content of the second post.",
-    },
-    // 여기에 필요한 만큼 더미 데이터 추가 가능
   ],
+  imagePaths: [],
+  postAdded: false,
 };
 
-const postsSlice = createSlice({
+const postSlice = createSlice({
   name: "posts",
   initialState,
   reducers: {
-    addPost(state, action) {
-      const newPost = {
-        id: state.posts.length + 1,
-        title: action.payload.title,
-        content: action.payload.content,
+    // 여기에 액션 생성자 및 리듀서를 작성합니다.
+    // 예시로 새로운 게시글을 추가하는 액션을 정의합니다.
+    addPost: (state) => {
+      const dummyPost: Post = {
+        id: 2,
+        content: "더미데이터입니다.",
+        User: {
+          id: 1,
+          nickname: "제로초",
+        },
+        Images: [],
+        Comments: [],
       };
-      state.posts.push(newPost);
+
+      state.mainPosts = [dummyPost, ...state.mainPosts]; //dummyPost가 앞에 있어야 추가글이 가장 위로 올라감.
+      state.postAdded = true;
     },
-    // 다른 reducer들은 여기에 추가 가능
+
+    // 추가적인 액션들을 필요에 따라 작성합니다.
   },
 });
 
-export const { addPost } = postsSlice.actions;
-export default postsSlice.reducer;
+export const { addPost } = postSlice.actions;
+export default postSlice;

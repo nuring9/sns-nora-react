@@ -6,7 +6,7 @@ import LoginForm from "./LoginForm";
 import DirectMessage from "./DirectMessage";
 import NavbarLayout from "./NavbarLayout";
 import { useSelector } from "react-redux";
-import { RootState } from "../store/ configureStore";
+import { RootState } from "../store/configureStore";
 
 interface LayoutProps {
   children: ReactNode;
@@ -52,7 +52,7 @@ const AppLayout: React.FC<LayoutProps> = ({ children }) => {
             {user ? <DirectMessage /> : null}
           </LeftCol>
 
-          <Col xs={12} md={6} lg={6} className="d-flex justify-content-center">
+          <Col xs={12} md={6} lg={6} className="justify-content-center">
             {user ? children : null}
           </Col>
           <StyledCol xs={0} md={4} lg={3} className="d-none d-md-block">
