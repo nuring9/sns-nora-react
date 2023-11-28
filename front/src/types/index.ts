@@ -18,6 +18,7 @@ export interface Post {
   id: number;
   User: User;
   content: string;
+  createdAt: number;
   Images: Image[];
   Comments: Comment[];
 }

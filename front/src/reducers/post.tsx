@@ -1,6 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { PostsState, Post } from "../types";
 
+const createdAtTimestamp = new Date().getTime();
+
 const initialState: PostsState = {
   mainPosts: [
     {
@@ -12,29 +14,30 @@ const initialState: PostsState = {
       content: "첫 번째 게시글",
       Images: [
         {
-          src: "https://bookthumb-phinf.pstatic.net/cover/137/995/13799585.jpg?udate=20180726",
+          src: "/images/art-1.jpg",
         },
         {
-          src: "https://gimg.gilbut.co.kr/book/BN001958/rn_view_BN001958.jpg",
+          src: "/images/art-2.jpg",
         },
         {
-          src: "https://gimg.gilbut.co.kr/book/BN001998/rn_view_BN001998.jpg",
+          src: "/images/art-3.jpg",
         },
       ],
       Comments: [
         {
           User: {
-            nickname: "눌2",
+            nickname: "방가",
           },
-          content: "우와 개정판이 나왔군요~",
+          content: "첫번째 댓글~",
         },
         {
           User: {
-            nickname: "hero",
+            nickname: "하이",
           },
-          content: "얼른 사고싶어요~",
+          content: "두번째 댓글~",
         },
       ],
+      createdAt: createdAtTimestamp,
     },
   ],
   imagePaths: [],
@@ -52,11 +55,12 @@ const postSlice = createSlice({
         id: 2,
         content: "더미데이터입니다.",
         User: {
-          id: 1,
-          nickname: "제로초",
+          id: 2,
+          nickname: "눌2",
         },
         Images: [],
         Comments: [],
+        createdAt: createdAtTimestamp,
       };
 
       state.mainPosts = [dummyPost, ...state.mainPosts]; //dummyPost가 앞에 있어야 추가글이 가장 위로 올라감.

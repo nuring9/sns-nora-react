@@ -1,7 +1,46 @@
+// @import "/node_modules/bootstrap/scss/bootstrap";
+@import "~bootstrap/scss/bootstrap";
+
 .post-button {
   float: right;
 }
 
-.post-textarea {
-  margin-bottom: 7px;
+// .post-textarea {
+//   margin-bottom: 7px;
+// }
+
+.card-button {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10px, 1fr));
+  gap: 10px;
 }
+
+.card-button > :last-child {
+  margin-right: 0; /* 마지막 열의 오른쪽 마진 제거 */
+}
+
+.dropdown-toggle {
+  &::after {
+    display: none !important; // Hide the default caret
+  }
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.custom-button:focus {
+  outline: none; /* 클릭 시 테두리 제거 */
+}
+
+.commentButton {
+  height: auto;
+}
+
+// .dropdown:hover .dropdown-menu {
+//   display: block !important;
+//   margin-top: 0;
+// }

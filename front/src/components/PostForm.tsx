@@ -11,6 +11,13 @@ const FormWrapper = styled(Form)`
   width: 100%;
 `;
 
+const FormTextarea = styled(Form.Control)`
+  resize: none;
+  width: 100%;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+`;
+
 const PostForm: React.FC = () => {
   const { imagePaths, postAdded } = useSelector(
     (state: RootState) => state.post
@@ -50,13 +57,13 @@ const PostForm: React.FC = () => {
   return (
     <FormWrapper encType="multipart/form-data" onSubmit={onSubmit}>
       <Form.Group>
-        <Form.Control
+        <FormTextarea
           as="textarea"
           value={text}
           className="post-textarea"
           onChange={onChangeText}
           maxLength={140}
-          placeholder="게시글을 입력하세요."
+          placeholder="게시글을 입력하세요.."
         />
       </Form.Group>
       <div>

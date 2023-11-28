@@ -13,5 +13,9 @@ code {
 }
 
 body {
-  background-color: #dcdcdc;
+  background-color: #f0f2f5 !important;
+}
+
+button:focus {
+  outline: none !important;
 }

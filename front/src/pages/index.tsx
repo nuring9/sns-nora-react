@@ -28,7 +28,7 @@ const Home: React.FC = () => {
     <AppLayout>
       {isLoggedIn && <PostForm />}
       {mainPosts.map((post) => (
-        <PostCard key={post.id} post={post} />
+        <PostCard key={post.id} post={post} images={post.Images} />
       ))}
     </AppLayout>
   );

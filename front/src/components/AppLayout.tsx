@@ -18,6 +18,7 @@ const StyledCol = styled(Col)`
   border-radius: 15px;
   padding: 20px;
   height: 20%;
+  border: 1px solid #ced4da;
 `;
 
 const LeftCol = styled(Col)`
@@ -41,7 +42,7 @@ const LeftCol = styled(Col)`
 
 const AppLayout: React.FC<LayoutProps> = ({ children }) => {
   // const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const { user } = useSelector((state: RootState) => state.user);
+  const { me } = useSelector((state: RootState) => state.user);
 
   return (
     <>
@@ -49,14 +50,14 @@ const AppLayout: React.FC<LayoutProps> = ({ children }) => {
       <Container>
         <Row>
           <LeftCol xs={0} md={2} lg={3} className="d-none d-md-block">
-            {user ? <DirectMessage /> : null}
+            {me ? <DirectMessage /> : null}
           </LeftCol>
 
           <Col xs={12} md={6} lg={6} className="justify-content-center">
-            {user ? children : null}
+            {me ? children : null}
           </Col>
           <StyledCol xs={0} md={4} lg={3} className="d-none d-md-block">
-            {user ? <UserProfile /> : <LoginForm />}
+            {me ? <UserProfile /> : <LoginForm />}
           </StyledCol>
         </Row>
       </Container>
