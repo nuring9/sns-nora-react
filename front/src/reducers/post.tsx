@@ -16,12 +16,12 @@ const initialState: PostsState = {
         {
           src: "/images/art-1.jpg",
         },
-        {
-          src: "/images/art-2.jpg",
-        },
-        {
-          src: "/images/art-3.jpg",
-        },
+        // {
+        //   src: "/images/art-2.jpg",
+        // },
+        // {
+        //   src: "/images/art-3.jpg",
+        // },
       ],
       Comments: [
         {
