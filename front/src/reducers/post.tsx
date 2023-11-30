@@ -11,7 +11,7 @@ const initialState: PostsState = {
         id: 1,
         nickname: "눌1",
       },
-      content: "첫 번째 게시글",
+      content: "첫 번째 게시글 #해시태그 #링크",
       Images: [
         {
           src: "/images/art-1.jpg",

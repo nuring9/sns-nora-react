@@ -17,6 +17,7 @@ import { RootState } from "../store/configureStore";
 
 import Avatar from "react-avatar";
 import CommentForm from "./CommentForm";
+import PostCardContent from "./PostCardContent";
 
 const CommentWrapper = styled.div`
   padding: 2px 15px;
@@ -29,6 +30,12 @@ const AvatarWrapper = styled(Avatar)`
 
 const CommentNick = styled.div`
   font-weight: bold;
+
+  & p {
+    margin: auto;
+    text-align: left;
+    padding-left: 10px;
+  }
 `;
 
 const CommentContent = styled.p`
@@ -86,7 +93,9 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             />
             {post.User.nickname}
           </Card.Title>
-          <Card.Text>{post.content}</Card.Text>
+          <Card.Text>
+            <PostCardContent postData={post.content} />
+          </Card.Text>
           <div className="card-button">
             <Button variant="white">
               <ShareFill />
