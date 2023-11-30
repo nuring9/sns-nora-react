@@ -3,12 +3,13 @@ import { Image } from "../types";
 import styled from "styled-components";
 import { PlusCircle } from "react-bootstrap-icons";
 import "../styles/Post.scss";
+import ImagesZoom from "./ImagesZoom";
 
 interface PostImagesProps {
   images: Image[];
 }
 
-const ImgZoom = styled.div`
+const ImgMore = styled.div`
   display: inline-block;
   width: 50%;
   text-align: center;
@@ -22,7 +23,11 @@ const PostImages: React.FC<PostImagesProps> = ({ images }) => {
     setShowImagesZoom(true);
   }, []);
 
-  if (images?.length === 1) {
+  const onClose = useCallback(() => {
+    setShowImagesZoom(false);
+  }, []);
+
+  if (images.length === 1) {
     return (
       <>
         <img
@@ -32,11 +37,12 @@ const PostImages: React.FC<PostImagesProps> = ({ images }) => {
           alt={images[0].src}
           onClick={onZoom}
         />
+        {showImagesZoom && <ImagesZoom images={images} onClose={onClose} />}
       </>
     );
   }
 
-  if (images?.length === 2) {
+  if (images.length === 2) {
     return (
       <div className="imgContainer">
         <img
@@ -53,6 +59,7 @@ const PostImages: React.FC<PostImagesProps> = ({ images }) => {
           alt={images[1].src}
           onClick={onZoom}
         />
+        {showImagesZoom && <ImagesZoom images={images} onClose={onClose} />}
       </div>
     );
   }
@@ -67,11 +74,12 @@ const PostImages: React.FC<PostImagesProps> = ({ images }) => {
           alt={images[0].src}
           onClick={onZoom}
         />
-        <ImgZoom role="presentation" className="" onClick={onZoom}>
+        <ImgMore role="presentation" onClick={onZoom}>
           <PlusCircle />
           <br />
-          {images?.length - 1}개의 사진 더 보기
-        </ImgZoom>
+          {images.length - 1}개의 사진 더 보기
+        </ImgMore>
+        {showImagesZoom && <ImagesZoom images={images} onClose={onClose} />}
       </div>
     </>
   );
