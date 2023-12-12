@@ -1,38 +1,53 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import useInput from "../hooks/useInput";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logIn } from "../reducers/user";
+import { RootState, AppDispatch } from "../store/configureStore";
 
 const LinkStyle = styled(Link)`
   margin-left: 10px;
 `;
 
 // type LoginPayload = {
-//   email: string;
-//   password: string;
+//   email?: string;
+//   password?: string;
 // };
 
-// interface LoginFormProps {p
-//   setIsLoggedIn: (value: boolean) => void;
-// }
-
 export default function LoginForm() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
+  const { logInLoading, logInError } = useSelector(
+    (state: RootState) => state.user
+  );
   const [email, onChangeEmail] = useInput("");
   const [password, onChangePassword] = useInput("");
+
+  useEffect(() => {
+    if (logInError) {
+      alert(logInError);
+    }
+  }, [logInError]);
 
   const onSubmitForm = useCallback(
     async (e: React.SyntheticEvent) => {
       e.preventDefault();
       console.log(email, password);
 
-      dispatch(logIn({ email, password }));
+      dispatch(logIn());
     },
     [email, password, dispatch]
   );
+
+  // const onSubmitForm = useCallback(
+  //   (e: React.SyntheticEvent) => {
+  //     console.log(email, password);
+  //     e.preventDefault();
+  //     dispatch(logIn({ email, password }));
+  //   },
+  //   [email, password]
+  // );
 
   return (
     <Form onSubmit={onSubmitForm}>

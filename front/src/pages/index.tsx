@@ -11,8 +11,8 @@ import PostCard from "../components/PostCard";
 const Home: React.FC = () => {
   const location = useLocation(); // 현재 페이지 location
   const title = process.env.REACT_APP_APP_TITLE; // 메인 타이틀
-
-  const { isLoggedIn } = useSelector((state: RootState) => state.user);
+  const { me } = useSelector((state: RootState) => state.user);
+  // const { isLoggedIn } = useSelector((state: RootState) => state.user);
   const { mainPosts } = useSelector((state: RootState) => state.post);
 
   // 경로가 변경될 때마다 타이틀 업데이트
@@ -26,7 +26,7 @@ const Home: React.FC = () => {
 
   return (
     <AppLayout>
-      {isLoggedIn && <PostForm />}
+      {me && <PostForm />}
       {mainPosts.map((post) => (
         <PostCard key={post.id} post={post} images={post.Images} />
       ))}

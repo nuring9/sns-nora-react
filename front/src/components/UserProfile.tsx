@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Container, Row, Col, Image, ListGroup, Button } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { logOut } from "../reducers/user";
+import { AppDispatch } from "../store/configureStore";
 
 const ContainerWrapper = styled(Container)`
   background-color: #ffffff;
@@ -20,7 +21,7 @@ const ImageStyled = styled(Image)`
 // }
 
 export default function UserProfile() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const onLogOut = useCallback(() => {
     dispatch(logOut());
