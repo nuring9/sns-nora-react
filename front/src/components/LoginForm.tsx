@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -23,10 +23,12 @@ export default function LoginForm() {
   );
   const [email, onChangeEmail] = useInput("");
   const [password, onChangePassword] = useInput("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (logInError) {
       alert(logInError);
+      setIsLoading(false); // 에러 발생 시 로딩 상태 해제
     }
   }, [logInError]);
 
@@ -34,8 +36,9 @@ export default function LoginForm() {
     async (e: React.SyntheticEvent) => {
       e.preventDefault();
       console.log(email, password);
-
+      setIsLoading(true);
       dispatch(logIn());
+      setIsLoading(false);
     },
     [email, password, dispatch]
   );
@@ -72,9 +75,17 @@ export default function LoginForm() {
           placeholder="Password"
         />
       </Form.Group>
-
+      {/* 
       <Button variant="primary" type="submit">
         로그인
+      </Button> */}
+
+      <Button
+        variant="primary"
+        type="submit"
+        disabled={isLoading || logInLoading}
+      >
+        {isLoading || logInLoading ? "로딩 중..." : "로그인"}
       </Button>
 
       <LinkStyle to="/signup">
