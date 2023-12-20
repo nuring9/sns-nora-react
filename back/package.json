@@ -2,7 +2,7 @@
   "name": "sns-nora-back",
   "version": "0.0.1",
   "description": "sns프로젝트",
-  "main": "app.js",
+  "main": "app.ts",
   "scripts": {
     "start": "nodemon app",
     "test": "echo \"Error: no test specified\" && exit 1"

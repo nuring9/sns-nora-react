@@ -3,25 +3,32 @@ import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import path from "path";
 import session from "express-session";
-// import nunjucks from"nunjucks");
+
 import dotenv from "dotenv";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
 dotenv.config();
 import postRouter from "./routes/post";
+import { sequelize } from "./models";
 
 const app = express();
 app.set("port", process.env.PORT || 8001);
-app.use(express.static(path.join(__dirname, "../front/build")));
 // app.set("view engine", "html");
-const reactDevServer = "http://localhost:3000";
-// nunjucks.configure("views", {
-//   express: app,
-//   watch: true,
-// });
+
+sequelize
+  .sync({ force: false })
+  .then(() => {
+    console.log("데이터베이스 연결 성공");
+  })
+  .catch((err) => {
+    console.error(err);
+  });
+// 시퀄라이즈 연결
 
 app.use(morgan("dev"));
 // React 개발 서버로 요청을 프록시
+app.use(express.static(path.join(__dirname, "../front/build")));
+const reactDevServer = "http://localhost:3000";
 app.use(
   "/api", // 프론트에서 요청하는 API 경로 설정
   createProxyMiddleware({
@@ -75,3 +82,5 @@ app.get("/", (req, res) => {
 app.listen(app.get("port"), () => {
   console.log(app.get("port"), "번 포트에서 대기 중");
 });
+
+export default app;
