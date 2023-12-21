@@ -2,7 +2,9 @@
 
 export interface User {
   id?: number;
-  nickname: string;
+  email?: string;
+  password?: string;
+  nickname?: string;
 }
 
 export interface Image {
@@ -16,6 +18,7 @@ export interface Comment {
 
 export interface Post {
   id: number;
+  email?: string;
   User: User;
   content: string;
   createdAt: number;

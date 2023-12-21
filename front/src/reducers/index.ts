@@ -1,10 +1,10 @@
 import { combineReducers } from "@reduxjs/toolkit";
-// import axios from "axios";
+import axios from "axios";
 
 import userSlice from "./user";
 import postSlice from "./post";
 
-// axios.defaults.baseURL = "http://localhost:3065";
+axios.defaults.baseURL = "http://localhost:8000";
 // axios.defaults.withCredentials = true;
 
 const rootReducer = combineReducers({

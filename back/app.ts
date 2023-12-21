@@ -3,16 +3,18 @@ import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import path from "path";
 import session from "express-session";
+import cors from "cors";
 
 import dotenv from "dotenv";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
 dotenv.config();
 import postRouter from "./routes/post";
+import userRouter from "./routes/user";
 import { sequelize } from "./models";
 
 const app = express();
-app.set("port", process.env.PORT || 8001);
+app.set("port", process.env.PORT || 8000);
 // app.set("view engine", "html");
 
 sequelize
@@ -28,18 +30,18 @@ sequelize
 app.use(morgan("dev"));
 // React 개발 서버로 요청을 프록시
 app.use(express.static(path.join(__dirname, "../front/build")));
-const reactDevServer = "http://localhost:3000";
 app.use(
-  "/api", // 프론트에서 요청하는 API 경로 설정
-  createProxyMiddleware({
-    target: reactDevServer,
-    changeOrigin: true,
+  cors({
+    origin: "*", // 추후 배포 도메인변경
+    credentials: true, // 추후 배포 후 true로 변경
   })
 );
+// CORS 문제 해결하기
 
 // app.use(express.static(path.join(__dirname, "public")));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json()); // front에서 넘어오는 데이터
+app.use(express.urlencoded({ extended: true })); // front의 form submit에서  넘어오는 데이터
+
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(
   session({
@@ -53,7 +55,9 @@ app.use(
   })
 );
 
-app.use("/", postRouter);
+// app.use("/", pageRouter);
+app.use("/post", postRouter);
+app.use("/user", userRouter);
 
 app.use((req, res, next) => {
   const error: any = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
@@ -74,6 +78,15 @@ app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
 
   return;
 });
+
+const reactDevServer = "http://localhost:3000";
+app.use(
+  "/", // 프론트에서 요청하는 API 경로 설정
+  createProxyMiddleware({
+    target: reactDevServer,
+    changeOrigin: true,
+  })
+);
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../front/build/index.html"));

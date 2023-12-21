@@ -23,12 +23,12 @@ export default function LoginForm() {
   );
   const [email, onChangeEmail] = useInput("");
   const [password, onChangePassword] = useInput("");
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (logInError) {
       alert(logInError);
-      setIsLoading(false); // 에러 발생 시 로딩 상태 해제
+      // setIsLoading(false); // 에러 발생 시 로딩 상태 해제
     }
   }, [logInError]);
 
@@ -36,9 +36,9 @@ export default function LoginForm() {
     async (e: React.SyntheticEvent) => {
       e.preventDefault();
       console.log(email, password);
-      setIsLoading(true);
+      // setIsLoading(true);
       dispatch(logIn());
-      setIsLoading(false);
+      // setIsLoading(false);
     },
     [email, password, dispatch]
   );
@@ -80,12 +80,8 @@ export default function LoginForm() {
         로그인
       </Button> */}
 
-      <Button
-        variant="primary"
-        type="submit"
-        disabled={isLoading || logInLoading}
-      >
-        {isLoading || logInLoading ? "로딩 중..." : "로그인"}
+      <Button variant="primary" type="submit" disabled={logInLoading}>
+        {logInLoading ? "로딩 중..." : "로그인"}
       </Button>
 
       <LinkStyle to="/signup">

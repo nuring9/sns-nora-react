@@ -8,13 +8,15 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const morgan_1 = __importDefault(require("morgan"));
 const path_1 = __importDefault(require("path"));
 const express_session_1 = __importDefault(require("express-session"));
+const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const http_proxy_middleware_1 = require("http-proxy-middleware");
 dotenv_1.default.config();
 const post_1 = __importDefault(require("./routes/post"));
+const user_1 = __importDefault(require("./routes/user"));
 const models_1 = require("./models");
 const app = (0, express_1.default)();
-app.set("port", process.env.PORT || 8001);
+app.set("port", process.env.PORT || 8000);
 // app.set("view engine", "html");
 models_1.sequelize
     .sync({ force: false })
@@ -28,15 +30,14 @@ models_1.sequelize
 app.use((0, morgan_1.default)("dev"));
 // React 개발 서버로 요청을 프록시
 app.use(express_1.default.static(path_1.default.join(__dirname, "../front/build")));
-const reactDevServer = "http://localhost:3000";
-app.use("/api", // 프론트에서 요청하는 API 경로 설정
-(0, http_proxy_middleware_1.createProxyMiddleware)({
-    target: reactDevServer,
-    changeOrigin: true,
+app.use((0, cors_1.default)({
+    origin: "*", // 추후 배포 도메인변경
+    credentials: true, // 추후 배포 후 true로 변경
 }));
+// CORS 문제 해결하기
 // app.use(express.static(path.join(__dirname, "public")));
-app.use(express_1.default.json());
-app.use(express_1.default.urlencoded({ extended: false }));
+app.use(express_1.default.json()); // front에서 넘어오는 데이터
+app.use(express_1.default.urlencoded({ extended: true })); // front의 form submit에서  넘어오는 데이터
 app.use((0, cookie_parser_1.default)(process.env.COOKIE_SECRET));
 app.use((0, express_session_1.default)({
     resave: false,
@@ -47,7 +48,9 @@ app.use((0, express_session_1.default)({
         secure: false,
     },
 }));
-app.use("/", post_1.default);
+// app.use("/", pageRouter);
+app.use("/post", post_1.default);
+app.use("/user", user_1.default);
 app.use((req, res, next) => {
     const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
     // error.status = 404;
@@ -61,6 +64,12 @@ app.use((err, req, res, next) => {
     res.render("error");
     return;
 });
+const reactDevServer = "http://localhost:3000";
+app.use("/", // 프론트에서 요청하는 API 경로 설정
+(0, http_proxy_middleware_1.createProxyMiddleware)({
+    target: reactDevServer,
+    changeOrigin: true,
+}));
 app.get("/", (req, res) => {
     res.sendFile(path_1.default.join(__dirname, "../front/build/index.html"));
 }); // 메인페이지 라우팅

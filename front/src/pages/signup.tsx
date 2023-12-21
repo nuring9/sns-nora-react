@@ -1,11 +1,15 @@
 import { useCallback, useEffect, useState, ChangeEvent, useMemo } from "react";
 import routes from "../routes";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Form, Button } from "react-bootstrap";
 import styled from "styled-components";
 import "../styles/Signup.scss";
 import NavbarLayout from "../components/NavbarLayout";
 import useInput from "../hooks/useInput";
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "../store/configureStore";
+import { signUp } from "../reducers/user";
+import { User } from "../types";
 
 const FormWrapper = styled(Form)`
   margin: auto;
@@ -14,10 +18,27 @@ const FormWrapper = styled(Form)`
 `;
 
 export default function Signup() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { signUpLoading, signUpDone, signUpError } = useSelector(
+    (state: RootState) => state.user
+  );
+  const navigate = useNavigate();
   const location = useLocation(); // 현재 페이지 location
   const title = process.env.REACT_APP_APP_TITLE; // 메인 타이틀
 
-  const [id, onChangeId] = useInput("");
+  useEffect(() => {
+    if (signUpDone) {
+      navigate("/");
+    }
+  }, [signUpDone, navigate]);
+
+  useEffect(() => {
+    if (signUpError) {
+      alert(JSON.stringify(signUpError));
+    }
+  }, [signUpError]);
+
+  const [email, onChangeEmail] = useInput("");
   const [password, onChangePassword] = useInput("");
   const [nickname, onChangeNickname] = useInput("");
 
@@ -56,14 +77,24 @@ export default function Signup() {
       e.preventDefault();
 
       if (password !== passwordCheck) {
-        return setPasswordError;
+        setPasswordError(true);
+        return;
       }
       if (!term) {
-        return setTermError(true);
+        setTermError(true);
+        return;
       }
-      console.log(id, nickname, password);
+
+      const userData: User = {
+        email,
+        password,
+        nickname,
+      };
+
+      console.log(email, nickname, password);
+      return dispatch(signUp(userData));
     },
-    [id, nickname, password, passwordCheck, term]
+    [email, nickname, password, passwordCheck, term, dispatch]
   );
 
   return (
@@ -75,8 +106,8 @@ export default function Signup() {
           <Form.Label>이메일 주소</Form.Label>
           <Form.Control
             type="email"
-            value={id}
-            onChange={onChangeId}
+            value={email}
+            onChange={onChangeEmail}
             placeholder="name@example.com"
           />
         </Form.Group>
@@ -118,8 +149,8 @@ export default function Signup() {
           />
           {termError && <div style={ErrorText}>약관에 동의하셔야 합니다.</div>}
         </Form.Group>
-        <Button variant="primary" type="submit">
-          가입하기
+        <Button variant="primary" type="submit" disabled={signUpLoading}>
+          {signUpLoading ? "가입 중.." : "가입하기"}
         </Button>
       </FormWrapper>
     </div>

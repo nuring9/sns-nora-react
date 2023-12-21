@@ -1,55 +1,25 @@
-// import { createSlice } from "@reduxjs/toolkit";
-
-// interface UserState {
-//   isLoggedIn: boolean;
-//   me: any; // 사용자 정보 객체 타입
-//   signUpDate: number; // Date 객체 대신 timestamp(Number)으로 변경
-//   loginDate: number; // Date 객체 대신 timestamp(Number)으로 변경
-// }
-
-// const initialState: UserState = {
-//   isLoggedIn: false,
-//   me: null,
-//   signUpDate: Date.now(), // Date 객체 대신 timestamp(Number)으로 초기화
-//   loginDate: Date.now(), // Date 객체 대신 timestamp(Number)으로 초기화
-// };
-
-// const userSlice = createSlice({
-//   name: "me",
-//   initialState,
-//   reducers: {
-//     logIn(state, action) {
-//       state.me = action.payload;
-//       state.isLoggedIn = !!action.payload; // 사용자 객체가 있으면 로그인 상태로 간주
-//       state.loginDate = Date.now(); // 로그인 시간 업데이트
-//     },
-//     logOut(state) {
-//       state.me = null;
-//       state.isLoggedIn = false;
-//       state.loginDate = Date.now(); // 로그아웃 시간 업데이트
-//     },
-//     // 다른 액션들을 추가할 수 있습니다.
-//     getInitialState: () => initialState,
-//   },
-// });
-
-// export const { logIn, logOut } = userSlice.actions;
-// export default userSlice;
-
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { User } from "../types";
+// interface MyError {  // 추후 에러 타입 변경 시 참고.
+//   message: string;
+//   code: number;
+// }
 
 interface UserState {
-  logInLoading: boolean;
+  logInLoading: boolean; // 로그인 시도중
   logInDone: boolean;
   logInError: any;
   logOutLoading: boolean; // 로그아웃 시도중
   logOutDone: boolean;
   logOutError: any;
+  signUpLoading: boolean; // 회원가입 시도중
+  signUpDone: boolean;
+  signUpError: any; // 추후 타입 변경 생각해보기..
   message?: string;
   me: any; // 사용자 정보 객체 타입
-  // signUpDate: number; // Date 객체 대신 timestamp(Number)으로 변경
-  // loginDate: number; // Date 객체 대신 timestamp(Number)으로 변경
+  // signUpDate: number;
+  // loginDate: number;
 }
 
 const initialState: UserState = {
@@ -61,15 +31,24 @@ const initialState: UserState = {
   logOutLoading: false, // 로그아웃 시도중
   logOutDone: false,
   logOutError: null,
+  signUpLoading: false, // 회원가입 시도중
+  signUpDone: false,
+  signUpError: null,
 };
 
+//액션이름 "user/logIn"
 export const logIn = createAsyncThunk("user/logIn", async (data) => {
   const response = await axios.post("/user/login", data);
   return response.data;
 });
 
 export const logOut = createAsyncThunk("user/logOut", async (data) => {
-  const response = await axios.post("user/logout", data);
+  const response = await axios.post("/user/logout", data);
+  return response.data;
+});
+
+export const signUp = createAsyncThunk("user/signup", async (data: User) => {
+  const response = await axios.post("/user", data);
   return response.data;
 });
 
@@ -106,6 +85,19 @@ const userSlice = createSlice({
       .addCase(logOut.rejected, (draft, action) => {
         draft.logOutLoading = false;
         draft.logOutError = action.error;
+      })
+      .addCase(signUp.pending, (draft) => {
+        draft.signUpLoading = true;
+        draft.signUpError = null;
+        draft.signUpDone = false;
+      })
+      .addCase(signUp.fulfilled, (draft) => {
+        draft.signUpLoading = false;
+        draft.signUpDone = true;
+      })
+      .addCase(signUp.rejected, (draft, action) => {
+        draft.signUpLoading = false;
+        draft.signUpError = action.error;
       })
       .addDefaultCase((state) => state);
   },
