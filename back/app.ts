@@ -6,14 +6,18 @@ import session from "express-session";
 import cors from "cors";
 
 import dotenv from "dotenv";
+import passport from "passport";
+import passportConfig from "./passport";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
-dotenv.config();
 import postRouter from "./routes/post";
 import userRouter from "./routes/user";
+// import pageRouter from "./routes/page";
 import { sequelize } from "./models";
 
+dotenv.config();
 const app = express();
+passportConfig(); // 패스포트 설정
 app.set("port", process.env.PORT || 8000);
 // app.set("view engine", "html");
 
@@ -28,7 +32,6 @@ sequelize
 // 시퀄라이즈 연결
 
 app.use(morgan("dev"));
-// React 개발 서버로 요청을 프록시
 app.use(express.static(path.join(__dirname, "../front/build")));
 app.use(
   cors({
@@ -41,7 +44,6 @@ app.use(
 // app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json()); // front에서 넘어오는 데이터
 app.use(express.urlencoded({ extended: true })); // front의 form submit에서  넘어오는 데이터
-
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(
   session({
@@ -54,6 +56,8 @@ app.use(
     },
   })
 );
+app.use(passport.initialize());
+app.use(passport.session());
 
 // app.use("/", pageRouter);
 app.use("/post", postRouter);
@@ -65,6 +69,15 @@ app.use((req, res, next) => {
   error.status = 404;
   next(error);
 });
+
+const reactDevServer = "http://localhost:3000";
+app.use(
+  "/", // 프론트에서 요청하는 API 경로 설정
+  createProxyMiddleware({
+    target: reactDevServer,
+    changeOrigin: true,
+  })
+);
 
 interface CustomError extends Error {
   status?: number;
@@ -78,15 +91,6 @@ app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
 
   return;
 });
-
-const reactDevServer = "http://localhost:3000";
-app.use(
-  "/", // 프론트에서 요청하는 API 경로 설정
-  createProxyMiddleware({
-    target: reactDevServer,
-    changeOrigin: true,
-  })
-);
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../front/build/index.html"));

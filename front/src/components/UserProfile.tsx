@@ -24,7 +24,7 @@ export default function UserProfile() {
   const dispatch = useDispatch<AppDispatch>();
 
   const onLogOut = useCallback(() => {
-    dispatch(logOut());
+    dispatch(logOut({}));
     // setIsLoggedIn?.(false);
   }, [dispatch]);
 

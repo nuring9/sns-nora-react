@@ -6,6 +6,7 @@ import useInput from "../hooks/useInput";
 import { useDispatch, useSelector } from "react-redux";
 import { logIn } from "../reducers/user";
 import { RootState, AppDispatch } from "../store/configureStore";
+import { User } from "../types";
 
 const LinkStyle = styled(Link)`
   margin-left: 10px;
@@ -37,7 +38,13 @@ export default function LoginForm() {
       e.preventDefault();
       console.log(email, password);
       // setIsLoading(true);
-      dispatch(logIn());
+
+      const userData: User = {
+        email,
+        password,
+      };
+
+      dispatch(logIn(userData));
       // setIsLoading(false);
     },
     [email, password, dispatch]

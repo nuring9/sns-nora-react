@@ -37,18 +37,18 @@ const initialState: UserState = {
 };
 
 //액션이름 "user/logIn"
-export const logIn = createAsyncThunk("user/logIn", async (data) => {
+export const logIn = createAsyncThunk("user/logIn", async (data: User) => {
   const response = await axios.post("/user/login", data);
   return response.data;
 });
 
-export const logOut = createAsyncThunk("user/logOut", async (data) => {
+export const logOut = createAsyncThunk("user/logOut", async (data: User) => {
   const response = await axios.post("/user/logout", data);
   return response.data;
 });
 
-export const signUp = createAsyncThunk("user/signup", async (data: User) => {
-  const response = await axios.post("/user", data);
+export const signUp = createAsyncThunk("user/signUp", async (data: User) => {
+  const response = await axios.post("/user/signup", data);
   return response.data;
 });
 

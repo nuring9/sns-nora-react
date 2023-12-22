@@ -10,12 +10,16 @@ const path_1 = __importDefault(require("path"));
 const express_session_1 = __importDefault(require("express-session"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const passport_1 = __importDefault(require("passport"));
+const passport_2 = __importDefault(require("./passport"));
 const http_proxy_middleware_1 = require("http-proxy-middleware");
-dotenv_1.default.config();
 const post_1 = __importDefault(require("./routes/post"));
 const user_1 = __importDefault(require("./routes/user"));
+// import pageRouter from "./routes/page";
 const models_1 = require("./models");
+dotenv_1.default.config();
 const app = (0, express_1.default)();
+(0, passport_2.default)(); // 패스포트 설정
 app.set("port", process.env.PORT || 8000);
 // app.set("view engine", "html");
 models_1.sequelize
@@ -48,6 +52,8 @@ app.use((0, express_session_1.default)({
         secure: false,
     },
 }));
+app.use(passport_1.default.initialize());
+app.use(passport_1.default.session());
 // app.use("/", pageRouter);
 app.use("/post", post_1.default);
 app.use("/user", user_1.default);
@@ -57,6 +63,12 @@ app.use((req, res, next) => {
     error.status = 404;
     next(error);
 });
+const reactDevServer = "http://localhost:3000";
+app.use("/", // 프론트에서 요청하는 API 경로 설정
+(0, http_proxy_middleware_1.createProxyMiddleware)({
+    target: reactDevServer,
+    changeOrigin: true,
+}));
 app.use((err, req, res, next) => {
     res.locals.message = err.message;
     res.locals.error = process.env.NODE_ENV !== "production" ? err : {};
@@ -64,12 +76,6 @@ app.use((err, req, res, next) => {
     res.render("error");
     return;
 });
-const reactDevServer = "http://localhost:3000";
-app.use("/", // 프론트에서 요청하는 API 경로 설정
-(0, http_proxy_middleware_1.createProxyMiddleware)({
-    target: reactDevServer,
-    changeOrigin: true,
-}));
 app.get("/", (req, res) => {
     res.sendFile(path_1.default.join(__dirname, "../front/build/index.html"));
 }); // 메인페이지 라우팅

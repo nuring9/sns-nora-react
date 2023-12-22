@@ -1,10 +1,56 @@
 import express from "express";
 import bcrypt from "bcrypt";
-import { User } from "../models";
+import { User, Post } from "../models";
+import passport from "passport";
+import { Request, Response } from "express";
 
 const router = express.Router();
 
-router.post("/", async (req, res, next) => {
+router.post("/login", async (req, res, next) => {
+  // POST /user/login
+  passport.authenticate("local", (err: Request, user: Response, info: any) => {
+    if (err) {
+      // 비밀번호 에러
+      console.error(err);
+      return next(err);
+    }
+    if (info) {
+      return res.status(401).send(info.message);
+    }
+    return req.login(user, async (loginErr) => {
+      if (loginErr) {
+        // 패스포트 라이브러리 로그인 에러
+        console.error(loginErr);
+        return next(loginErr);
+      }
+      // const fullUserWithoutPassword = await User.findOne({
+      //   where: { id: user.id },
+      //   attributes: {
+      //     exclude: ["password"],
+      //   },
+      //   include: [
+      //     {
+      //       model: Post,
+      //       attributes: ["id"],
+      //     },
+      //     {
+      //       model: User,
+      //       as: "Followings",
+      //       attributes: ["id"],
+      //     },
+      //     {
+      //       model: User,
+      //       as: "Followers",
+      //       attributes: ["id"],
+      //     },
+      //   ],
+      // });
+      return res.status(200).json(user);
+    });
+  })(req, res, next);
+});
+
+router.post("/signup", async (req, res, next) => {
   // POST /user/signup
   try {
     const exUser = await User.findOne({
