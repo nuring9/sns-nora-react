@@ -20,6 +20,7 @@ const router = express_1.default.Router();
 router.post("/login", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     // POST /user/login
     passport_1.default.authenticate("local", (err, user, info) => {
+        // user: Response 냐중에 수정
         if (err) {
             // 비밀번호 에러
             console.error(err);
@@ -34,28 +35,29 @@ router.post("/login", (req, res, next) => __awaiter(void 0, void 0, void 0, func
                 console.error(loginErr);
                 return next(loginErr);
             }
-            // const fullUserWithoutPassword = await User.findOne({
-            //   where: { id: user.id },
-            //   attributes: {
-            //     exclude: ["password"],
-            //   },
-            //   include: [
-            //     {
-            //       model: Post,
-            //       attributes: ["id"],
-            //     },
-            //     {
-            //       model: User,
-            //       as: "Followings",
-            //       attributes: ["id"],
-            //     },
-            //     {
-            //       model: User,
-            //       as: "Followers",
-            //       attributes: ["id"],
-            //     },
-            //   ],
-            // });
+            const fullUserWithoutPassword = yield models_1.User.findOne({
+                where: { id: user.id },
+                attributes: {
+                    exclude: ["password"],
+                    // 전체 데이터에서 비밀번호만 제외 후 가져옴.
+                },
+                include: [
+                    {
+                        model: models_1.Post,
+                        attributes: ["id"],
+                    },
+                    {
+                        model: models_1.User,
+                        as: "Followings",
+                        attributes: ["id"],
+                    },
+                    {
+                        model: models_1.User,
+                        as: "Followers",
+                        attributes: ["id"],
+                    },
+                ],
+            });
             return res.status(200).json(user);
         }));
     })(req, res, next);
@@ -85,4 +87,19 @@ router.post("/signup", (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         next(err);
     }
 }));
+router.post("/logout", (req, res) => {
+    req.logout((err) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send("로그아웃 에러");
+        }
+        req.session.destroy((err) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send("세션 삭제 에러");
+            }
+            res.send("ok");
+        });
+    });
+});
 exports.default = router;

@@ -1,56 +1,66 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import { User, Post } from "../models";
+const { isLoggedIn, isNotLoggedIn } = require("./middlewares");
 import passport from "passport";
 import { Request, Response } from "express";
 
 const router = express.Router();
 
-router.post("/login", async (req, res, next) => {
+interface PassportUser {
+  id: number;
+}
+
+router.post("/login", isNotLoggedIn, async (req, res, next) => {
   // POST /user/login
-  passport.authenticate("local", (err: Request, user: Response, info: any) => {
-    if (err) {
-      // 비밀번호 에러
-      console.error(err);
-      return next(err);
-    }
-    if (info) {
-      return res.status(401).send(info.message);
-    }
-    return req.login(user, async (loginErr) => {
-      if (loginErr) {
-        // 패스포트 라이브러리 로그인 에러
-        console.error(loginErr);
-        return next(loginErr);
+  passport.authenticate(
+    "local",
+    (err: Request, user: PassportUser, info: any) => {
+      // user: Response 냐중에 수정
+      if (err) {
+        // 비밀번호 에러
+        console.error(err);
+        return next(err);
       }
-      // const fullUserWithoutPassword = await User.findOne({
-      //   where: { id: user.id },
-      //   attributes: {
-      //     exclude: ["password"],
-      //   },
-      //   include: [
-      //     {
-      //       model: Post,
-      //       attributes: ["id"],
-      //     },
-      //     {
-      //       model: User,
-      //       as: "Followings",
-      //       attributes: ["id"],
-      //     },
-      //     {
-      //       model: User,
-      //       as: "Followers",
-      //       attributes: ["id"],
-      //     },
-      //   ],
-      // });
-      return res.status(200).json(user);
-    });
-  })(req, res, next);
+      if (info) {
+        return res.status(401).send(info.message);
+      }
+      return req.login(user, async (loginErr) => {
+        if (loginErr) {
+          // 패스포트 라이브러리 로그인 에러
+          console.error(loginErr);
+          return next(loginErr);
+        }
+        const fullUserWithoutPassword = await User.findOne({
+          where: { id: user.id },
+          attributes: {
+            exclude: ["password"],
+            // 전체 데이터에서 비밀번호만 제외 후 가져옴.
+          },
+          include: [
+            {
+              model: Post,
+              attributes: ["id"],
+            },
+            {
+              model: User,
+              as: "Followings",
+              attributes: ["id"],
+            },
+            {
+              model: User,
+              as: "Followers",
+              attributes: ["id"],
+            },
+          ],
+        });
+        return res.status(200).json(user);
+      });
+    }
+  )(req, res, next);
 });
 
-router.post("/signup", async (req, res, next) => {
+router.post("/signup", isNotLoggedIn, async (req, res, next) => {
   // POST /user/signup
   try {
     const exUser = await User.findOne({
@@ -73,6 +83,22 @@ router.post("/signup", async (req, res, next) => {
     console.error(err);
     next(err);
   }
+});
+
+router.post("/logout", isLoggedIn, (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("로그아웃 에러");
+    }
+    req.session.destroy((err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("세션 삭제 에러");
+      }
+      res.send("ok");
+    });
+  });
 });
 
 export default router;

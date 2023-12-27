@@ -1,17 +1,21 @@
 import { useEffect } from "react";
 import routes from "../routes";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import AppLayout from "../components/AppLayout";
-
+import { useSelector } from "react-redux";
 import NickEditForm from "../components/NickEditForm";
 import FollowList from "../components/FollowList";
 import { Container, Row } from "react-bootstrap";
+import { RootState } from "../store/configureStore";
+
 // import NavbarLayout from "../components/NavbarLayout";
 // import DirectMessage from "../components/DirectMessage";
 // import UserProfile from "../components/UserProfile";
 
 export default function Profile() {
   const location = useLocation(); // 현재 페이지 location
+  const me = useSelector((state: RootState) => state.user.me?.id);
+  const navigate = useNavigate();
 
   const title = process.env.REACT_APP_APP_TITLE; // 메인 타이틀
   useEffect(() => {
@@ -21,6 +25,12 @@ export default function Profile() {
       document.title = title + " - " + subTitle;
     }
   }, [location.pathname, title]);
+
+  useEffect(() => {
+    if (me && me.id) {
+      navigate("/");
+    }
+  }, [me, navigate]);
 
   const followerList = [
     { nickname: "눌1" },

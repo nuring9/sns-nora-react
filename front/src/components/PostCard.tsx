@@ -18,6 +18,7 @@ import { RootState } from "../store/configureStore";
 import Avatar from "react-avatar";
 import CommentForm from "./CommentForm";
 import PostCardContent from "./PostCardContent";
+import FollowButton from "./FollowButton";
 
 const CommentWrapper = styled.div`
   padding: 2px 15px;
@@ -26,6 +27,13 @@ const CommentWrapper = styled.div`
 
 const AvatarWrapper = styled(Avatar)`
   margin-right: 10px;
+`;
+
+const FolloWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px;
+  background-color: #f0f2f5;
 `;
 
 const CommentNick = styled.div`
@@ -80,6 +88,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   return (
     <div>
       <Card>
+        <FolloWrapper>{id && <FollowButton />}</FolloWrapper>
         {post.Images[0] && <PostImages images={post.Images} />}
         {/* <Card.Img variant="top" src="/images/art-1.jpg" /> */}
         <Card.Body>

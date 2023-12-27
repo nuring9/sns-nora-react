@@ -56,6 +56,15 @@
   margin-right: auto;
 }
 
+.followButton {
+  width: 13%;
+  /* width: calc(100% - 53.69px); */
+}
+
+.followButtonWrapper {
+  text-align: right;
+}
+
 // .dropdown:hover .dropdown-menu {
 //   display: block !important;
 //   margin-top: 0;

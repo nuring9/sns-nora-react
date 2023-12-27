@@ -32,7 +32,6 @@ models_1.sequelize
 });
 // 시퀄라이즈 연결
 app.use((0, morgan_1.default)("dev"));
-// React 개발 서버로 요청을 프록시
 app.use(express_1.default.static(path_1.default.join(__dirname, "../front/build")));
 app.use((0, cors_1.default)({
     origin: "*", // 추후 배포 도메인변경
