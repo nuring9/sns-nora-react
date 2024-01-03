@@ -15,9 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const models_1 = require("../models");
+const middlewares_1 = require("./middlewares");
 const passport_1 = __importDefault(require("passport"));
 const router = express_1.default.Router();
-router.post("/login", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/login", middlewares_1.isNotLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     // POST /user/login
     passport_1.default.authenticate("local", (err, user, info) => {
         // user: Response 냐중에 수정
@@ -62,7 +63,7 @@ router.post("/login", (req, res, next) => __awaiter(void 0, void 0, void 0, func
         }));
     })(req, res, next);
 }));
-router.post("/signup", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/signup", middlewares_1.isNotLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     // POST /user/signup
     try {
         const exUser = yield models_1.User.findOne({
@@ -87,7 +88,7 @@ router.post("/signup", (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         next(err);
     }
 }));
-router.post("/logout", (req, res) => {
+router.post("/logout", middlewares_1.isLoggedIn, (req, res) => {
     req.logout((err) => {
         if (err) {
             console.error(err);

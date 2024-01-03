@@ -1,6 +1,6 @@
 "use strict";
 // import express from 'express';
-// import { isLoggedIn, isNotLoggedIn } from '../middlewares';
+// import { isLoggedIn, isNotLoggedIn } from './middlewares';
 // import {
 //   renderProfile, renderJoin, renderMain, renderHashtag,
 // } from '../controllers/page';

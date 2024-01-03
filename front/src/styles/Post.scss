@@ -56,11 +56,6 @@
   margin-right: auto;
 }
 
-.followButton {
-  width: 13%;
-  /* width: calc(100% - 53.69px); */
-}
-
 .followButtonWrapper {
   text-align: right;
 }
@@ -69,3 +64,36 @@
 //   display: block !important;
 //   margin-top: 0;
 // }
+
+/*반응형 화면 크기*/
+$mobile: 767px;
+$tablet: 1023px;
+$desktop: 1024px;
+
+/*반응형, 브라우저 크기가 767px 이하일때*/
+@mixin mobile {
+  @media (max-width: $mobile) {
+    .followButton {
+      width: 13%;
+    }
+  }
+}
+
+/*반응형, 브라우저 크기가 768이상, 1023px 이하일때*/
+@mixin tablet {
+  @media (min-width: $mobile) and (max-width: $tablet) {
+    .followButton {
+      width: 17%;
+      /* width: calc(100% - 53.69px); */
+    }
+  }
+}
+
+/*반응형, 브라우저 크기가 1024px 이상일때*/
+@mixin desktop {
+  @media (min-width: $desktop) {
+    .followButton {
+      width: 13%;
+    }
+  }
+}

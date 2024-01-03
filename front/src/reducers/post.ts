@@ -1,75 +1,203 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { PostsState, Post } from "../types";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { Post, CommentDataType, PostText } from "../types";
+import axios from "axios";
+import _ from "lodash";
 
-const createdAtTimestamp = new Date().getTime();
+// const createdAtTimestamp = new Date().getTime();
+
+interface PostsState {
+  mainPosts: Post[];
+  imagePaths: string[];
+  // postAdded: boolean;
+  loadPostLoading: boolean;
+  loadPostDone: boolean;
+  loadPostError: unknown;
+  loadPostsLoading: boolean;
+  loadPostsDone: boolean;
+  loadPostsError: unknown;
+  addPostLoading: boolean;
+  addPostDone: boolean;
+  addPostError: unknown;
+  updatePostLoading: boolean;
+  updatePostDone: boolean;
+  updatePostError: unknown;
+  removePostLoading: boolean;
+  removePostDone: boolean;
+  removePostError: unknown;
+  addCommentLoading: boolean;
+  addCommentDone: boolean;
+  addCommentError: unknown;
+}
 
 const initialState: PostsState = {
-  mainPosts: [
-    {
-      id: 1,
-      User: {
-        id: 1,
-        nickname: "눌1",
-      },
-      content: "첫 번째 게시글 #해시태그 #링크",
-      Images: [
-        {
-          src: "/images/art-1.jpg",
-        },
-        {
-          src: "/images/art-2.jpg",
-        },
-        {
-          src: "/images/art-3.jpg",
-        },
-      ],
-      Comments: [
-        {
-          User: {
-            nickname: "방가",
-          },
-          content: "첫번째 댓글~",
-        },
-        {
-          User: {
-            nickname: "하이",
-          },
-          content: "두번째 댓글~",
-        },
-      ],
-      createdAt: createdAtTimestamp,
-    },
-  ],
+  mainPosts: [],
+  // singlePost: null,
   imagePaths: [],
-  postAdded: false,
+  // hasMorePosts: true,
+  loadPostLoading: false,
+  loadPostDone: false,
+  loadPostError: null,
+  loadPostsLoading: false,
+  loadPostsDone: false,
+  loadPostsError: null,
+  addPostLoading: false,
+  addPostDone: false,
+  addPostError: null,
+  updatePostLoading: false,
+  updatePostDone: false,
+  updatePostError: null,
+  removePostLoading: false,
+  removePostDone: false,
+  removePostError: null,
+  addCommentLoading: false,
+  addCommentDone: false,
+  addCommentError: null,
 };
 
+const loadPostsThrottle = async (lastId: number) => {
+  const response = await axios.get(`/posts?lastId=${lastId || 0}`);
+  return response.data;
+};
+
+export const loadPosts = createAsyncThunk(
+  "post/loadPosts",
+  _.throttle(loadPostsThrottle, 5000)
+);
+
+export const loadPost = createAsyncThunk("post/loadPost", async (data) => {
+  const response = await axios.get(`/post/${data}`);
+  return response.data;
+});
+
+export const addPost = createAsyncThunk(
+  "post/addPost",
+  async (data: PostText) => {
+    const response = await axios.post("/post", data);
+    return response.data;
+  }
+);
+
+// export const updatePost = createAsyncThunk(
+//   "post/updatePost",
+//   async (data: CommentDataType) => {
+//     const response = await axios.patch(`/post/${data.PostId}`, data);
+//     return response.data;
+//   }
+// );
+
+export const removePost = createAsyncThunk("post/removePost", async (data) => {
+  const response = await axios.delete(`/post/${data}`);
+  return response.data;
+});
+
+export const addComment = createAsyncThunk(
+  "post/addComment",
+  async (data: CommentDataType) => {
+    const response = await axios.post(`/post/${data.postId}/comment`, data); // CommentForm에서 보내준 데이터 postId
+    return response.data;
+  }
+);
+
 const postSlice = createSlice({
-  name: "posts",
+  name: "post",
   initialState,
-  reducers: {
-    // 여기에 액션 생성자 및 리듀서를 작성합니다.
-    // 예시로 새로운 게시글을 추가하는 액션을 정의합니다.
-    addPost: (state) => {
-      const dummyPost: Post = {
-        id: 2,
-        content: "더미데이터입니다.",
-        User: {
-          id: 2,
-          nickname: "눌2",
-        },
-        Images: [],
-        Comments: [],
-        createdAt: createdAtTimestamp,
-      };
-
-      state.mainPosts = [dummyPost, ...state.mainPosts]; //dummyPost가 앞에 있어야 추가글이 가장 위로 올라감.
-      state.postAdded = true;
-    },
-
-    // 추가적인 액션들을 필요에 따라 작성합니다.
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(loadPost.pending, (draft, action) => {
+        draft.loadPostLoading = true;
+        draft.loadPostDone = false;
+        draft.loadPostError = null;
+      })
+      .addCase(loadPost.fulfilled, (draft, action) => {
+        draft.loadPostLoading = false;
+        draft.loadPostDone = true;
+        // draft.singlePost = action.payload;
+      })
+      .addCase(loadPost.rejected, (draft, action) => {
+        draft.loadPostLoading = false;
+        // draft.loadPostError = action.error;
+      })
+      .addCase(loadPosts.pending, (state, action) => {
+        state.loadPostsLoading = true;
+        state.loadPostsDone = false;
+        state.loadPostsError = null;
+      })
+      .addCase(loadPosts.fulfilled, (state, action) => {
+        state.loadPostsLoading = false;
+        state.loadPostsDone = true;
+        state.mainPosts = state.mainPosts.concat(action.payload);
+        // state.hasMorePosts = action.payload.length === 10;
+      })
+      .addCase(loadPosts.rejected, (state, action) => {
+        state.loadPostsLoading = false;
+        state.loadPostsError = action.error;
+      })
+      .addCase(addPost.pending, (draft, action) => {
+        draft.addPostLoading = true;
+        draft.addPostDone = false;
+        draft.addPostError = null;
+      })
+      .addCase(addPost.fulfilled, (draft, action) => {
+        draft.addPostLoading = false;
+        draft.addPostDone = true;
+        draft.mainPosts.unshift(action.payload); // Post.create의 데이터가 여기로 들어옴.
+        draft.imagePaths = [];
+      })
+      .addCase(addPost.rejected, (draft, action) => {
+        draft.addPostLoading = false;
+        draft.addPostError = action.error;
+      })
+      // .addCase(updatePost.pending, (draft, action) => {
+      //   draft.updatePostLoading = true;
+      //   draft.updatePostDone = false;
+      //   draft.updatePostError = null;
+      // })
+      // .addCase(updatePost.fulfilled, (draft, action) => {
+      //   draft.updatePostLoading = false;
+      //   draft.updatePostDone = true;
+      //   // draft.mainPosts.find((v) => v.id === action.payload.PostId).content = action.payload.content;
+      // })
+      // .addCase(updatePost.rejected, (draft, action) => {
+      //   draft.updatePostLoading = false;
+      //   draft.updatePostError = action.error;
+      // })
+      .addCase(removePost.pending, (draft, action) => {
+        draft.removePostLoading = true;
+        draft.removePostDone = false;
+        draft.removePostError = null;
+      })
+      .addCase(removePost.fulfilled, (draft, action) => {
+        draft.removePostLoading = false;
+        draft.removePostDone = true;
+        draft.mainPosts = draft.mainPosts.filter(
+          (v) => v.id !== action.payload.PostId
+        );
+      })
+      .addCase(removePost.rejected, (draft, action) => {
+        draft.removePostLoading = false;
+        draft.removePostError = action.error;
+      })
+      .addCase(addComment.pending, (draft, action) => {
+        draft.addCommentLoading = true;
+        draft.addCommentDone = false;
+        draft.addCommentError = null;
+      })
+      .addCase(addComment.fulfilled, (draft, action) => {
+        const post = draft.mainPosts.find(
+          (v) => v.id === action.payload.PostId
+        );
+        console.log("draft", draft, "post", post, "Comments", post?.Comments);
+        post?.Comments.unshift(action.payload);
+        draft.addCommentLoading = false;
+        draft.addCommentDone = true;
+      })
+      .addCase(addComment.rejected, (draft, action) => {
+        draft.addCommentLoading = false;
+        draft.addCommentError = action.error;
+      })
+      .addDefaultCase((state) => state);
   },
 });
 
-export const { addPost } = postSlice.actions;
 export default postSlice;

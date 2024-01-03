@@ -1,10 +1,12 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 
 import { Form, Button } from "react-bootstrap";
-import { Post, Image } from "../types";
+import { Post, Image, CommentDataType } from "../types";
 import styled from "styled-components";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/configureStore";
+import { AppDispatch } from "../store/configureStore";
+import { addComment } from "../reducers/post";
 import "../styles/Post.scss";
 
 interface PostCardProps {
@@ -33,12 +35,22 @@ const StyledFormGroup = styled(Form.Group)`
 `;
 
 const CommentForm: React.FC<PostCardProps> = ({ post }) => {
+  const dispatch = useDispatch<AppDispatch>();
   const id = useSelector((state: RootState) => state.user.me?.id);
-  const [commentText, commentSetText] = useState<string>("");
+  const { addCommentDone, addCommentLoading } = useSelector(
+    (state: RootState) => state.post
+  );
+  const [commentText, setCommentText] = useState<string>("");
+
+  useEffect(() => {
+    if (addCommentDone) {
+      setCommentText("");
+    }
+  }, [addCommentDone]);
 
   const onChangeCommentText = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      commentSetText(e.target.value);
+      setCommentText(e.target.value);
     },
     []
   );
@@ -46,10 +58,15 @@ const CommentForm: React.FC<PostCardProps> = ({ post }) => {
   const onSubmitComment = useCallback(
     (e: React.SyntheticEvent) => {
       e.preventDefault();
+      const CommentData: CommentDataType = {
+        content: commentText,
+        postId: post.id,
+        userId: id,
+      };
       console.log(post.id, commentText);
-      commentSetText("");
+      dispatch(addComment(CommentData));
     },
-    [commentText, post.id]
+    [commentText, post.id, dispatch, id]
   );
 
   return (

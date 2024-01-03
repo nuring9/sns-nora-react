@@ -3,6 +3,8 @@ import Sequelize, {
   InferAttributes,
   InferCreationAttributes,
   Model,
+  ForeignKey,
+  BelongsToManyAddAssociationsMixin,
 } from "sequelize";
 import User from "./user";
 import Hashtag from "./hashtag";
@@ -12,9 +14,11 @@ import Image from "./image";
 class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
   declare id: CreationOptional<number>;
   declare content: string;
-  declare img: string;
+  declare img: CreationOptional<string>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
+  declare UserId: ForeignKey<User["id"]>;
+  declare addHashtags: BelongsToManyAddAssociationsMixin<Hashtag, number>;
 
   static initiate(sequelize: Sequelize.Sequelize) {
     Post.init(
@@ -53,6 +57,8 @@ class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
     Post.hasMany(Comment);
     Post.hasMany(Image);
     Post.belongsToMany(Hashtag, { through: "PostHashtag" });
+    Post.belongsToMany(User, { through: "Like", as: "Likers" });
+    Post.belongsTo(Post, { as: "Retweet" });
   }
 }
 

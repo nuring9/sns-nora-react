@@ -9,25 +9,38 @@ export interface User {
 
 export interface Image {
   src: string;
+  User: User | undefined;
 }
 
 export interface Comment {
-  User: User;
-  content: string;
+  User: User | undefined;
+  content?: string;
 }
 
 export interface Post {
   id: number;
   email?: string;
   User: User;
-  content: string;
+  content?: string;
   createdAt: number;
-  Images: Image[];
+  Images?: Image[];
   Comments: Comment[];
+  // addImages?: any;
 }
 
-export interface PostsState {
-  mainPosts: Post[];
-  imagePaths: string[];
-  postAdded: boolean;
+export interface Posts extends Post {
+  text: string;
+}
+
+export interface PostText {
+  content?: string;
+  userId?: number;
+  id?: number;
+}
+
+export interface CommentDataType {
+  content?: string;
+  postId?: number;
+  userId: number;
+  id?: number;
 }

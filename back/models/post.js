@@ -65,6 +65,8 @@ class Post extends sequelize_1.Model {
         Post.hasMany(commend_1.default);
         Post.hasMany(image_1.default);
         Post.belongsToMany(hashtag_1.default, { through: "PostHashtag" });
+        Post.belongsToMany(user_1.default, { through: "Like", as: "Likers" });
+        Post.belongsTo(Post, { as: "Retweet" });
     }
 }
 exports.default = Post;

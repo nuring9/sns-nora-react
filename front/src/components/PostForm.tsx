@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store/configureStore";
 import styled from "styled-components";
 import { addPost } from "../reducers/post";
+import { PostText } from "../types";
+import { AppDispatch } from "../store/configureStore";
 import "../styles/Post.scss";
 
 const FormWrapper = styled(Form)`
@@ -19,11 +21,12 @@ const FormTextarea = styled(Form.Control)`
 `;
 
 const PostForm: React.FC = () => {
-  const { imagePaths, postAdded } = useSelector(
+  const { imagePaths, addPostDone } = useSelector(
     (state: RootState) => state.post
   );
+  const id = useSelector((state: RootState) => state.user.me?.id);
   const [text, setText] = useState<string>("");
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const imageInput = useRef<HTMLInputElement>(null);
 
   const onClickImageUpload = useCallback(() => {
@@ -32,11 +35,11 @@ const PostForm: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    if (postAdded) {
-      setText("");
-    }
-  }, [postAdded]);
+  // useEffect(() => {
+  //   if (addPostDone) {
+  //     setText("");
+  //   }
+  // }, [addPostDone]);
 
   const onChangeText = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -48,10 +51,14 @@ const PostForm: React.FC = () => {
   const onSubmit = useCallback(
     (e: React.SyntheticEvent) => {
       e.preventDefault();
-      dispatch(addPost());
+      const postData: PostText = {
+        content: text,
+        userId: id,
+      };
+      dispatch(addPost(postData));
       setText("");
     },
-    [dispatch]
+    [dispatch, text, id]
   );
 
   return (
@@ -77,7 +84,7 @@ const PostForm: React.FC = () => {
         {imagePaths.map((v) => (
           <div key={v} style={{ display: "inline-block" }}>
             <img
-              src={"http://localhost:3065/" + v}
+              src={"http://localhost:8000/" + v}
               style={{ width: "200px" }}
               alt={v}
             />

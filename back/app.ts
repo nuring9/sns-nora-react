@@ -32,7 +32,7 @@ sequelize
 // 시퀄라이즈 연결
 
 app.use(morgan("dev"));
-app.use(express.static(path.join(__dirname, "../front/build")));
+app.use(express.static(path.join(__dirname, "../front/build"))); // 뷰엔진 대신 react프로젝트 연결a
 app.use(
   cors({
     origin: "*", // 추후 배포 도메인변경

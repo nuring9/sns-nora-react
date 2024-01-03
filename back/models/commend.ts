@@ -3,6 +3,7 @@ import Sequelize, {
   InferAttributes,
   InferCreationAttributes,
   Model,
+  ForeignKey,
 } from "sequelize";
 
 import User from "./user";
@@ -17,6 +18,9 @@ class Comment extends Model<
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
   declare deletedAt: CreationOptional<Date>;
+  declare PostId: ForeignKey<number>;
+  declare UserId: ForeignKey<number>;
+  // declare PostId?: number;
 
   static initiate(sequelize: Sequelize.Sequelize) {
     Comment.init(

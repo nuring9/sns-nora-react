@@ -30,6 +30,7 @@ const sequelize_1 = __importStar(require("sequelize"));
 const user_1 = __importDefault(require("./user"));
 const post_1 = __importDefault(require("./post"));
 class Comment extends sequelize_1.Model {
+    // declare PostId?: number;
     static initiate(sequelize) {
         Comment.init({
             id: {

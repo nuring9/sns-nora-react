@@ -89,7 +89,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     <div>
       <Card>
         <FolloWrapper>{id && <FollowButton />}</FolloWrapper>
-        {post.Images[0] && <PostImages images={post.Images} />}
+        {post.Images && post.Images[0] && <PostImages images={post.Images} />}
         {/* <Card.Img variant="top" src="/images/art-1.jpg" /> */}
         <Card.Body>
           <Card.Title>
@@ -100,10 +100,10 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               round={true}
               textSizeRatio={2}
             />
-            {post.User.nickname}
+            {post.User?.nickname}
           </Card.Title>
           <Card.Text>
-            <PostCardContent postData={post.content} />
+            <PostCardContent postData={post.content || ""} />
           </Card.Text>
           <div className="card-button">
             <Button variant="white">
@@ -122,19 +122,31 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 </Dropdown.Toggle>
               </span>
               <Dropdown.Menu>
-                {id && post.User.id === id ? (
+                {post.User && id && post.User.id === id && (
+                  <>
+                    <Dropdown.Item href="#action1">수정</Dropdown.Item>
+                    <Dropdown.Item href="#action2">삭제</Dropdown.Item>
+                  </>
+                )}
+
+                {post.User && !id && (
+                  <Dropdown.Item href="#action3">신고</Dropdown.Item>
+                )}
+
+                {/* {id && post.User.id === id ? (
                   <>
                     <Dropdown.Item href="#action1">수정</Dropdown.Item>
                     <Dropdown.Item href="#action2">삭제</Dropdown.Item>
                   </>
                 ) : (
                   <Dropdown.Item href="#action3">신고</Dropdown.Item>
-                )}
+                )} */}
               </Dropdown.Menu>
             </Dropdown>
           </div>
         </Card.Body>
-        {commentFormOpened && (
+        {/* {commentFormOpened && post.Comments.length > 0 && ( */}
+        {commentFormOpened && post.Comments && post.Comments.length > 0 && (
           <CommentWrapper>
             <ListGroup>
               <CommentLength>
@@ -145,11 +157,11 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 <ListGroupItem key={post.id}>
                   <div className="d-flex align-items-center">
                     <AvatarWrapper
-                      name={item.User.nickname}
+                      name={item.User?.nickname}
                       size="30"
                       round={true}
                     />
-                    <CommentNick>{item.User.nickname}</CommentNick>
+                    <CommentNick>{item.User?.nickname}</CommentNick>
                     <span>
                       <CommentContent>{item.content}</CommentContent>
                     </span>
@@ -160,6 +172,32 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             <CommentForm post={post} />
           </CommentWrapper>
         )}
+        {/* {commentFormOpened && (
+          <CommentWrapper>
+            <ListGroup>
+              <CommentLength>
+                {`${post.Comments.length}개의 댓글`}
+              </CommentLength>
+              <BottomLine />
+              {post.Comments.map((item) => (
+                <ListGroupItem key={post.id}>
+                  <div className="d-flex align-items-center">
+                    <AvatarWrapper
+                      name={item.User?.nickname}
+                      size="30"
+                      round={true}
+                    />
+                    <CommentNick>{item.User?.nickname}</CommentNick>
+                    <span>
+                      <CommentContent>{item.content}</CommentContent>
+                    </span>
+                  </div>
+                </ListGroupItem>
+              ))}
+            </ListGroup>
+            <CommentForm post={post} />
+          </CommentWrapper>
+        )} */}
       </Card>
     </div>
   );

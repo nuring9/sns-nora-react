@@ -1,7 +1,7 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import { User, Post } from "../models";
-const { isLoggedIn, isNotLoggedIn } = require("./middlewares");
+import { isLoggedIn, isNotLoggedIn } from "./middlewares";
 import passport from "passport";
 import { Request, Response } from "express";
 

@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { Button } from "react-bootstrap";
 import "../styles/Post.scss";
 
