@@ -6,7 +6,7 @@ interface UserType {
   id?: number;
   email?: string;
   password?: string;
-  nickname?: string;
+  nick?: string;
 }
 
 export default () => {
@@ -17,7 +17,7 @@ export default () => {
   passport.deserializeUser(async (id: number, done) => {
     try {
       const user = await User.findOne({ where: { id } });
-      done(null, user);
+      done(null, user); // req.user
     } catch (err) {
       console.error(err);
       done(err);

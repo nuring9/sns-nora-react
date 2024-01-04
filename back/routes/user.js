@@ -18,6 +18,44 @@ const models_1 = require("../models");
 const middlewares_1 = require("./middlewares");
 const passport_1 = __importDefault(require("passport"));
 const router = express_1.default.Router();
+router.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    // GET /user
+    try {
+        console.log("req.user", req.user);
+        if (req.user) {
+            const fullUserWithoutPassword = yield models_1.User.findOne({
+                where: { id: req.user.id },
+                attributes: {
+                    exclude: ["password"],
+                },
+                include: [
+                    {
+                        model: models_1.Post,
+                        attributes: ["id"],
+                    },
+                    {
+                        model: models_1.User,
+                        as: "Followings",
+                        attributes: ["id"],
+                    },
+                    {
+                        model: models_1.User,
+                        as: "Followers",
+                        attributes: ["id"],
+                    },
+                ],
+            });
+            res.status(200).json(fullUserWithoutPassword); // 사용자가 있으면 보내주고,
+        }
+        else {
+            res.status(200).json(null); // 없으면 아무것도 보내주지 않으면 됨.
+        }
+    }
+    catch (error) {
+        console.error(error);
+        next(error);
+    }
+}));
 router.post("/login", middlewares_1.isNotLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     // POST /user/login
     passport_1.default.authenticate("local", (err, user, info) => {

@@ -9,7 +9,46 @@ const router = express.Router();
 
 interface PassportUser {
   id: number;
+  email: string;
+  nick: string;
 }
+
+router.get("/", async (req, res, next) => {
+  // GET /user
+  try {
+    console.log("req.user", req.user);
+    if (req.user) {
+      const fullUserWithoutPassword = await User.findOne({
+        where: { id: req.user.id },
+        attributes: {
+          exclude: ["password"],
+        },
+        include: [
+          {
+            model: Post,
+            attributes: ["id"],
+          },
+          {
+            model: User,
+            as: "Followings",
+            attributes: ["id"],
+          },
+          {
+            model: User,
+            as: "Followers",
+            attributes: ["id"],
+          },
+        ],
+      });
+      res.status(200).json(fullUserWithoutPassword); // 사용자가 있으면 보내주고,
+    } else {
+      res.status(200).json(null); // 없으면 아무것도 보내주지 않으면 됨.
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
 
 router.post("/login", isNotLoggedIn, async (req, res, next) => {
   // POST /user/login

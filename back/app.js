@@ -12,7 +12,6 @@ const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const passport_1 = __importDefault(require("passport"));
 const passport_2 = __importDefault(require("./passport"));
-const http_proxy_middleware_1 = require("http-proxy-middleware");
 const post_1 = __importDefault(require("./routes/post"));
 const user_1 = __importDefault(require("./routes/user"));
 // import pageRouter from "./routes/page";
@@ -30,11 +29,10 @@ models_1.sequelize
     .catch((err) => {
     console.error(err);
 });
-// 시퀄라이즈 연결
 app.use((0, morgan_1.default)("dev"));
 app.use(express_1.default.static(path_1.default.join(__dirname, "../front/build"))); // 뷰엔진 대신 react프로젝트 연결a
 app.use((0, cors_1.default)({
-    origin: "*", // 추후 배포 도메인변경
+    origin: true, // 추후 배포 도메인변경
     credentials: true, // 추후 배포 후 true로 변경
 }));
 // CORS 문제 해결하기
@@ -62,12 +60,6 @@ app.use((req, res, next) => {
     error.status = 404;
     next(error);
 });
-const reactDevServer = "http://localhost:3000";
-app.use("/", // 프론트에서 요청하는 API 경로 설정
-(0, http_proxy_middleware_1.createProxyMiddleware)({
-    target: reactDevServer,
-    changeOrigin: true,
-}));
 app.use((err, req, res, next) => {
     res.locals.message = err.message;
     res.locals.error = process.env.NODE_ENV !== "production" ? err : {};

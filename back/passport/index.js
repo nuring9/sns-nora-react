@@ -22,7 +22,7 @@ exports.default = () => {
     passport_1.default.deserializeUser((id, done) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const user = yield models_1.User.findOne({ where: { id } });
-            done(null, user);
+            done(null, user); // req.user
         }
         catch (err) {
             console.error(err);

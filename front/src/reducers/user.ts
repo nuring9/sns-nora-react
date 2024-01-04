@@ -9,7 +9,10 @@ import { User } from "../types";
 interface UserState {
   logInLoading: boolean; // 로그인 시도중
   logInDone: boolean;
-  logInError: any;
+  logInError: unknown;
+  loadMyInfoLoading: boolean; // 유저 정보 가져오기 시도중
+  loadMyInfoDone: boolean;
+  loadMyInfoError: unknown;
   logOutLoading: boolean; // 로그아웃 시도중
   logOutDone: boolean;
   logOutError: any;
@@ -28,6 +31,9 @@ const initialState: UserState = {
   logInLoading: false, // 로그인 시도중
   logInDone: false,
   logInError: null,
+  loadMyInfoLoading: false, // 유저 정보 가져오기 시도중
+  loadMyInfoDone: false,
+  loadMyInfoError: null,
   logOutLoading: false, // 로그아웃 시도중
   logOutDone: false,
   logOutError: null,
@@ -40,6 +46,12 @@ const initialState: UserState = {
 export const logIn = createAsyncThunk("user/logIn", async (data: User) => {
   const response = await axios.post("/user/login", data);
   return response.data;
+});
+
+export const loadMyInfo = createAsyncThunk("user/loadMyInfo", async () => {
+  const response = await axios.get("/user");
+  console.log("=>(user.js:65) response", response.data);
+  return response.data || null;
 });
 
 export const logOut = createAsyncThunk("user/logOut", async (data: User) => {
@@ -58,6 +70,23 @@ const userSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      .addCase(loadMyInfo.pending, (draft) => {
+        console.log("pending");
+        draft.loadMyInfoLoading = true;
+        draft.loadMyInfoError = null;
+        draft.loadMyInfoDone = false;
+      })
+      .addCase(loadMyInfo.fulfilled, (draft, action) => {
+        console.log("payload", action.payload);
+        draft.loadMyInfoLoading = false;
+        draft.me = action.payload || null;
+        draft.loadMyInfoDone = true;
+      })
+      .addCase(loadMyInfo.rejected, (draft, action) => {
+        console.log("rejected");
+        draft.loadMyInfoLoading = false;
+        draft.loadMyInfoError = action.error;
+      })
       .addCase(logIn.pending, (state) => {
         state.logInLoading = true;
         state.logInError = null;

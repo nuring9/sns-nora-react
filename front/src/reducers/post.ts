@@ -186,7 +186,7 @@ const postSlice = createSlice({
       .addCase(addComment.fulfilled, (draft, action) => {
         const post = draft.mainPosts.find(
           (v) => v.id === action.payload.PostId
-        );
+        ); // action.payload.PostId는 back의 router의 PostId는에서 가져오므로 대문자.
         console.log("draft", draft, "post", post, "Comments", post?.Comments);
         post?.Comments.unshift(action.payload);
         draft.addCommentLoading = false;

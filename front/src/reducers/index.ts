@@ -5,7 +5,7 @@ import userSlice from "./user";
 import postSlice from "./post";
 
 axios.defaults.baseURL = "http://localhost:8000";
-// axios.defaults.withCredentials = true;
+axios.defaults.withCredentials = true;
 
 const rootReducer = combineReducers({
   user: userSlice.reducer,

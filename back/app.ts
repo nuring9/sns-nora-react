@@ -10,6 +10,8 @@ import passport from "passport";
 import passportConfig from "./passport";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
+import { UserModel } from "./types";
+
 import postRouter from "./routes/post";
 import userRouter from "./routes/user";
 // import pageRouter from "./routes/page";
@@ -31,11 +33,18 @@ sequelize
   });
 // 시퀄라이즈 연결
 
+declare global {
+  // 타입 확장
+  namespace Express {
+    interface User extends UserModel {}
+  }
+}
+
 app.use(morgan("dev"));
 app.use(express.static(path.join(__dirname, "../front/build"))); // 뷰엔진 대신 react프로젝트 연결a
 app.use(
   cors({
-    origin: "*", // 추후 배포 도메인변경
+    origin: true, // 추후 배포 도메인변경
     credentials: true, // 추후 배포 후 true로 변경
   })
 );
@@ -70,14 +79,14 @@ app.use((req, res, next) => {
   next(error);
 });
 
-const reactDevServer = "http://localhost:3000";
-app.use(
-  "/", // 프론트에서 요청하는 API 경로 설정
-  createProxyMiddleware({
-    target: reactDevServer,
-    changeOrigin: true,
-  })
-);
+// const reactDevServer = "http://localhost:3000";
+// app.use(
+//   "/", // 프론트에서 요청하는 API 경로 설정
+//   createProxyMiddleware({
+//     target: reactDevServer,
+//     changeOrigin: true,
+//   })
+// );
 
 interface CustomError extends Error {
   status?: number;

@@ -15,6 +15,7 @@ export interface Image {
 export interface Comment {
   User: User | undefined;
   content?: string;
+  userId?: number;
 }
 
 export interface Post {
@@ -34,13 +35,12 @@ export interface Posts extends Post {
 
 export interface PostText {
   content?: string;
-  userId?: number;
+  userId?: number | undefined;
   id?: number;
 }
 
 export interface CommentDataType {
   content?: string;
   postId?: number;
-  userId: number;
-  id?: number;
+  userId?: number | undefined;
 }
