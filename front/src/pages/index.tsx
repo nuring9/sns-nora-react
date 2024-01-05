@@ -10,6 +10,7 @@ import { loadMyInfo } from "../reducers/user";
 import { loadPosts } from "../reducers/post";
 import PostForm from "../components/PostForm";
 import PostCard from "../components/PostCard";
+import { PostLastId } from "../types";
 
 const Home: React.FC = () => {
   const location = useLocation(); // 현재 페이지 location
@@ -18,8 +19,6 @@ const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   // const { isLoggedIn } = useSelector((state: RootState) => state.user);
   const { mainPosts } = useSelector((state: RootState) => state.post);
-
-  const lastId = mainPosts[mainPosts.length - 1]?.id;
 
   // 경로가 변경될 때마다 타이틀 업데이트
   useEffect(() => {
@@ -30,10 +29,15 @@ const Home: React.FC = () => {
     }
   }, [location.pathname, title]);
 
+  const lastIdValue = mainPosts[mainPosts.length - 1]?.id;
+
   useEffect(() => {
     dispatch(loadMyInfo());
+    const lastId = {
+      lastId: lastIdValue,
+    } as PostLastId;
     dispatch(loadPosts(lastId));
-  }, [dispatch, lastId]);
+  }, [dispatch, lastIdValue]);
 
   return (
     <AppLayout>

@@ -146,7 +146,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           </div>
         </Card.Body>
         {/* {commentFormOpened && post.Comments.length > 0 && ( */}
-        {commentFormOpened && post.Comments && post.Comments.length > 0 && (
+        {commentFormOpened && post.Comments && post.Comments.length >= 0 && (
           <CommentWrapper>
             <ListGroup>
               <CommentLength>

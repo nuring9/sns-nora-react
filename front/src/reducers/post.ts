@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { Post, CommentDataType, PostText } from "../types";
 import axios from "axios";
 import _ from "lodash";
+import { PostLastId } from "../types";
 
 // const createdAtTimestamp = new Date().getTime();
 
@@ -54,8 +55,8 @@ const initialState: PostsState = {
   addCommentError: null,
 };
 
-const loadPostsThrottle = async (lastId: number) => {
-  const response = await axios.get(`/posts?lastId=${lastId || 0}`);
+const loadPostsThrottle = async (lastId: PostLastId) => {
+  const response = await axios.get(`/posts?lastId=${lastId}`);
   return response.data;
 };
 
@@ -116,7 +117,7 @@ const postSlice = createSlice({
       })
       .addCase(loadPost.rejected, (draft, action) => {
         draft.loadPostLoading = false;
-        // draft.loadPostError = action.error;
+        draft.loadPostError = action.error;
       })
       .addCase(loadPosts.pending, (state, action) => {
         state.loadPostsLoading = true;

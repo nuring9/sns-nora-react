@@ -12,6 +12,7 @@ const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const passport_1 = __importDefault(require("passport"));
 const passport_2 = __importDefault(require("./passport"));
+const posts_1 = __importDefault(require("./routes/posts"));
 const post_1 = __importDefault(require("./routes/post"));
 const user_1 = __importDefault(require("./routes/user"));
 // import pageRouter from "./routes/page";
@@ -52,6 +53,7 @@ app.use((0, express_session_1.default)({
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
 // app.use("/", pageRouter);
+app.use("/posts", posts_1.default); // 순서 중요. 게시글들 불러오니 먼저
 app.use("/post", post_1.default);
 app.use("/user", user_1.default);
 app.use((req, res, next) => {

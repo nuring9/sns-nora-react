@@ -11,7 +11,7 @@ import passportConfig from "./passport";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
 import { UserModel } from "./types";
-
+import postsRouter from "./routes/posts";
 import postRouter from "./routes/post";
 import userRouter from "./routes/user";
 // import pageRouter from "./routes/page";
@@ -69,6 +69,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // app.use("/", pageRouter);
+app.use("/posts", postsRouter); // 순서 중요. 게시글들 불러오니 먼저
 app.use("/post", postRouter);
 app.use("/user", userRouter);
 

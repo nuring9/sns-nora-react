@@ -115,6 +115,7 @@ router.post("/:postId/comment", middlewares_1.isLoggedIn, (req, res, next) => __
             content: req.body.content,
             PostId: parseInt(req.params.postId, 10),
             UserId: ((_a = req.user) === null || _a === void 0 ? void 0 : _a.id) || 0,
+            // req.user.id를 사용하려면 req.user에서 undefilnd가 발생.. 프론트에서 userId?: number | undefined; 로하고, req.usr가 없으면 0을 반환하는걸로 대체하였는데 추후 코드 수정하자.
         });
         const fullComment = yield models_1.Comment.findOne({
             where: { id: comment.id },

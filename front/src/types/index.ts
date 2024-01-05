@@ -44,3 +44,7 @@ export interface CommentDataType {
   postId?: number;
   userId?: number | undefined;
 }
+
+export interface PostLastId {
+  lastId: number | undefined;
+}
