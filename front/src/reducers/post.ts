@@ -1,14 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { Post, CommentDataType, PostText } from "../types";
+import { Post, CommentDataType, PostText, PostId } from "../types";
 import axios from "axios";
 import _ from "lodash";
-import { PostLastId } from "../types";
-
-// const createdAtTimestamp = new Date().getTime();
 
 interface PostsState {
   mainPosts: Post[];
   imagePaths: string[];
+  hasMorePosts: boolean;
   // postAdded: boolean;
   loadPostLoading: boolean;
   loadPostDone: boolean;
@@ -28,13 +26,19 @@ interface PostsState {
   addCommentLoading: boolean;
   addCommentDone: boolean;
   addCommentError: unknown;
+  likePostLoading: boolean;
+  likePostDone: boolean;
+  likePostError: unknown;
+  unlikePostLoading: boolean;
+  unlikePostDone: boolean;
+  unlikePostError: unknown;
 }
 
 const initialState: PostsState = {
   mainPosts: [],
   // singlePost: null,
   imagePaths: [],
-  // hasMorePosts: true,
+  hasMorePosts: true,
   loadPostLoading: false,
   loadPostDone: false,
   loadPostError: null,
@@ -53,16 +57,30 @@ const initialState: PostsState = {
   addCommentLoading: false,
   addCommentDone: false,
   addCommentError: null,
+  likePostLoading: false,
+  likePostDone: false,
+  likePostError: null,
+  unlikePostLoading: false,
+  unlikePostDone: false,
+  unlikePostError: null,
 };
 
-const loadPostsThrottle = async (lastId: PostLastId) => {
+const loadPostsThrottle = async (lastId: number) => {
   const response = await axios.get(`/posts?lastId=${lastId}`);
   return response.data;
 };
 
+// export const loadPosts = createAsyncThunk(
+//   "post/loadPosts",
+//   _.throttle(loadPostsThrottle, 5000)
+// );  // 원래 코드, 아래 코드 문제가 생기면 이 코드를 활성 화.
+
 export const loadPosts = createAsyncThunk(
   "post/loadPosts",
-  _.throttle(loadPostsThrottle, 5000)
+  async (lastId: number) => {
+    const loadPostsThrottled = _.throttle(loadPostsThrottle, 5000);
+    return loadPostsThrottled(lastId);
+  }
 );
 
 export const loadPost = createAsyncThunk("post/loadPost", async (data) => {
@@ -99,6 +117,22 @@ export const addComment = createAsyncThunk(
   }
 );
 
+export const likePost = createAsyncThunk(
+  "post/likePost",
+  async (data: number) => {
+    const response = await axios.patch(`/post/${data}/like`);
+    return response.data;
+  }
+);
+
+export const unlikePost = createAsyncThunk(
+  "post/unlikePost",
+  async (data: number) => {
+    const response = await axios.delete(`/post/${data}/like`);
+    return response.data;
+  }
+);
+
 const postSlice = createSlice({
   name: "post",
   initialState,
@@ -128,7 +162,7 @@ const postSlice = createSlice({
         state.loadPostsLoading = false;
         state.loadPostsDone = true;
         state.mainPosts = state.mainPosts.concat(action.payload);
-        // state.hasMorePosts = action.payload.length === 10;
+        state.hasMorePosts = action.payload.length === 10;
       })
       .addCase(loadPosts.rejected, (state, action) => {
         state.loadPostsLoading = false;
@@ -196,6 +230,46 @@ const postSlice = createSlice({
       .addCase(addComment.rejected, (draft, action) => {
         draft.addCommentLoading = false;
         draft.addCommentError = action.error;
+      })
+      .addCase(likePost.pending, (draft, action) => {
+        draft.likePostLoading = true;
+        draft.likePostDone = false;
+        draft.likePostError = null;
+      })
+      .addCase(likePost.fulfilled, (draft, action) => {
+        const post = draft.mainPosts.find(
+          (v) => v.id === action.payload.PostId
+        );
+        if (post && post.Likers) {
+          post.Likers.push({ id: action.payload.UserId });
+        }
+        draft.likePostLoading = false;
+        draft.likePostDone = true;
+      })
+      .addCase(likePost.rejected, (draft, action) => {
+        draft.likePostLoading = false;
+        draft.likePostError = action.error;
+      })
+      .addCase(unlikePost.pending, (draft, action) => {
+        draft.unlikePostLoading = true;
+        draft.unlikePostDone = false;
+        draft.unlikePostError = null;
+      })
+      .addCase(unlikePost.fulfilled, (draft, action) => {
+        const post = draft.mainPosts.find(
+          (v) => v.id === action.payload.PostId
+        );
+        if (post && post.Likers) {
+          post.Likers = post.Likers.filter(
+            (v) => v.id !== action.payload.UserId
+          );
+        }
+        draft.unlikePostLoading = false;
+        draft.unlikePostDone = true;
+      })
+      .addCase(unlikePost.rejected, (draft, action) => {
+        draft.unlikePostLoading = false;
+        draft.unlikePostError = action.error;
       })
       .addDefaultCase((state) => state);
   },

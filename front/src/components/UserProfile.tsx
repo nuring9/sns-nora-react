@@ -39,7 +39,6 @@ export default function UserProfile() {
               </Col>
               <Col xs={8} md={7} lg={8}>
                 <h4>User Id</h4>
-                {/* <p>Content goes here.</p> */}
                 <Button onClick={onLogOut} variant="primary" size="sm">
                   로그아웃
                 </Button>

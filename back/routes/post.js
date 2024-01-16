@@ -71,6 +71,35 @@ router.post("/", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0,
 router.delete("/", (req, res) => {
     res.json({ id: 1 });
 });
+// router.get("/:postId", async (req: Request, res: Response, next) => {
+//   // GET /post/1
+//   try {
+//     const post = await Post.findOne({
+//       where: { id: req.params.postId },
+//     });
+//     if (!post) {
+//       return res.status(404).send("존재하지 않는 게시글입니다.");
+//     }
+//     const comment = await Comment.create({
+//       content: req.body.content,
+//       PostId: parseInt(req.params.postId, 10),
+//       UserId: req.body.id,
+//     });
+//     const fullComment = await Comment.findOne({
+//       where: { id: comment.id },
+//       include: [
+//         {
+//           model: User,
+//           attributes: ["id", "nick"],
+//         },
+//       ],
+//     });
+//     res.status(200).json(fullComment);
+//   } catch (error) {
+//     console.error(error);
+//     next(error);
+//   }
+// });
 router.get("/:postId", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     // GET /post/1
     try {
@@ -80,21 +109,46 @@ router.get("/:postId", (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         if (!post) {
             return res.status(404).send("존재하지 않는 게시글입니다.");
         }
-        const comment = yield models_1.Comment.create({
-            content: req.body.content,
-            PostId: parseInt(req.params.postId, 10),
-            UserId: req.body.id,
-        });
-        const fullComment = yield models_1.Comment.findOne({
-            where: { id: comment.id },
+        const fullPost = yield models_1.Post.findOne({
+            where: { id: post.id },
             include: [
+                {
+                    model: models_1.Post,
+                    as: "Retweet",
+                    include: [
+                        {
+                            model: models_1.User,
+                            attributes: ["id", "nick"],
+                        },
+                        {
+                            model: models_1.Image,
+                        },
+                    ],
+                },
                 {
                     model: models_1.User,
                     attributes: ["id", "nick"],
                 },
+                {
+                    model: models_1.User,
+                    as: "Likers",
+                    attributes: ["id", "nickname"],
+                },
+                {
+                    model: models_1.Image,
+                },
+                {
+                    model: models_1.Comment,
+                    include: [
+                        {
+                            model: models_1.User,
+                            attributes: ["id", "nickname"],
+                        },
+                    ],
+                },
             ],
         });
-        res.status(200).json(fullComment);
+        res.status(200).json(fullPost);
     }
     catch (error) {
         console.error(error);
@@ -127,6 +181,46 @@ router.post("/:postId/comment", middlewares_1.isLoggedIn, (req, res, next) => __
             ],
         });
         res.status(201).json(fullComment);
+    }
+    catch (error) {
+        console.error(error);
+        next(error);
+    }
+}));
+router.patch("/:postId/like", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    // PATCH /post/1/like
+    try {
+        const post = yield models_1.Post.findOne({ where: { id: req.params.postId } });
+        if (!post) {
+            return res.status(403).send("게시글이 존재하지 않습니다.");
+        }
+        if (req.user) {
+            yield post.addLikers([req.user.id]);
+            res.json({ PostId: post.id, UserId: req.user.id });
+        }
+        else {
+            return res.status(403).send("유저 정보를 찾을 수 없습니다.");
+        }
+    }
+    catch (error) {
+        console.error(error);
+        next(error);
+    }
+}));
+router.delete("/:postId/like", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    // DELETE /post/1/like
+    try {
+        const post = yield models_1.Post.findOne({ where: { id: req.params.postId } });
+        if (!post) {
+            return res.status(403).send("게시글이 존재하지 않습니다.");
+        }
+        if (req.user) {
+            yield post.removeLikers([req.user.id]);
+            res.json({ PostId: post.id, UserId: req.user.id });
+        }
+        else {
+            return res.status(403).send("유저 정보를 찾을 수 없습니다.");
+        }
     }
     catch (error) {
         console.error(error);

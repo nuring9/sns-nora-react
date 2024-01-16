@@ -23,10 +23,14 @@ router.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
         const where = {};
         const lastId = parseInt(((_a = req.query.lastId) === null || _a === void 0 ? void 0 : _a.toString()) || "0", 10);
         // undefined일 경우도 문자열로 변환 후 parsInt하려고, toString() 사용.
-        if (lastId) {
+        if (!isNaN(lastId)) {
             // 초기 로딩이 아닐 때,
             where.id = { [sequelize_1.Op.lt]: lastId };
         }
+        // if (lastId) {
+        //   // 초기 로딩이 아닐 때,
+        //   where.id = { [Op.lt]: lastId };
+        // }
         const posts = yield models_1.Post.findAll({
             where,
             limit: 10,

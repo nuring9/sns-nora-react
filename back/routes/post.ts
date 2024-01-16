@@ -60,7 +60,37 @@ router.delete("/", (req, res) => {
   res.json({ id: 1 });
 });
 
-router.get("/:postId", async (req: Request, res: Response, next) => {
+// router.get("/:postId", async (req: Request, res: Response, next) => {
+//   // GET /post/1
+//   try {
+//     const post = await Post.findOne({
+//       where: { id: req.params.postId },
+//     });
+//     if (!post) {
+//       return res.status(404).send("존재하지 않는 게시글입니다.");
+//     }
+//     const comment = await Comment.create({
+//       content: req.body.content,
+//       PostId: parseInt(req.params.postId, 10),
+//       UserId: req.body.id,
+//     });
+//     const fullComment = await Comment.findOne({
+//       where: { id: comment.id },
+//       include: [
+//         {
+//           model: User,
+//           attributes: ["id", "nick"],
+//         },
+//       ],
+//     });
+//     res.status(200).json(fullComment);
+//   } catch (error) {
+//     console.error(error);
+//     next(error);
+//   }
+// });
+
+router.get("/:postId", async (req, res, next) => {
   // GET /post/1
   try {
     const post = await Post.findOne({
@@ -69,21 +99,46 @@ router.get("/:postId", async (req: Request, res: Response, next) => {
     if (!post) {
       return res.status(404).send("존재하지 않는 게시글입니다.");
     }
-    const comment = await Comment.create({
-      content: req.body.content,
-      PostId: parseInt(req.params.postId, 10),
-      UserId: req.body.id,
-    });
-    const fullComment = await Comment.findOne({
-      where: { id: comment.id },
+    const fullPost = await Post.findOne({
+      where: { id: post.id },
       include: [
+        {
+          model: Post,
+          as: "Retweet",
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nick"],
+            },
+            {
+              model: Image,
+            },
+          ],
+        },
         {
           model: User,
           attributes: ["id", "nick"],
         },
+        {
+          model: User,
+          as: "Likers",
+          attributes: ["id", "nickname"],
+        },
+        {
+          model: Image,
+        },
+        {
+          model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+          ],
+        },
       ],
     });
-    res.status(200).json(fullComment);
+    res.status(200).json(fullPost);
   } catch (error) {
     console.error(error);
     next(error);
@@ -124,5 +179,43 @@ router.post(
     }
   }
 );
+
+router.patch("/:postId/like", isLoggedIn, async (req, res, next) => {
+  // PATCH /post/1/like
+  try {
+    const post = await Post.findOne({ where: { id: req.params.postId } });
+    if (!post) {
+      return res.status(403).send("게시글이 존재하지 않습니다.");
+    }
+    if (req.user) {
+      await post.addLikers([req.user.id]);
+      res.json({ PostId: post.id, UserId: req.user.id });
+    } else {
+      return res.status(403).send("유저 정보를 찾을 수 없습니다.");
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.delete("/:postId/like", isLoggedIn, async (req, res, next) => {
+  // DELETE /post/1/like
+  try {
+    const post = await Post.findOne({ where: { id: req.params.postId } });
+    if (!post) {
+      return res.status(403).send("게시글이 존재하지 않습니다.");
+    }
+    if (req.user) {
+      await post.removeLikers([req.user.id]);
+      res.json({ PostId: post.id, UserId: req.user.id });
+    } else {
+      return res.status(403).send("유저 정보를 찾을 수 없습니다.");
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
 
 export default router;

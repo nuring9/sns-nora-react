@@ -5,6 +5,7 @@ import Sequelize, {
   Model,
   ForeignKey,
   BelongsToManyAddAssociationsMixin,
+  BelongsToManyRemoveAssociationsMixin,
 } from "sequelize";
 import User from "./user";
 import Hashtag from "./hashtag";
@@ -19,6 +20,8 @@ class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
   declare updatedAt: CreationOptional<Date>;
   declare UserId: ForeignKey<User["id"]>;
   declare addHashtags: BelongsToManyAddAssociationsMixin<Hashtag, number>;
+  declare addLikers: BelongsToManyAddAssociationsMixin<User, number>;
+  declare removeLikers: BelongsToManyRemoveAssociationsMixin<User, number>;
 
   static initiate(sequelize: Sequelize.Sequelize) {
     Post.init(
@@ -57,7 +60,7 @@ class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
     Post.hasMany(Comment);
     Post.hasMany(Image);
     Post.belongsToMany(Hashtag, { through: "PostHashtag" });
-    Post.belongsToMany(User, { through: "Like", as: "Likers" });
+    Post.belongsToMany(User, { through: "Like", as: "Likers" }); // post.addLikers, post.removeLikers 생성
     Post.belongsTo(Post, { as: "Retweet" });
   }
 }

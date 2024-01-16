@@ -14,11 +14,14 @@ router.get("/", async (req, res, next) => {
       10
     );
     // undefined일 경우도 문자열로 변환 후 parsInt하려고, toString() 사용.
-
-    if (lastId) {
+    if (!isNaN(lastId)) {
       // 초기 로딩이 아닐 때,
       where.id = { [Op.lt]: lastId };
     }
+    // if (lastId) {
+    //   // 초기 로딩이 아닐 때,
+    //   where.id = { [Op.lt]: lastId };
+    // }
     const posts = await Post.findAll({
       where,
       limit: 10,

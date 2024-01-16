@@ -1,7 +1,7 @@
 // types/index.ts
 
 export interface User {
-  id?: number;
+  id?: number | undefined;
   email?: string;
   password?: string;
   nickname?: string;
@@ -18,6 +18,10 @@ export interface Comment {
   userId?: number;
 }
 
+export interface LikersType {
+  id: number;
+}
+
 export interface Post {
   id: number;
   email?: string;
@@ -26,7 +30,7 @@ export interface Post {
   createdAt: number;
   Images?: Image[];
   Comments: Comment[];
-  // addImages?: any;
+  Likers?: LikersType[] | null;
 }
 
 export interface Posts extends Post {
@@ -45,6 +49,7 @@ export interface CommentDataType {
   userId?: number | undefined;
 }
 
-export interface PostLastId {
-  lastId: number | undefined;
+export interface PostId {
+  postId?: number | undefined;
+  userId?: number | undefined;
 }

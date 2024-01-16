@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import AppLayout from "../components/AppLayout";
-
+import { v4 as uuidv4 } from "uuid";
 import routes from "../routes";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/configureStore";
@@ -10,7 +10,6 @@ import { loadMyInfo } from "../reducers/user";
 import { loadPosts } from "../reducers/post";
 import PostForm from "../components/PostForm";
 import PostCard from "../components/PostCard";
-import { PostLastId } from "../types";
 
 const Home: React.FC = () => {
   const location = useLocation(); // 현재 페이지 location
@@ -18,7 +17,9 @@ const Home: React.FC = () => {
   const { me } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();
   // const { isLoggedIn } = useSelector((state: RootState) => state.user);
-  const { mainPosts } = useSelector((state: RootState) => state.post);
+  const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(
+    (state: RootState) => state.post
+  );
 
   // 경로가 변경될 때마다 타이틀 업데이트
   useEffect(() => {
@@ -29,21 +30,43 @@ const Home: React.FC = () => {
     }
   }, [location.pathname, title]);
 
-  const lastIdValue = mainPosts[mainPosts.length - 1]?.id;
+  // const lastIdValue = mainPosts[mainPosts.length - 1]?.id;
+
+  // useEffect(() => {
+  //   dispatch(loadMyInfo());
+  //   const lastId = {
+  //     lastId: lastIdValue,
+  //   } as PostLastId;
+
+  //   if (hasMorePosts) {
+  //     dispatch(loadPosts(lastId));
+  //   }
+  // }, [dispatch, lastIdValue, hasMorePosts]);
+
+  const lastId = mainPosts[mainPosts.length - 1]?.id;
 
   useEffect(() => {
     dispatch(loadMyInfo());
-    const lastId = {
-      lastId: lastIdValue,
-    } as PostLastId;
-    dispatch(loadPosts(lastId));
-  }, [dispatch, lastIdValue]);
+    console.log(lastId, `라스트아이디`);
+
+    //posts 불러오기
+    if (hasMorePosts && !loadPostsLoading) {
+      dispatch(loadPosts(lastId));
+      console.log(lastId, `라스트아이디`);
+    }
+  }, [dispatch, lastId, hasMorePosts]);
+
+  //   window.addEventListener('scroll', onScroll);
+  //   return () => {
+  //     window.removeEventListener('scroll', onScroll);
+  //   };
+  // }, [hasMorePosts, loadPostsLoading, mainPosts]);
 
   return (
     <AppLayout>
       {me && <PostForm />}
       {mainPosts.map((post) => (
-        <PostCard key={post.id} post={post} images={post.Images} />
+        <PostCard key={uuidv4()} post={post} images={post.Images} />
       ))}
     </AppLayout>
   );

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Image } from "../../types";
+import { v4 as uuidv4 } from "uuid";
 import Slick from "react-slick";
 import {
   Overlay,
@@ -36,7 +37,7 @@ const ImagesZoom: React.FC<ImagesZoomProps> = ({ images, onClose }) => {
           slidesToScroll={1} // 하나씩 스크롤
         >
           {images.map((v) => (
-            <ImgWrapper key={v.src}>
+            <ImgWrapper key={uuidv4()}>
               <img src={v.src} alt={v.src} />
             </ImgWrapper>
           ))}

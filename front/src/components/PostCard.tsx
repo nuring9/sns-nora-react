@@ -1,5 +1,6 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useMemo } from "react";
 import { Post, Image } from "../types";
+import { v4 as uuidv4 } from "uuid";
 import { Button, Card, Dropdown, ListGroup } from "react-bootstrap";
 import {
   ShareFill,
@@ -12,8 +13,10 @@ import "../styles/Post.scss";
 import styled from "styled-components";
 
 import PostImages from "./PostImages";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/configureStore";
+import { AppDispatch } from "../store/configureStore";
+import { likePost, unlikePost } from "../reducers/post";
 
 import Avatar from "react-avatar";
 import CommentForm from "./CommentForm";
@@ -73,17 +76,30 @@ interface PostCardProps {
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const [commentFormOpened, setCommentFormOpened] = useState(false);
-  const [liked, setLiked] = useState(false);
+  // const [liked, setLiked] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const id = useSelector((state: RootState) => state.user.me?.id);
+
+  const liked = useMemo(
+    () => post.Likers?.find((v) => v.id === id),
+    [post.Likers, id]
+  ); // 앞의 값이 null, undefined일 경우 [] 임.
 
   const onToggleLike = useCallback(() => {
-    setLiked((prev) => !prev);
-  }, []);
+    if (!id) {
+      return alert("로그인이 필요합니다.");
+    }
+    console.log("Toggle Like", post.id, "User ID", id);
+    if (liked) {
+      dispatch(unlikePost(post.id));
+    } else {
+      dispatch(likePost(post.id));
+    }
+  }, [id, liked, dispatch, post.id]);
 
   const onToggleComment = useCallback(() => {
     setCommentFormOpened((prev) => !prev);
   }, []);
-
-  const id = useSelector((state: RootState) => state.user.me?.id);
 
   return (
     <div>
@@ -109,8 +125,12 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             <Button variant="white">
               <ShareFill />
             </Button>
-            <Button variant="white" onClick={onToggleLike}>
-              {liked ? <HeartFill style={{ color: "red" }} /> : <Heart />}
+            <Button variant="white">
+              {liked ? (
+                <HeartFill style={{ color: "red" }} onClick={onToggleLike} />
+              ) : (
+                <Heart onClick={onToggleLike} />
+              )}
             </Button>
             <Button variant="white" onClick={onToggleComment}>
               <ChatDots />
@@ -154,7 +174,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               </CommentLength>
               <BottomLine />
               {post.Comments.map((item) => (
-                <ListGroupItem key={post.id}>
+                <ListGroupItem key={uuidv4()}>
                   <div className="d-flex align-items-center">
                     <AvatarWrapper
                       name={item.User?.nickname}

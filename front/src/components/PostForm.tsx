@@ -1,4 +1,5 @@
 import React, { useRef, useCallback, useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { Form, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store/configureStore";
@@ -82,7 +83,7 @@ const PostForm: React.FC = () => {
       </div>
       <div>
         {imagePaths.map((v) => (
-          <div key={v} style={{ display: "inline-block" }}>
+          <div key={uuidv4()} style={{ display: "inline-block" }}>
             <img
               src={"http://localhost:8000/" + v}
               style={{ width: "200px" }}
