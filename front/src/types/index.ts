@@ -1,7 +1,7 @@
 // types/index.ts
 
 export interface User {
-  id?: number | undefined;
+  id?: number;
   email?: string;
   password?: string;
   nickname?: string;
@@ -9,11 +9,11 @@ export interface User {
 
 export interface Image {
   src: string;
-  User: User | undefined;
+  User: User;
 }
 
 export interface Comment {
-  User: User | undefined;
+  User: User;
   content?: string;
   userId?: number;
 }
@@ -39,17 +39,22 @@ export interface Posts extends Post {
 
 export interface PostText {
   content?: string;
-  userId?: number | undefined;
+  userId?: number;
   id?: number;
 }
 
 export interface CommentDataType {
   content?: string;
   postId?: number;
-  userId?: number | undefined;
+  userId?: number;
+}
+
+export interface UpdatePostDataType {
+  content?: string;
+  postId?: number;
 }
 
 export interface PostId {
-  postId?: number | undefined;
-  userId?: number | undefined;
+  postId?: number;
+  userId?: number;
 }

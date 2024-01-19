@@ -1,9 +1,10 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
 import { Container, Row, Col, Image, ListGroup, Button } from "react-bootstrap";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logOut } from "../reducers/user";
 import { AppDispatch } from "../store/configureStore";
+import { RootState } from "../store/configureStore";
 
 const ContainerWrapper = styled(Container)`
   background-color: #ffffff;
@@ -16,12 +17,17 @@ const ImageStyled = styled(Image)`
   border-radius: 20px;
 `;
 
+const LinkStyled = styled.a`
+  color: inherit;
+  text-decoration: none;
+`;
 // interface LoginFormProps {
 //   setIsLoggedIn?: (value: boolean) => void;
 // }
 
 export default function UserProfile() {
   const dispatch = useDispatch<AppDispatch>();
+  const { me, logOutLoading } = useSelector((state: RootState) => state.user);
 
   const onLogOut = useCallback(() => {
     dispatch(logOut({}));
@@ -39,8 +45,13 @@ export default function UserProfile() {
               </Col>
               <Col xs={8} md={7} lg={8}>
                 <h4>User Id</h4>
-                <Button onClick={onLogOut} variant="primary" size="sm">
-                  로그아웃
+                <Button
+                  onClick={onLogOut}
+                  disabled={logOutLoading}
+                  variant="primary"
+                  size="sm"
+                >
+                  {logOutLoading ? "로그아웃중..." : "로그아웃"}
                 </Button>
               </Col>
             </Row>
@@ -48,14 +59,17 @@ export default function UserProfile() {
 
             <ListGroup horizontal className="w-100">
               <ListGroup.Item className="flex-fill text-center">
-                게시물
-                <br /> 0
+                <LinkStyled href={`/user/${me.id}`}>게시물</LinkStyled>
+                <br />
+                {me.Posts ? me.Posts.length : 0}
               </ListGroup.Item>
               <ListGroup.Item className="flex-fill text-center">
-                팔로워 <br /> 0
+                <LinkStyled href="/profile"> 팔로워 </LinkStyled>
+                <br /> 0{/* <br /> {me.Followers.length} */}
               </ListGroup.Item>
               <ListGroup.Item className="flex-fill text-center">
-                팔로우 <br /> 0
+                <LinkStyled href="/profile"> 팔로우 </LinkStyled>
+                <br /> 0{/* <br /> {me.Followers.length} */}
               </ListGroup.Item>
             </ListGroup>
           </div>

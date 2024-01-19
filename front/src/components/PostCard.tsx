@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useMemo } from "react";
-import { Post, Image } from "../types";
+import { Post, Image, CommentDataType } from "../types";
 import { v4 as uuidv4 } from "uuid";
 import { Button, Card, Dropdown, ListGroup } from "react-bootstrap";
 import {
@@ -16,7 +16,7 @@ import PostImages from "./PostImages";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/configureStore";
 import { AppDispatch } from "../store/configureStore";
-import { likePost, unlikePost } from "../reducers/post";
+import { likePost, unlikePost, removePost, updatePost } from "../reducers/post";
 
 import Avatar from "react-avatar";
 import CommentForm from "./CommentForm";
@@ -52,7 +52,6 @@ const CommentNick = styled.div`
 const CommentContent = styled.p`
   margin: auto;
   text-align: left;
-  padding-left: 10px;
 `;
 
 const CommentLength = styled.div`
@@ -75,15 +74,24 @@ interface PostCardProps {
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
-  const [commentFormOpened, setCommentFormOpened] = useState(false);
-  // const [liked, setLiked] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
+  const [commentFormOpened, setCommentFormOpened] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   const id = useSelector((state: RootState) => state.user.me?.id);
+  const { removePostLoading } = useSelector((state: RootState) => state.post);
 
   const liked = useMemo(
     () => post.Likers?.find((v) => v.id === id),
     [post.Likers, id]
   ); // 앞의 값이 null, undefined일 경우 [] 임.
+
+  const onClickUpdate = useCallback(() => {
+    setEditMode(true);
+  }, []);
+
+  const onCancelUpdate = useCallback(() => {
+    setEditMode(false);
+  }, []);
 
   const onToggleLike = useCallback(() => {
     if (!id) {
@@ -101,10 +109,57 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     setCommentFormOpened((prev) => !prev);
   }, []);
 
+  // const onChangePost = useCallback(
+  //   (editText) => () => {
+  //     dispatch(
+  //       updatePost({
+  //         PostId: post.id,
+  //         content: editText,
+  //       })
+  //     );
+  //   },
+  //   [post]
+  // );
+
+  // const onSubmit = useCallback(
+  //   (e: React.SyntheticEvent) => {
+  //     e.preventDefault();
+  //     const postData: PostText = {
+  //       content: text,
+  //       userId: id,
+  //     };
+  //     dispatch(addPost(postData));
+  //     setText("");
+  //   },
+  //   [dispatch, text, id]
+  // );
+
+  const onChangePost = useCallback(
+    (editText: string) => () => {
+      // e.preventDefault();
+      const updatePostData = {
+        postId: post.id,
+        content: editText,
+        userId: id,
+      };
+      dispatch(updatePost(updatePostData));
+      console.log(post.id, editText);
+      // setText("");
+    },
+    [post, dispatch, id]
+  );
+
+  const onRemovePost = useCallback(() => {
+    if (!id) {
+      return alert("로그인이 필요합니다.");
+    }
+    return dispatch(removePost(post.id));
+  }, [id, dispatch, post.id]);
+
   return (
     <div>
       <Card>
-        <FolloWrapper>{id && <FollowButton />}</FolloWrapper>
+        <FolloWrapper>{id && <FollowButton post={post} />}</FolloWrapper>
         {post.Images && post.Images[0] && <PostImages images={post.Images} />}
         {/* <Card.Img variant="top" src="/images/art-1.jpg" /> */}
         <Card.Body>
@@ -119,7 +174,12 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             {post.User?.nickname}
           </Card.Title>
           <Card.Text>
-            <PostCardContent postData={post.content || ""} />
+            <PostCardContent
+              postData={post.content}
+              editMode={editMode}
+              onChangePost={onChangePost}
+              onCancelUpdate={onCancelUpdate}
+            />
           </Card.Text>
           <div className="card-button">
             <Button variant="white">
@@ -142,7 +202,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 </Dropdown.Toggle>
               </span>
               <Dropdown.Menu>
-                {post.User && id && post.User.id === id && (
+                {/* {post.User && id && post.User.id === id && (
                   <>
                     <Dropdown.Item href="#action1">수정</Dropdown.Item>
                     <Dropdown.Item href="#action2">삭제</Dropdown.Item>
@@ -151,16 +211,23 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
                 {post.User && !id && (
                   <Dropdown.Item href="#action3">신고</Dropdown.Item>
-                )}
+                )} */}
 
-                {/* {id && post.User.id === id ? (
+                {id && post.User.id === id ? (
                   <>
-                    <Dropdown.Item href="#action1">수정</Dropdown.Item>
-                    <Dropdown.Item href="#action2">삭제</Dropdown.Item>
+                    {/* <Dropdown.Item href="#action1" >수정</Dropdown.Item>
+                    <Dropdown.Item href="#action2">삭제</Dropdown.Item> */}
+                    <Dropdown.Item onClick={onClickUpdate}>수정</Dropdown.Item>
+                    <Dropdown.Item
+                      disabled={removePostLoading}
+                      onClick={onRemovePost}
+                    >
+                      {removePostLoading ? "삭제 중..." : "삭제"}
+                    </Dropdown.Item>
                   </>
                 ) : (
                   <Dropdown.Item href="#action3">신고</Dropdown.Item>
-                )} */}
+                )}
               </Dropdown.Menu>
             </Dropdown>
           </div>

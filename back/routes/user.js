@@ -141,4 +141,19 @@ router.post("/logout", middlewares_1.isLoggedIn, (req, res) => {
         });
     });
 });
+router.patch("/nickname", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        yield models_1.User.update({
+            nick: req.body.nickname,
+        }, {
+            where: { id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id },
+        });
+        res.status(200).json({ nick: req.body.nickname });
+    }
+    catch (error) {
+        console.error(error);
+        next(error);
+    }
+}));
 exports.default = router;

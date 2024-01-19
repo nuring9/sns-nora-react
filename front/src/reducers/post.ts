@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { Post, CommentDataType, PostText, PostId } from "../types";
+import { Post, CommentDataType, PostText, UpdatePostDataType } from "../types";
 import axios from "axios";
 import _ from "lodash";
 
@@ -96,18 +96,21 @@ export const addPost = createAsyncThunk(
   }
 );
 
-// export const updatePost = createAsyncThunk(
-//   "post/updatePost",
-//   async (data: CommentDataType) => {
-//     const response = await axios.patch(`/post/${data.PostId}`, data);
-//     return response.data;
-//   }
-// );
+export const updatePost = createAsyncThunk(
+  "post/updatePost",
+  async (data: UpdatePostDataType) => {
+    const response = await axios.patch(`/post/${data.postId}`, data);
+    return response.data;
+  }
+);
 
-export const removePost = createAsyncThunk("post/removePost", async (data) => {
-  const response = await axios.delete(`/post/${data}`);
-  return response.data;
-});
+export const removePost = createAsyncThunk(
+  "post/removePost",
+  async (data: number) => {
+    const response = await axios.delete(`/post/${data}`);
+    return response.data;
+  }
+);
 
 export const addComment = createAsyncThunk(
   "post/addComment",
@@ -183,20 +186,27 @@ const postSlice = createSlice({
         draft.addPostLoading = false;
         draft.addPostError = action.error;
       })
-      // .addCase(updatePost.pending, (draft, action) => {
-      //   draft.updatePostLoading = true;
-      //   draft.updatePostDone = false;
-      //   draft.updatePostError = null;
-      // })
-      // .addCase(updatePost.fulfilled, (draft, action) => {
-      //   draft.updatePostLoading = false;
-      //   draft.updatePostDone = true;
-      //   // draft.mainPosts.find((v) => v.id === action.payload.PostId).content = action.payload.content;
-      // })
-      // .addCase(updatePost.rejected, (draft, action) => {
-      //   draft.updatePostLoading = false;
-      //   draft.updatePostError = action.error;
-      // })
+      .addCase(updatePost.pending, (draft, action) => {
+        draft.updatePostLoading = true;
+        draft.updatePostDone = false;
+        draft.updatePostError = null;
+      })
+      .addCase(updatePost.fulfilled, (draft, action) => {
+        draft.updatePostLoading = false;
+        draft.updatePostDone = true;
+        // draft.mainPosts.find((v) => v.id === action.payload.PostId).content =
+        //   action.payload.content;
+        const postToUpdate = draft.mainPosts.find(
+          (v) => v.id === action.payload.PostId
+        );
+        if (postToUpdate) {
+          postToUpdate.content = action.payload.content;
+        }
+      })
+      .addCase(updatePost.rejected, (draft, action) => {
+        draft.updatePostLoading = false;
+        draft.updatePostError = action.error;
+      })
       .addCase(removePost.pending, (draft, action) => {
         draft.removePostLoading = true;
         draft.removePostDone = false;

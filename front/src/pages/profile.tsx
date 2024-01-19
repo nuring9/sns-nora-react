@@ -1,20 +1,31 @@
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import routes from "../routes";
 import { useLocation, useNavigate } from "react-router-dom";
 import AppLayout from "../components/AppLayout";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch } from "../store/configureStore";
 import NickEditForm from "../components/NickEditForm";
 import FollowList from "../components/FollowList";
 import { Container, Row } from "react-bootstrap";
 import { RootState } from "../store/configureStore";
+import { loadMyInfo } from "../reducers/user";
 
 // import NavbarLayout from "../components/NavbarLayout";
 // import DirectMessage from "../components/DirectMessage";
 // import UserProfile from "../components/UserProfile";
 
-export default function Profile() {
+// const fetcher = (url) => axios.get(url).then((result) => result.data);
+
+const Profile: React.FC = () => {
   const location = useLocation(); // 현재 페이지 location
-  const me = useSelector((state: RootState) => state.user.me?.id);
+  const dispatch = useDispatch<AppDispatch>();
+  const { me } = useSelector((state: RootState) => {
+    console.log(state); // Check the structure of your state
+    return state.user;
+  });
+
+  const [followersLimit, setFollowersLimit] = useState(3);
+  const [followingsLimit, setFollowingsLimit] = useState(3);
   const navigate = useNavigate();
 
   const title = process.env.REACT_APP_APP_TITLE; // 메인 타이틀
@@ -27,7 +38,11 @@ export default function Profile() {
   }, [location.pathname, title]);
 
   useEffect(() => {
-    if (me && me.id) {
+    dispatch(loadMyInfo());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (me && !me.id) {
       navigate("/");
     }
   }, [me, navigate]);
@@ -42,6 +57,18 @@ export default function Profile() {
     { nickname: "눌눌눌" },
     { nickname: "눌눌눌눌" },
   ];
+
+  const loadMoreFollowings = useCallback(() => {
+    setFollowingsLimit((prev) => prev + 3);
+  }, []);
+
+  const loadMoreFollowers = useCallback(() => {
+    setFollowersLimit((prev) => prev + 3);
+  }, []);
+
+  if (!me) {
+    return <div>내 정보 로딩중...</div>;
+  }
 
   return (
     <div>
@@ -77,4 +104,6 @@ export default function Profile() {
       </AppLayout>
     </div>
   );
-}
+};
+
+export default Profile;

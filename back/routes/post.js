@@ -227,4 +227,95 @@ router.delete("/:postId/like", middlewares_1.isLoggedIn, (req, res, next) => __a
         next(error);
     }
 }));
+router.patch("/:postId", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    // PATCH /post/10
+    const postId = parseInt(req.params.postId, 10); // postId를 정수로 변환
+    // postId가 NaN이거나 req.user가 없는 경우
+    if (isNaN(postId) || !req.user) {
+        return res
+            .status(400)
+            .json({ error: "Invalid postId or user not authenticated" });
+    }
+    const hashtags = req.body.content.match(/#[^\s#]+/g);
+    try {
+        // postId와 UserId를 이용하여 업데이트
+        const [updatedRows] = yield models_1.Post.update({
+            content: req.body.content,
+        }, {
+            where: {
+                id: postId,
+                UserId: req.user.id,
+            },
+        });
+        // 업데이트된 행이 없는 경우 (즉, 권한이 없거나 postId가 존재하지 않는 경우)
+        if (updatedRows === 0) {
+            return res
+                .status(403)
+                .json({ error: "Permission denied or post not found" });
+        }
+        // 업데이트된 포스트를 다시 조회
+        const post = yield models_1.Post.findOne({ where: { id: postId } });
+        // 클라이언트에 응답
+        res.status(200).json({
+            PostId: postId,
+            content: req.body.content,
+        });
+    }
+    catch (error) {
+        console.error(error);
+        next(error);
+    }
+}));
+// router.patch("/:postId", isLoggedIn, async (req, res, next) => {
+//   // PATCH /post/10
+//   const hashtags = req.body.content.match(/#[^\s#]+/g);
+//   try {
+//     await Post.update(
+//       {
+//         content: req.body.content,
+//       },
+//       {
+//         where: {
+//           id: req.params.postId,
+//           UserId: req.user?.id,
+//         },
+//       }
+//     );
+//     const post = await Post.findOne({ where: { id: req.params.postId } });
+//     // if (hashtags) {
+//     //   const result = await Promise.all(
+//     //     hashtags.map((tag) =>
+//     //       Hashtag.findOrCreate({
+//     //         where: { name: tag.slice(1).toLowerCase() },
+//     //       })
+//     //     )
+//     //   ); // [[노드, true], [리액트, true]]
+//     //   await post.setHashtags(result.map((v) => v[0]));
+//     // }
+//     res.status(200).json({
+//       PostId: parseInt(req.params.postId, 10),
+//       content: req.body.content,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     next(error);
+//   }
+// });
+router.delete("/:postId", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b;
+    // DELETE /post/10
+    try {
+        yield models_1.Post.destroy({
+            where: {
+                id: req.params.postId,
+                UserId: (_b = req.user) === null || _b === void 0 ? void 0 : _b.id,
+            },
+        });
+        res.status(200).json({ PostId: parseInt(req.params.postId, 10) });
+    }
+    catch (error) {
+        console.error(error);
+        next(error);
+    }
+}));
 exports.default = router;

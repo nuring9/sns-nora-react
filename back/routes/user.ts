@@ -1,6 +1,6 @@
 import express from "express";
 import bcrypt from "bcrypt";
-import { User, Post } from "../models";
+import { User, Post, Image, Comment } from "../models";
 import { isLoggedIn, isNotLoggedIn } from "./middlewares";
 import passport from "passport";
 import { Request, Response } from "express";
@@ -138,6 +138,23 @@ router.post("/logout", isLoggedIn, (req, res) => {
       res.send("ok");
     });
   });
+});
+
+router.patch("/nickname", isLoggedIn, async (req, res, next) => {
+  try {
+    await User.update(
+      {
+        nick: req.body.nickname,
+      },
+      {
+        where: { id: req.user?.id },
+      }
+    );
+    res.status(200).json({ nick: req.body.nickname });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
 });
 
 export default router;

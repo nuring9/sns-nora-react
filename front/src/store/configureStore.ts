@@ -13,7 +13,7 @@ export default store;
 // store.dispatch(fetchUser());
 // import userReducer, { fetchUser } from './reducer'; 일경우
 
-//RootState, AppDispatch의 경우 후에 Typed hook을 만들기 위해서 사용
+// 아래 두개의 RootState, AppDispatch의 경우 후에 Typed hook을 만들기 위해서 사용.
 // useSelector 사용시 타입으로 사용하기 위함.
 export type RootState = ReturnType<typeof store.getState>;
 

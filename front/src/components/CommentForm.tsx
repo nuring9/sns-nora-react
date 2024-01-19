@@ -55,6 +55,7 @@ const CommentForm: React.FC<PostCardProps> = ({ post }) => {
     []
   );
 
+  // 여기
   const onSubmitComment = useCallback(
     (e: React.SyntheticEvent) => {
       e.preventDefault();

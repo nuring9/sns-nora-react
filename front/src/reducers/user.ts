@@ -13,33 +13,76 @@ interface UserState {
   loadMyInfoLoading: boolean; // 유저 정보 가져오기 시도중
   loadMyInfoDone: boolean;
   loadMyInfoError: unknown;
+  loadUserLoading: boolean;
+  loadUserDone: boolean;
+  loadUserError: unknown;
   logOutLoading: boolean; // 로그아웃 시도중
   logOutDone: boolean;
-  logOutError: any;
+  logOutError: unknown;
   signUpLoading: boolean; // 회원가입 시도중
   signUpDone: boolean;
-  signUpError: any; // 추후 타입 변경 생각해보기..
+  signUpError: unknown; // 추후 타입 변경 생각해보기..
+  changeNicknameLoading: boolean; // 닉네임 변경 시도중
+  changeNicknameDone: boolean;
+  changeNicknameError: unknown;
+  followLoading: boolean; // 팔로우 시도중
+  followDone: boolean;
+  followError: unknown;
+  unfollowLoading: boolean; // 언팔로우 시도중
+  unfollowDone: boolean;
+  unfollowError: unknown;
+  loadFollowingsLoading: boolean;
+  loadFollowingsDone: boolean;
+  loadFollowingsError: unknown;
+  loadFollowersLoading: boolean;
+  loadFollowersDone: boolean;
+  loadFollowersError: unknown;
+  removeFollowerLoading: boolean;
+  removeFollowerDone: boolean;
+  removeFollowerError: unknown;
   message?: string;
   me: any; // 사용자 정보 객체 타입
+  userInfo: any;
   // signUpDate: number;
   // loginDate: number;
 }
 
 const initialState: UserState = {
   me: null,
-  // userInfo: null,
+  userInfo: null,
   logInLoading: false, // 로그인 시도중
   logInDone: false,
   logInError: null,
   loadMyInfoLoading: false, // 유저 정보 가져오기 시도중
   loadMyInfoDone: false,
   loadMyInfoError: null,
+  loadUserLoading: false,
+  loadUserDone: false,
+  loadUserError: null,
   logOutLoading: false, // 로그아웃 시도중
   logOutDone: false,
   logOutError: null,
   signUpLoading: false, // 회원가입 시도중
   signUpDone: false,
   signUpError: null,
+  changeNicknameLoading: false, // 닉네임 변경 시도중
+  changeNicknameDone: false,
+  changeNicknameError: null,
+  followLoading: false, // 팔로우 시도중
+  followDone: false,
+  followError: null,
+  unfollowLoading: false, // 언팔로우 시도중
+  unfollowDone: false,
+  unfollowError: null,
+  loadFollowingsLoading: false,
+  loadFollowingsDone: false,
+  loadFollowingsError: null,
+  loadFollowersLoading: false,
+  loadFollowersDone: false,
+  loadFollowersError: null,
+  removeFollowerLoading: false,
+  removeFollowerDone: false,
+  removeFollowerError: null,
 };
 
 //액션이름 "user/logIn"
@@ -50,9 +93,53 @@ export const logIn = createAsyncThunk("user/logIn", async (data: User) => {
 
 export const loadMyInfo = createAsyncThunk("user/loadMyInfo", async () => {
   const response = await axios.get("/user");
-  console.log("=>(user.js:65) response", response.data);
+  console.log("response", response.data);
   return response.data || null;
 });
+
+export const loadUser = createAsyncThunk(
+  "user/loadUser",
+  async (data: User) => {
+    const response = await axios.get(`/user/${data}`);
+    return response.data;
+  }
+);
+
+export const loadFollowings = createAsyncThunk(
+  "user/loadFollowings",
+  async (data: any) => {
+    const response = await axios.get("/user/followings", data);
+    return response.data;
+  }
+);
+
+export const loadFollowers = createAsyncThunk(
+  "user/loadFollowers",
+  async (data: any) => {
+    const response = await axios.get("/user/followers", data);
+    return response.data;
+  }
+);
+
+export const follow = createAsyncThunk("user/follow", async (data: number) => {
+  const response = await axios.patch(`/user/${data}/follow`);
+  return response.data;
+});
+
+export const unfollow = createAsyncThunk(
+  "user/unfollow",
+  async (data: number) => {
+    const response = await axios.delete(`/user/${data}/follow`);
+    return response.data;
+  }
+);
+export const removeFollower = createAsyncThunk(
+  "user/removeFollower",
+  async (data) => {
+    const response = await axios.delete(`/user/follower/${data}`);
+    return response.data;
+  }
+);
 
 export const logOut = createAsyncThunk("user/logOut", async (data: User) => {
   const response = await axios.post("/user/logout", data);
@@ -64,10 +151,27 @@ export const signUp = createAsyncThunk("user/signUp", async (data: User) => {
   return response.data;
 });
 
+export const changeNickname = createAsyncThunk(
+  "user/changeNickname",
+  async (data: { nick: string }) => {
+    const response = await axios.patch("/user/nickname", { nick: data });
+    return response.data;
+  }
+);
+
 const userSlice = createSlice({
   name: "me",
   initialState,
-  reducers: {},
+  reducers: {
+    addPostToMe(draft, action) {
+      draft.me.Posts.unshift({ id: action.payload });
+    },
+    removePostOfMe(draft, action) {
+      draft.me.Posts = draft.me.Posts.filter(
+        (v: any) => v.id !== action.payload
+      );
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(loadMyInfo.pending, (draft) => {
@@ -101,6 +205,94 @@ const userSlice = createSlice({
         state.logInLoading = false;
         state.logInError = action.error.message;
       })
+      .addCase(loadFollowings.pending, (draft) => {
+        draft.loadFollowingsLoading = true;
+        draft.loadFollowingsError = null;
+        draft.loadFollowingsDone = false;
+      })
+      .addCase(loadFollowings.fulfilled, (draft, action) => {
+        draft.loadFollowingsLoading = false;
+        draft.me.Followings = action.payload;
+        draft.loadFollowingsDone = true;
+      })
+      .addCase(loadFollowings.rejected, (draft, action) => {
+        draft.loadFollowingsLoading = false;
+        draft.loadFollowingsError = action.error;
+      })
+      .addCase(loadFollowers.pending, (draft) => {
+        draft.loadFollowersLoading = true;
+        draft.loadFollowersError = null;
+        draft.loadFollowersDone = false;
+      })
+      .addCase(loadFollowers.fulfilled, (draft, action) => {
+        draft.loadFollowersLoading = false;
+        draft.me.Followers = action.payload;
+        draft.loadFollowersDone = true;
+      })
+      .addCase(loadFollowers.rejected, (draft, action) => {
+        draft.loadFollowersLoading = false;
+        draft.loadFollowersError = action.error;
+      })
+      .addCase(loadUser.pending, (draft) => {
+        draft.loadUserLoading = true;
+        draft.loadUserError = null;
+        draft.loadUserDone = false;
+      })
+      .addCase(loadUser.fulfilled, (draft, action) => {
+        draft.loadUserLoading = false;
+        draft.userInfo = action.payload;
+        draft.loadUserDone = true;
+      })
+      .addCase(loadUser.rejected, (draft, action) => {
+        draft.loadUserLoading = false;
+        draft.loadUserError = action.error;
+      })
+      .addCase(follow.pending, (draft) => {
+        draft.followLoading = true;
+        draft.followError = null;
+        draft.followDone = false;
+      })
+      .addCase(follow.fulfilled, (draft, action) => {
+        draft.followLoading = false;
+        draft.me.Followings.push({ id: action.payload.UserId });
+        draft.followDone = true;
+      })
+      .addCase(follow.rejected, (draft, action) => {
+        draft.followLoading = false;
+        draft.followError = action.error;
+      })
+      .addCase(unfollow.pending, (draft) => {
+        draft.unfollowLoading = true;
+        draft.unfollowError = null;
+        draft.unfollowDone = false;
+      })
+      .addCase(unfollow.fulfilled, (draft, action) => {
+        draft.unfollowLoading = false;
+        draft.me.Followings = draft.me.Followings.filter(
+          (v: any) => v.id !== action.payload.UserId
+        );
+        draft.unfollowDone = true;
+      })
+      .addCase(unfollow.rejected, (draft, action) => {
+        draft.unfollowLoading = false;
+        draft.unfollowError = action.error;
+      })
+      .addCase(removeFollower.pending, (state) => {
+        state.removeFollowerLoading = true;
+        state.removeFollowerError = null;
+        state.removeFollowerDone = false;
+      })
+      .addCase(removeFollower.fulfilled, (state, action) => {
+        state.removeFollowerLoading = false;
+        state.me.Followers = state.me.Followers.filter(
+          (v: any) => v.id !== action.payload.UserId
+        );
+        state.removeFollowerDone = true;
+      })
+      .addCase(removeFollower.rejected, (draft, action) => {
+        draft.removeFollowerLoading = false;
+        draft.removeFollowerError = action.error;
+      })
       .addCase(logOut.pending, (draft) => {
         draft.logOutLoading = true;
         draft.logOutError = null;
@@ -127,6 +319,20 @@ const userSlice = createSlice({
       .addCase(signUp.rejected, (draft, action) => {
         draft.signUpLoading = false;
         draft.signUpError = action.error;
+      })
+      .addCase(changeNickname.pending, (draft) => {
+        draft.changeNicknameLoading = true;
+        draft.changeNicknameError = null;
+        draft.changeNicknameDone = false;
+      })
+      .addCase(changeNickname.fulfilled, (draft, action) => {
+        draft.me.nickname = action.payload.nickname;
+        draft.changeNicknameLoading = false;
+        draft.changeNicknameDone = true;
+      })
+      .addCase(changeNickname.rejected, (draft, action) => {
+        draft.changeNicknameLoading = false;
+        draft.changeNicknameError = action.payload;
       })
       .addDefaultCase((state) => state);
   },
