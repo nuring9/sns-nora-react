@@ -21,7 +21,6 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 (0, passport_2.default)(); // 패스포트 설정
 app.set("port", process.env.PORT || 8000);
-// app.set("view engine", "html");
 models_1.sequelize
     .sync({ force: false })
     .then(() => {

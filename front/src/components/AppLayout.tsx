@@ -57,7 +57,7 @@ const AppLayout: React.FC<LayoutProps> = ({ children }) => {
             {me ? children : null}
           </Col>
           <StyledCol xs={0} md={4} lg={3} className="d-none d-md-block">
-            {me ? <UserProfile /> : <LoginForm />}
+            {me ? <UserProfile user={me} /> : <LoginForm />}
           </StyledCol>
         </Row>
       </Container>

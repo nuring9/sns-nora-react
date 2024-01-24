@@ -8,21 +8,34 @@ import NickEditForm from "../components/NickEditForm";
 import FollowList from "../components/FollowList";
 import { Container, Row } from "react-bootstrap";
 import { RootState } from "../store/configureStore";
-import { loadMyInfo } from "../reducers/user";
+import { Post } from "../types";
+import { loadMyInfo, follow, unfollow } from "../reducers/user";
 
-// import NavbarLayout from "../components/NavbarLayout";
-// import DirectMessage from "../components/DirectMessage";
-// import UserProfile from "../components/UserProfile";
+interface ProfileProps {
+  post?: Post;
+}
 
-// const fetcher = (url) => axios.get(url).then((result) => result.data);
-
-const Profile: React.FC = () => {
+const Profile: React.FC<ProfileProps> = ({ post }) => {
   const location = useLocation(); // 현재 페이지 location
+  const id = useSelector((state: RootState) => state.user.me?.id);
   const dispatch = useDispatch<AppDispatch>();
-  const { me } = useSelector((state: RootState) => {
-    console.log(state); // Check the structure of your state
-    return state.user;
-  });
+  const { me, loadFollowersLoading, loadFollowersError } = useSelector(
+    (state: RootState) => {
+      console.log(state);
+      return state.user;
+    }
+  );
+
+  useEffect(() => {
+    if (post) {
+      const followsData = {
+        postId: post.id,
+        userId: id,
+      };
+      dispatch(follow(followsData));
+      dispatch(unfollow(followsData));
+    }
+  }, [dispatch, post]);
 
   const [followersLimit, setFollowersLimit] = useState(3);
   const [followingsLimit, setFollowingsLimit] = useState(3);
@@ -47,17 +60,6 @@ const Profile: React.FC = () => {
     }
   }, [me, navigate]);
 
-  const followerList = [
-    { nickname: "눌1" },
-    { nickname: "눌2" },
-    { nickname: "눌3" },
-  ];
-  const followingList = [
-    { nickname: "눌4" },
-    { nickname: "눌눌눌" },
-    { nickname: "눌눌눌눌" },
-  ];
-
   const loadMoreFollowings = useCallback(() => {
     setFollowingsLimit((prev) => prev + 3);
   }, []);
@@ -76,31 +78,19 @@ const Profile: React.FC = () => {
         <Container>
           <Row>
             <NickEditForm />
-            <FollowList header="팔로잉 목록" data={followingList} />
-            <FollowList header="팔로워 목록" data={followerList} />
+            <FollowList
+              header="팔로잉 목록"
+              data={me.Followings}
+              onClickMore={loadMoreFollowings}
+              // loading={!followingsData && !followingError}
+            />
+            <FollowList
+              header="팔로워 목록"
+              data={me.Followers}
+              onClickMore={loadMoreFollowers}
+            />
           </Row>
         </Container>
-        {/* <NavbarLayout />
-      <Container>
-        <Row>
-          <Col xs={0} md={2} lg={3} className="d-none d-md-block">
-            <DirectMessage />
-          </Col>
-
-          <Col xs={12} md={6} lg={6} className="d-flex justify-content-center">
-            <Row>
-              <NickEditForm />
-
-              <FollowList header="팔로잉 목록" data={followingList} />
-
-              <FollowList header="팔로워 목록" data={followerList} />
-            </Row>
-          </Col>
-          <Col xs={0} md={4} lg={3} className="d-none d-md-block">
-            <UserProfile />
-          </Col>
-        </Row>
-      </Container> */}
       </AppLayout>
     </div>
   );

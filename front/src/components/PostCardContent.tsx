@@ -46,6 +46,7 @@ const PostCardContent: React.FC<PostCardContentProps> = ({
     setEditText(postData);
     onCancelUpdate();
   }, [onCancelUpdate, postData]);
+
   const splittedData = postData?.split(/(#[^\s#]+)/g);
 
   return (

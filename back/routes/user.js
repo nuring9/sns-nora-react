@@ -17,7 +17,16 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const models_1 = require("../models");
 const middlewares_1 = require("./middlewares");
 const passport_1 = __importDefault(require("passport"));
+const sequelize_1 = require("sequelize");
 const router = express_1.default.Router();
+// interface UserResponse {
+//   id: number;
+//   email: string;
+//   nick: string;
+//   Posts?: number; // Assuming Posts is an array in your Sequelize model
+//   Followers?: number;
+//   Followings?: number;
+// }
 router.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     // GET /user
     try {
@@ -36,12 +45,12 @@ router.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
                     {
                         model: models_1.User,
                         as: "Followings",
-                        attributes: ["id"],
+                        attributes: ["id", "nick"],
                     },
                     {
                         model: models_1.User,
                         as: "Followers",
-                        attributes: ["id"],
+                        attributes: ["id", "nick"],
                     },
                 ],
             });
@@ -88,18 +97,201 @@ router.post("/login", middlewares_1.isNotLoggedIn, (req, res, next) => __awaiter
                     {
                         model: models_1.User,
                         as: "Followings",
-                        attributes: ["id"],
+                        attributes: ["id", "nick"],
                     },
                     {
                         model: models_1.User,
                         as: "Followers",
-                        attributes: ["id"],
+                        attributes: ["id", "nick"],
                     },
                 ],
             });
             return res.status(200).json(user);
         }));
     })(req, res, next);
+}));
+// router.get("/followers", isLoggedIn, async (req, res, next) => {
+//   // GET /user/followers
+//   try {
+//     const user = await User.findOne({ where: { id: req.user?.id } });
+//     if (!user) {
+//       res.status(403).send("없는 사람을 찾으려고 하시네요?");
+//     }
+//     const followers = await user?.getFollowers({
+//       limit: parseInt(req.query.limit, 10),
+//     });
+//     res.status(200).json(followers);
+//   } catch (error) {
+//     console.error(error);
+//     next(error);
+//   }
+// });
+// router.get("/followings", isLoggedIn, async (req, res, next) => {
+//   // GET /user/followings
+//   try {
+//     const user = await User.findOne({ where: { id: req.user?.id } });
+//     if (!user) {
+//       res.status(403).send("없는 사람을 찾으려고 하시네요?");
+//     }
+//     const followings = await user.getFollowings({
+//       limit: parseInt(req.query.limit, 10),
+//     });
+//     res.status(200).json(followings);
+//   } catch (error) {
+//     console.error(error);
+//     next(error);
+//   }
+// });
+router.get("/:userId", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    // GET /user/1
+    try {
+        const fullUserWithoutPassword = yield models_1.User.findOne({
+            where: { id: req.params.userId },
+            attributes: {
+                exclude: ["password"],
+            },
+            include: [
+                {
+                    model: models_1.Post,
+                    attributes: ["id"],
+                },
+                {
+                    model: models_1.User,
+                    as: "Followings",
+                    attributes: ["id", "nick"],
+                },
+                {
+                    model: models_1.User,
+                    as: "Followers",
+                    attributes: ["id", "nick"],
+                },
+            ],
+        });
+        // if (fullUserWithoutPassword) {
+        //   const data: UserResponse = fullUserWithoutPassword.toJSON();
+        //   data.Posts = data.Posts?.length; // 개인정보 침해 예방
+        //   data.Followers = data.Followers?.length;
+        //   data.Followings = data.Followings?.length;
+        //   res.status(200).json(data);
+        // } else {
+        //   res.status(404).json("존재하지 않는 사용자입니다.");
+        // }
+        res.status(200).json(fullUserWithoutPassword);
+    }
+    catch (error) {
+        console.error(error);
+        next(error);
+    }
+}));
+router.get("/:userId/posts", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    // GET /user/1/posts
+    try {
+        const where = {
+            UserId: req.params.userId,
+        };
+        if (req.query.lastId) {
+            // 초기 로딩이 아닐 때
+            where.id = { [sequelize_1.Op.lt]: parseInt(req.query.lastId, 10) || 0 };
+        }
+        const posts = yield models_1.Post.findAll({
+            where,
+            limit: 10,
+            order: [["createdAt", "DESC"]],
+            include: [
+                {
+                    model: models_1.User,
+                    attributes: ["id", "nickname"],
+                },
+                {
+                    model: models_1.Image,
+                },
+                {
+                    model: models_1.Comment,
+                    include: [
+                        {
+                            model: models_1.User,
+                            attributes: ["id", "nickname"],
+                            order: [["createdAt", "DESC"]],
+                        },
+                    ],
+                },
+                {
+                    model: models_1.User, // 좋아요 누른 사람
+                    as: "Likers",
+                    attributes: ["id"],
+                },
+                {
+                    model: models_1.Post,
+                    as: "Retweet",
+                    include: [
+                        {
+                            model: models_1.User,
+                            attributes: ["id", "nickname"],
+                        },
+                        {
+                            model: models_1.Image,
+                        },
+                    ],
+                },
+            ],
+        });
+        res.status(200).json(posts);
+    }
+    catch (error) {
+        console.error(error);
+        next(error);
+    }
+}));
+router.patch("/:userId/follow", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    // PATCH /user/1/follow
+    try {
+        const user = yield models_1.User.findOne({ where: { id: req.params.userId } });
+        if (!user) {
+            res.status(403).send("없는 사람을 팔로우하려고 하시네요?");
+        }
+        if (req.user) {
+            yield (user === null || user === void 0 ? void 0 : user.addFollowers([req.user.id]));
+            res.status(200).json({ UserId: parseInt(req.params.userId, 10) });
+        }
+    }
+    catch (error) {
+        console.error(error);
+        next(error);
+    }
+}));
+router.delete("/:userId/follow", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    // DELETE /user/1/follow
+    try {
+        const user = yield models_1.User.findOne({ where: { id: req.params.userId } });
+        if (!user) {
+            res.status(403).send("없는 사람을 언팔로우하려고 하시네요?");
+        }
+        if (req.user) {
+            yield (user === null || user === void 0 ? void 0 : user.removeFollowers([req.user.id]));
+            res.status(200).json({ UserId: parseInt(req.params.userId, 10) });
+        }
+    }
+    catch (error) {
+        console.error(error);
+        next(error);
+    }
+}));
+router.delete("/follower/:userId", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    // DELETE /user/follower/2
+    try {
+        const user = yield models_1.User.findOne({ where: { id: req.params.userId } });
+        if (!user) {
+            res.status(403).send("없는 사람을 차단하려고 하시네요?");
+        }
+        if (req.user) {
+            yield (user === null || user === void 0 ? void 0 : user.removeFollowings([req.user.id]));
+            res.status(200).json({ UserId: parseInt(req.params.userId, 10) });
+        }
+    }
+    catch (error) {
+        console.error(error);
+        next(error);
+    }
 }));
 router.post("/signup", middlewares_1.isNotLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     // POST /user/signup

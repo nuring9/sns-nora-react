@@ -27,10 +27,6 @@ router.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
             // 초기 로딩이 아닐 때,
             where.id = { [sequelize_1.Op.lt]: lastId };
         }
-        // if (lastId) {
-        //   // 초기 로딩이 아닐 때,
-        //   where.id = { [Op.lt]: lastId };
-        // }
         const posts = yield models_1.Post.findAll({
             where,
             limit: 10,

@@ -4,6 +4,7 @@ import { User, Post, Image, Comment } from "../models";
 import { isLoggedIn, isNotLoggedIn } from "./middlewares";
 import passport from "passport";
 import { Request, Response } from "express";
+import { Op } from "sequelize";
 
 const router = express.Router();
 
@@ -31,12 +32,12 @@ router.get("/", async (req, res, next) => {
           {
             model: User,
             as: "Followings",
-            attributes: ["id"],
+            attributes: ["id", "nick"],
           },
           {
             model: User,
             as: "Followers",
-            attributes: ["id"],
+            attributes: ["id", "nick"],
           },
         ],
       });
@@ -84,12 +85,12 @@ router.post("/login", isNotLoggedIn, async (req, res, next) => {
             {
               model: User,
               as: "Followings",
-              attributes: ["id"],
+              attributes: ["id", "nick"],
             },
             {
               model: User,
               as: "Followers",
-              attributes: ["id"],
+              attributes: ["id", "nick"],
             },
           ],
         });
@@ -97,6 +98,191 @@ router.post("/login", isNotLoggedIn, async (req, res, next) => {
       });
     }
   )(req, res, next);
+});
+
+// router.get("/followers", isLoggedIn, async (req, res, next) => {
+//   // GET /user/followers
+//   try {
+//     const user = await User.findOne({ where: { id: req.user?.id } });
+//     if (!user) {
+//       res.status(403).send("없는 사람을 찾으려고 하시네요?");
+//     }
+//     const followers = await user?.getFollowers({
+//       limit: parseInt(req.query.limit, 10),
+//     });
+//     res.status(200).json(followers);
+//   } catch (error) {
+//     console.error(error);
+//     next(error);
+//   }
+// });
+
+// router.get("/followings", isLoggedIn, async (req, res, next) => {
+//   // GET /user/followings
+//   try {
+//     const user = await User.findOne({ where: { id: req.user?.id } });
+//     if (!user) {
+//       res.status(403).send("없는 사람을 찾으려고 하시네요?");
+//     }
+//     const followings = await user.getFollowings({
+//       limit: parseInt(req.query.limit, 10),
+//     });
+//     res.status(200).json(followings);
+//   } catch (error) {
+//     console.error(error);
+//     next(error);
+//   }
+// });
+
+router.get("/:userId", async (req, res, next) => {
+  // GET /user/1
+  try {
+    const fullUserWithoutPassword = await User.findOne({
+      where: { id: req.params.userId },
+      attributes: {
+        exclude: ["password"],
+      },
+      include: [
+        {
+          model: Post,
+          attributes: ["id"],
+        },
+        {
+          model: User,
+          as: "Followings",
+          attributes: ["id", "nick"],
+        },
+        {
+          model: User,
+          as: "Followers",
+          attributes: ["id", "nick"],
+        },
+      ],
+    });
+    // if (fullUserWithoutPassword) {
+    //   const data: UserResponse = fullUserWithoutPassword.toJSON();
+    //   data.Posts = data.Posts?.length; // 개인정보 침해 예방
+    //   data.Followers = data.Followers?.length;
+    //   data.Followings = data.Followings?.length;
+    //   res.status(200).json(data);
+    // } else {
+    //   res.status(404).json("존재하지 않는 사용자입니다.");
+    // }
+    res.status(200).json(fullUserWithoutPassword);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.get("/:userId/posts", async (req, res, next) => {
+  // GET /user/1/posts
+  try {
+    const where: { UserId: string; id?: { [Op.lt]: number } } = {
+      UserId: req.params.userId,
+    };
+    if (req.query.lastId) {
+      // 초기 로딩이 아닐 때
+      where.id = { [Op.lt]: parseInt(req.query.lastId as string, 10) || 0 };
+    }
+    const posts = await Post.findAll({
+      where,
+      limit: 10,
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: User,
+          attributes: ["id", "nick"],
+        },
+        {
+          model: Image,
+        },
+        {
+          model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nick"],
+              order: [["createdAt", "DESC"]],
+            },
+          ],
+        },
+        {
+          model: User, // 좋아요 누른 사람
+          as: "Likers",
+          attributes: ["id"],
+        },
+        {
+          model: Post,
+          as: "Retweet",
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nick"],
+            },
+            {
+              model: Image,
+            },
+          ],
+        },
+      ],
+    });
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.patch("/:userId/follow", isLoggedIn, async (req, res, next) => {
+  // PATCH /user/1/follow
+  try {
+    const user = await User.findOne({ where: { id: req.params.userId } });
+    if (!user) {
+      res.status(403).send("없는 사람을 팔로우하려고 하시네요?");
+    }
+    if (req.user) {
+      await user?.addFollowers([req.user.id]);
+      res.status(200).json({ UserId: parseInt(req.params.userId, 10) });
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.delete("/:userId/follow", isLoggedIn, async (req, res, next) => {
+  // DELETE /user/1/follow
+  try {
+    const user = await User.findOne({ where: { id: req.params.userId } });
+    if (!user) {
+      res.status(403).send("없는 사람을 언팔로우하려고 하시네요?");
+    }
+    if (req.user) {
+      await user?.removeFollowers([req.user.id]);
+      res.status(200).json({ UserId: parseInt(req.params.userId, 10) });
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.delete("/follower/:userId", isLoggedIn, async (req, res, next) => {
+  // DELETE /user/follower/2
+  try {
+    const user = await User.findOne({ where: { id: req.params.userId } });
+    if (!user) {
+      res.status(403).send("없는 사람을 차단하려고 하시네요?");
+    }
+    if (req.user) {
+      await user?.removeFollowings([req.user.id]);
+      res.status(200).json({ UserId: parseInt(req.params.userId, 10) });
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
 });
 
 router.post("/signup", isNotLoggedIn, async (req, res, next) => {

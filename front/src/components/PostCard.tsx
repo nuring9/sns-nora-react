@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useMemo } from "react";
-import { Post, Image, CommentDataType } from "../types";
+import { Post, Image } from "../types";
 import { v4 as uuidv4 } from "uuid";
 import { Button, Card, Dropdown, ListGroup } from "react-bootstrap";
 import {
@@ -26,6 +26,10 @@ import FollowButton from "./FollowButton";
 const CommentWrapper = styled.div`
   padding: 2px 15px;
   margin-bottom: 15px;
+`;
+
+const CardWrapper = styled.div`
+  margin-top: 10px;
 `;
 
 const AvatarWrapper = styled(Avatar)`
@@ -109,34 +113,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     setCommentFormOpened((prev) => !prev);
   }, []);
 
-  // const onChangePost = useCallback(
-  //   (editText) => () => {
-  //     dispatch(
-  //       updatePost({
-  //         PostId: post.id,
-  //         content: editText,
-  //       })
-  //     );
-  //   },
-  //   [post]
-  // );
-
-  // const onSubmit = useCallback(
-  //   (e: React.SyntheticEvent) => {
-  //     e.preventDefault();
-  //     const postData: PostText = {
-  //       content: text,
-  //       userId: id,
-  //     };
-  //     dispatch(addPost(postData));
-  //     setText("");
-  //   },
-  //   [dispatch, text, id]
-  // );
-
   const onChangePost = useCallback(
     (editText: string) => () => {
-      // e.preventDefault();
       const updatePostData = {
         postId: post.id,
         content: editText,
@@ -144,7 +122,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       };
       dispatch(updatePost(updatePostData));
       console.log(post.id, editText);
-      // setText("");
     },
     [post, dispatch, id]
   );
@@ -157,7 +134,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   }, [id, dispatch, post.id]);
 
   return (
-    <div>
+    <CardWrapper>
       <Card>
         <FolloWrapper>{id && <FollowButton post={post} />}</FolloWrapper>
         {post.Images && post.Images[0] && <PostImages images={post.Images} />}
@@ -165,13 +142,13 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         <Card.Body>
           <Card.Title>
             <AvatarWrapper
-              // name={post.User.nickname[0]}
+              name={post.User.nick}
               src="/images/sa.jpeg"
               size="40"
               round={true}
               textSizeRatio={2}
             />
-            {post.User?.nickname}
+            {post.User?.nick}
           </Card.Title>
           <Card.Text>
             <PostCardContent
@@ -212,11 +189,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 {post.User && !id && (
                   <Dropdown.Item href="#action3">신고</Dropdown.Item>
                 )} */}
-
                 {id && post.User.id === id ? (
                   <>
-                    {/* <Dropdown.Item href="#action1" >수정</Dropdown.Item>
-                    <Dropdown.Item href="#action2">삭제</Dropdown.Item> */}
                     <Dropdown.Item onClick={onClickUpdate}>수정</Dropdown.Item>
                     <Dropdown.Item
                       disabled={removePostLoading}
@@ -244,11 +218,11 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 <ListGroupItem key={uuidv4()}>
                   <div className="d-flex align-items-center">
                     <AvatarWrapper
-                      name={item.User?.nickname}
+                      name={item.User?.nick}
                       size="30"
                       round={true}
                     />
-                    <CommentNick>{item.User?.nickname}</CommentNick>
+                    <CommentNick>{item.User?.nick}</CommentNick>
                     <span>
                       <CommentContent>{item.content}</CommentContent>
                     </span>
@@ -259,34 +233,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             <CommentForm post={post} />
           </CommentWrapper>
         )}
-        {/* {commentFormOpened && (
-          <CommentWrapper>
-            <ListGroup>
-              <CommentLength>
-                {`${post.Comments.length}개의 댓글`}
-              </CommentLength>
-              <BottomLine />
-              {post.Comments.map((item) => (
-                <ListGroupItem key={post.id}>
-                  <div className="d-flex align-items-center">
-                    <AvatarWrapper
-                      name={item.User?.nickname}
-                      size="30"
-                      round={true}
-                    />
-                    <CommentNick>{item.User?.nickname}</CommentNick>
-                    <span>
-                      <CommentContent>{item.content}</CommentContent>
-                    </span>
-                  </div>
-                </ListGroupItem>
-              ))}
-            </ListGroup>
-            <CommentForm post={post} />
-          </CommentWrapper>
-        )} */}
       </Card>
-    </div>
+    </CardWrapper>
   );
 };
 

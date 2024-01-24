@@ -195,7 +195,7 @@ const postSlice = createSlice({
         draft.updatePostLoading = false;
         draft.updatePostDone = true;
         // draft.mainPosts.find((v) => v.id === action.payload.PostId).content =
-        //   action.payload.content;
+        //   action.payload.content;  오류
         const postToUpdate = draft.mainPosts.find(
           (v) => v.id === action.payload.PostId
         );

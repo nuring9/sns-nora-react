@@ -1,6 +1,7 @@
 import IndexPage from "../pages/index";
 import Signup from "../pages/signup";
 import Profile from "../pages/profile";
+import { Post } from "../types";
 
 type MyType = {
   path: string;

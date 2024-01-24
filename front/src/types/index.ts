@@ -5,6 +5,7 @@ export interface User {
   email?: string;
   password?: string;
   nickname?: string;
+  nick?: string;
 }
 
 export interface Image {
@@ -31,6 +32,7 @@ export interface Post {
   Images?: Image[];
   Comments: Comment[];
   Likers?: LikersType[] | null;
+  nick?: string;
 }
 
 export interface Posts extends Post {
@@ -56,5 +58,11 @@ export interface UpdatePostDataType {
 
 export interface PostId {
   postId?: number;
+  userId?: number;
+}
+
+export interface FollowersType {
+  postId?: number;
+  id?: number;
   userId?: number;
 }

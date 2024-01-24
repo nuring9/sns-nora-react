@@ -17,31 +17,37 @@ const FollowButton: React.FC<FollowButtonProps> = ({ post }) => {
     (state: RootState) => state.user
   );
 
-  const isFollowing = me?.Followings.find((v: any) => v.id === post.User.id);
-
+  const isFollowing = me?.Followings?.find((v: any) => v.id === post.User.id);
+  // Followings?.(내가 팔로잉한 목록 중에 게시글 작성자 아이디가 있으면 내가 팔로잉한 사람)
   const userId = post.User?.id;
 
   const onClickButton = useCallback(() => {
-    if (userId) {
+    if (userId && me) {
       if (isFollowing) {
-        dispatch(unfollow(userId));
+        dispatch(unfollow({ userId }));
       } else {
-        dispatch(follow(userId));
+        dispatch(follow({ userId }));
       }
     }
-  }, [isFollowing, dispatch, post.User.id]);
+  }, [isFollowing, dispatch, userId, me]);
 
-  if (post.User.id === me.id) {
+  if (me?.id === post.User.id) {
     return null;
   }
+
   return (
     <Button
       className="followButton"
+      disabled={followLoading || unfollowLoading}
       onClick={onClickButton}
       size="sm"
       variant="outline-primary"
     >
-      {isFollowing ? "언팔로우" : "팔로우"}
+      {followLoading && "팔로우 중"}
+      {unfollowLoading && "팔로우 취소중"}
+      {!followLoading && !unfollowLoading && isFollowing
+        ? "언팔로우"
+        : "팔로우"}
     </Button>
   );
 };

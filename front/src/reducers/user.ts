@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import { User } from "../types";
+import { User, FollowersType } from "../types";
 // interface MyError {  // 추후 에러 타입 변경 시 참고.
 //   message: string;
 //   code: number;
@@ -121,21 +121,24 @@ export const loadFollowers = createAsyncThunk(
   }
 );
 
-export const follow = createAsyncThunk("user/follow", async (data: number) => {
-  const response = await axios.patch(`/user/${data}/follow`);
-  return response.data;
-});
+export const follow = createAsyncThunk(
+  "user/follow",
+  async (data: FollowersType) => {
+    const response = await axios.patch(`/user/${data.userId}/follow`);
+    return response.data;
+  }
+);
 
 export const unfollow = createAsyncThunk(
   "user/unfollow",
-  async (data: number) => {
-    const response = await axios.delete(`/user/${data}/follow`);
+  async (data: FollowersType) => {
+    const response = await axios.delete(`/user/${data.userId}/follow`);
     return response.data;
   }
 );
 export const removeFollower = createAsyncThunk(
   "user/removeFollower",
-  async (data) => {
+  async (data: number) => {
     const response = await axios.delete(`/user/follower/${data}`);
     return response.data;
   }
