@@ -40,7 +40,7 @@ declare global {
 }
 
 app.use(morgan("dev"));
-app.use(express.static(path.join(__dirname, "../front/build"))); // 뷰엔진 대신 react프로젝트 연결a
+app.use(express.static(path.join(__dirname, "../front/build"))); // 뷰엔진 대신 react프로젝트 연결 (__dirname: 현재폴더)
 app.use(
   cors({
     origin: true, // 추후 배포 도메인변경
@@ -49,7 +49,8 @@ app.use(
 );
 // CORS 문제 해결하기
 
-// app.use(express.static(path.join(__dirname, "public")));
+app.use("/", express.static(path.join(__dirname, "uploads")));
+// express가 uploads폴더를 front에 제공함.  (__dirname: 현재폴더), "/"는 localhosts:8000 뒤의 /가 됨.
 app.use(express.json()); // front에서 넘어오는 데이터
 app.use(express.urlencoded({ extended: true })); // front의 form submit에서  넘어오는 데이터
 app.use(cookieParser(process.env.COOKIE_SECRET));

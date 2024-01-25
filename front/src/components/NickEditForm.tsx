@@ -28,6 +28,7 @@ const NickEditForm: React.FC = () => {
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       dispatch(changeNickname(nickname));
+      setNicname("");
     },
     [dispatch, nickname]
   );
@@ -40,10 +41,10 @@ const NickEditForm: React.FC = () => {
             value={nickname}
             onChange={onChangeNick}
             placeholder="닉네임을 입력하세요."
-            aria-label="Recipient's username"
-            aria-describedby="basic-addon2"
+            aria-label="nickEditForm"
+            aria-describedby="nickEditForm"
           />
-          <Button variant="outline-secondary" id="button-addon2">
+          <Button type="submit" variant="outline-secondary" id="nickEditButton">
             수정
           </Button>
         </InputGroup>

@@ -156,8 +156,8 @@ export const signUp = createAsyncThunk("user/signUp", async (data: User) => {
 
 export const changeNickname = createAsyncThunk(
   "user/changeNickname",
-  async (data: { nick: string }) => {
-    const response = await axios.patch("/user/nickname", { nick: data });
+  async (data: { nickname: string }) => {
+    const response = await axios.patch("/user/nickname", { nickname: data });
     return response.data;
   }
 );

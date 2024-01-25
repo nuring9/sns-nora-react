@@ -4,7 +4,7 @@ import { Form, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store/configureStore";
 import styled from "styled-components";
-import { addPost } from "../reducers/post";
+import { addPost, uploadImage } from "../reducers/post"; // 액션 가져옴.
 import { PostText } from "../types";
 import { AppDispatch } from "../store/configureStore";
 import "../styles/Post.scss";
@@ -36,11 +36,11 @@ const PostForm: React.FC = () => {
     }
   }, []);
 
-  // useEffect(() => {
-  //   if (addPostDone) {
-  //     setText("");
-  //   }
-  // }, [addPostDone]);
+  useEffect(() => {
+    if (addPostDone) {
+      setText("");
+    }
+  }, [addPostDone]);
 
   const onChangeText = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -48,6 +48,16 @@ const PostForm: React.FC = () => {
     },
     []
   );
+
+  const onChangeImages = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // 여기
+    console.log("images", e.target.files);
+    const imageFormData = new FormData();
+    [].forEach.call(e.target.files, (f) => {
+      imageFormData.append("image", f);
+    });
+    dispatch(uploadImage(imageFormData));
+  };
 
   const onSubmit = useCallback(
     (e: React.SyntheticEvent) => {
@@ -75,7 +85,14 @@ const PostForm: React.FC = () => {
         />
       </Form.Group>
       <div>
-        <input type="file" multiple hidden ref={imageInput} />
+        <input
+          type="file"
+          name="image"
+          multiple
+          hidden
+          ref={imageInput}
+          onChange={onChangeImages}
+        />
         <Button onClick={onClickImageUpload}>이미지 업로드</Button>
         <Button type="submit" className="post-button">
           게시

@@ -15,7 +15,50 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const models_1 = require("../models");
 const middlewares_1 = require("./middlewares");
+const multer_1 = __importDefault(require("multer"));
+const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
+const uuidv4_1 = require("uuidv4");
 const router = express_1.default.Router();
+try {
+    fs_1.default.readdirSync("uploads"); // uploads라는 폴더가 있는지 확인.  readdirSync: 동기방식으로 파일을 불러옴.
+}
+catch (error) {
+    console.error("uploads 폴더가 없어 uploads 폴더를 생성합니다.");
+    fs_1.default.mkdirSync("uploads"); // 없으면 폴더 만들기.   mkdirSync: Directory 생성.
+}
+// const upload = multer({
+//   // nmulter 설정.
+//   storage: multer.diskStorage({
+//     // 어디에 저장할 것인가, 우리는 사용자가 업로드한 것을 disk에 저장한다.
+//     destination(req, file, done) {
+//       done(null, "uploads/"); // 생성한 uploads폴더에 저장.
+//     },
+//     filename(req, file, done) {
+//       // 파일 이름 설정
+//       const ext = path.extname(file.originalname);
+//       // 확장자 추출.  이미지.png -> 이미지2023090234.png = 이미지+날짜스트링.png
+//       done(
+//         null,
+//         path.basename(file.originalname, ext) + "_" + Date.now() + ext
+//       ); // 파일명에 확장자를 분리 시킨뒤 사이에 날짜를 넣고 다시 확장자를 넣어 줌.
+//     },
+//   }),
+//   limits: { fileSize: 5 * 1024 * 1024 }, // 파일 사이즈 5mg bite가 작을수도 있으니 변경 가능.
+// });
+const upload = (0, multer_1.default)({
+    storage: multer_1.default.diskStorage({
+        destination(req, file, done) {
+            done(null, "uploads/");
+        },
+        filename(req, file, done) {
+            const ext = path_1.default.extname(file.originalname);
+            const filename = (0, uuidv4_1.uuid)() + ext; // UUID로 파일 이름 생성
+            done(null, filename);
+        },
+    }),
+    limits: { fileSize: 5 * 1024 * 1024 },
+});
 router.post("/", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const post = yield models_1.Post.create({
@@ -68,8 +111,31 @@ router.post("/", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0,
         next(err);
     }
 }));
-router.delete("/", (req, res) => {
-    res.json({ id: 1 });
+// router.post("/images", isLoggedIn, upload.array("image"), (req, res, next) => {
+//   // front의 input name "image"와 array 동일, 한 장만 업로드하면 single
+//   // POST /post/images
+//   console.log(req.files);
+//   if (req.files) {
+//     const mappedFiles = (req.files as Express.Multer.File[]).map((v) => ({
+//       ...v,
+//       location: v.filename.replace(/\/original\//, "/thumb/"),
+//     }));
+//     res.json(mappedFiles);
+//   } else {
+//     res.status(400).json({ error: "No files provided." });
+//   }
+// });
+router.post("/images", middlewares_1.isLoggedIn, upload.array("image"), (req, res, next) => {
+    // front의 input name "image"와 array 동일, 한 장만 업로드하면 single
+    // POST /post/images
+    console.log(req.files);
+    if (req.files) {
+        const mappedFiles = req.files.map((v) => (Object.assign(Object.assign({}, v), { filename: String(v.filename), location: String(v.filename).replace(/\/original\//, "/thumb/") })));
+        res.json(mappedFiles);
+    }
+    else {
+        res.status(400).json({ error: "No files provided." });
+    }
 });
 // router.get("/:postId", async (req: Request, res: Response, next) => {
 //   // GET /post/1
@@ -237,7 +303,7 @@ router.patch("/:postId", middlewares_1.isLoggedIn, (req, res, next) => __awaiter
         }, {
             where: {
                 id: req.params.postId,
-                UserId: (_b = req.user) === null || _b === void 0 ? void 0 : _b.id,
+                UserId: (_b = req.user) === null || _b === void 0 ? void 0 : _b.id, // 내가 내글 삭제
             },
         });
         const post = yield models_1.Post.findOne({ where: { id: req.params.postId } });

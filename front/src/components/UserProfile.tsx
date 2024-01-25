@@ -23,11 +23,7 @@ const LinkStyled = styled.a`
   text-decoration: none;
 `;
 
-interface UserProfileProps {
-  user?: User;
-}
-
-const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
+const UserProfile: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { me, logOutLoading } = useSelector((state: RootState) => state.user);
 
@@ -48,7 +44,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
                 <ImageStyled src={imagePath} alt="profileheart.png" />
               </Col>
               <Col xs={8} md={7} lg={8}>
-                <h4>{user?.nick}</h4>
+                <h4>{me?.nick}</h4>
                 <Button
                   onClick={onLogOut}
                   disabled={logOutLoading}

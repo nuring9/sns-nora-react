@@ -30,13 +30,14 @@ models_1.sequelize
     console.error(err);
 });
 app.use((0, morgan_1.default)("dev"));
-app.use(express_1.default.static(path_1.default.join(__dirname, "../front/build"))); // 뷰엔진 대신 react프로젝트 연결a
+app.use(express_1.default.static(path_1.default.join(__dirname, "../front/build"))); // 뷰엔진 대신 react프로젝트 연결 (__dirname: 현재폴더)
 app.use((0, cors_1.default)({
     origin: true, // 추후 배포 도메인변경
     credentials: true, // 추후 배포 후 true로 변경
 }));
 // CORS 문제 해결하기
-// app.use(express.static(path.join(__dirname, "public")));
+app.use("/", express_1.default.static(path_1.default.join(__dirname, "uploads")));
+// express가 uploads폴더를 front에 제공함.  (__dirname: 현재폴더), "/"는 localhosts:8000 뒤의 /가 됨.
 app.use(express_1.default.json()); // front에서 넘어오는 데이터
 app.use(express_1.default.urlencoded({ extended: true })); // front의 form submit에서  넘어오는 데이터
 app.use((0, cookie_parser_1.default)(process.env.COOKIE_SECRET));

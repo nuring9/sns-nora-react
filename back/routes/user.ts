@@ -329,11 +329,12 @@ router.post("/logout", isLoggedIn, (req, res) => {
 router.patch("/nickname", isLoggedIn, async (req, res, next) => {
   try {
     await User.update(
+      //수정
       {
-        nick: req.body.nickname,
+        nick: req.body.nickname, // front에서 제공
       },
       {
-        where: { id: req.user?.id },
+        where: { id: req.user?.id }, // 조건, 내 아이디 수정
       }
     );
     res.status(200).json({ nick: req.body.nickname });

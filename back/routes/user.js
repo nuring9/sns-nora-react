@@ -19,14 +19,6 @@ const middlewares_1 = require("./middlewares");
 const passport_1 = __importDefault(require("passport"));
 const sequelize_1 = require("sequelize");
 const router = express_1.default.Router();
-// interface UserResponse {
-//   id: number;
-//   email: string;
-//   nick: string;
-//   Posts?: number; // Assuming Posts is an array in your Sequelize model
-//   Followers?: number;
-//   Followings?: number;
-// }
 router.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     // GET /user
     try {
@@ -200,7 +192,7 @@ router.get("/:userId/posts", (req, res, next) => __awaiter(void 0, void 0, void 
             include: [
                 {
                     model: models_1.User,
-                    attributes: ["id", "nickname"],
+                    attributes: ["id", "nick"],
                 },
                 {
                     model: models_1.Image,
@@ -210,7 +202,7 @@ router.get("/:userId/posts", (req, res, next) => __awaiter(void 0, void 0, void 
                     include: [
                         {
                             model: models_1.User,
-                            attributes: ["id", "nickname"],
+                            attributes: ["id", "nick"],
                             order: [["createdAt", "DESC"]],
                         },
                     ],
@@ -226,7 +218,7 @@ router.get("/:userId/posts", (req, res, next) => __awaiter(void 0, void 0, void 
                     include: [
                         {
                             model: models_1.User,
-                            attributes: ["id", "nickname"],
+                            attributes: ["id", "nick"],
                         },
                         {
                             model: models_1.Image,
@@ -336,10 +328,12 @@ router.post("/logout", middlewares_1.isLoggedIn, (req, res) => {
 router.patch("/nickname", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        yield models_1.User.update({
-            nick: req.body.nickname,
+        yield models_1.User.update(
+        //수정
+        {
+            nick: req.body.nickname, // front에서 제공
         }, {
-            where: { id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id },
+            where: { id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id }, // 조건, 내 아이디 수정
         });
         res.status(200).json({ nick: req.body.nickname });
     }

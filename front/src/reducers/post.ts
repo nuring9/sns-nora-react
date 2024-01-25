@@ -32,6 +32,9 @@ interface PostsState {
   unlikePostLoading: boolean;
   unlikePostDone: boolean;
   unlikePostError: unknown;
+  uploadImagesLoading: boolean;
+  uploadImagesDone: boolean;
+  uploadImagesError: unknown;
 }
 
 const initialState: PostsState = {
@@ -63,6 +66,9 @@ const initialState: PostsState = {
   unlikePostLoading: false,
   unlikePostDone: false,
   unlikePostError: null,
+  uploadImagesLoading: false,
+  uploadImagesDone: false,
+  uploadImagesError: null,
 };
 
 const loadPostsThrottle = async (lastId: number) => {
@@ -120,6 +126,14 @@ export const addComment = createAsyncThunk(
   }
 );
 
+export const uploadImage = createAsyncThunk(
+  "post/uploadImage",
+  async (data: FormData) => {
+    const response = await axios.post("/post/images", data);
+    return response.data;
+  }
+);
+
 export const likePost = createAsyncThunk(
   "post/likePost",
   async (data: number) => {
@@ -139,7 +153,15 @@ export const unlikePost = createAsyncThunk(
 const postSlice = createSlice({
   name: "post",
   initialState,
-  reducers: {},
+  reducers: {
+    // removeImage 액션은 비동기가 아님. 동기 액션만 여기에 작성.
+    // 보통 이미지는 서버에서 제거하지 않으므로 동기액션만 구현했는데, 나중에 서버에서도 제거가능하게 하려면 비동기로 전환.
+    removeImage(state, action) {
+      state.imagePaths = state.imagePaths.filter(
+        (v, i) => i !== action.payload
+      );
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(loadPost.pending, (draft, action) => {
@@ -240,6 +262,20 @@ const postSlice = createSlice({
       .addCase(addComment.rejected, (draft, action) => {
         draft.addCommentLoading = false;
         draft.addCommentError = action.error;
+      })
+      .addCase(uploadImage.pending, (draft, action) => {
+        draft.uploadImagesLoading = true;
+        draft.uploadImagesDone = false;
+        draft.uploadImagesError = null;
+      })
+      .addCase(uploadImage.fulfilled, (draft, action) => {
+        draft.imagePaths = draft.imagePaths.concat(action.payload);
+        draft.uploadImagesLoading = false;
+        draft.uploadImagesDone = true;
+      })
+      .addCase(uploadImage.rejected, (draft, action) => {
+        draft.uploadImagesLoading = false;
+        draft.uploadImagesError = action.error;
       })
       .addCase(likePost.pending, (draft, action) => {
         draft.likePostLoading = true;
