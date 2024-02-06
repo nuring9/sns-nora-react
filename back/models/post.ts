@@ -22,6 +22,7 @@ class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
   declare addHashtags: BelongsToManyAddAssociationsMixin<Hashtag, number>;
   declare addLikers: BelongsToManyAddAssociationsMixin<User, number>;
   declare removeLikers: BelongsToManyRemoveAssociationsMixin<User, number>;
+  declare addImages: BelongsToManyAddAssociationsMixin<Image, number>;
 
   static initiate(sequelize: Sequelize.Sequelize) {
     Post.init(

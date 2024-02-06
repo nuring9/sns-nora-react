@@ -19,13 +19,14 @@ const upload = multer({
   storage: multer.diskStorage({
     // 어디에 저장할 것인가, 우리는 사용자가 업로드한 것을 disk에 저장한다.
     destination(req, file, done) {
-      done(null, "uploads/"); // 생성한 uploads폴더에 저장.
+      done(null, "uploads"); // 생성한 uploads폴더에 저장.
     },
     filename(req, file, done) {
       // 파일 이름 설정
       const ext = path.extname(file.originalname);
       // 확장자 추출.  이미지.png -> 이미지2023090234.png = 이미지+날짜스트링.png
-      done(null, path.basename(file.originalname, ext) + Date.now() + ext); // 파일명에 확장자를 분리 시킨뒤 사이에 날짜를 넣고 다시 확장자를 넣어 줌.
+      done(null, path.basename(file.originalname, ext) + Date.now() + ext);
+      // 파일명에 확장자를 분리 시킨뒤 사이에 날짜를 넣고 다시 확장자를 넣어 줌.
     },
   }),
   limits: { fileSize: 5 * 1024 * 1024 }, // 파일 사이즈 5mg bite가 작을수도 있으니 변경 가능.
@@ -37,7 +38,19 @@ router.post("/", isLoggedIn, async (req: Request, res: Response, next) => {
       content: req.body.content,
       UserId: parseInt(req.body.userId, 10),
     });
-
+    if (req.body.image) {
+      if (Array.isArray(req.body.image)) {
+        // 이미지를 여러 개 올리면 image: [aa.png, bb.png]
+        const images = await Promise.all(
+          req.body.image.map((image: any) => Image.create({ src: image }))
+        );
+        await post.addImages(images);
+      } else {
+        // 이미지를 하나만 올리면 image: aa.png
+        const image = await Image.create({ src: req.body.image });
+        await post.addImages([image]);
+      }
+    }
     const fullPost = await Post.findOne({
       where: { id: post.id },
       include: [
@@ -76,12 +89,7 @@ router.post("/images", isLoggedIn, upload.array("image"), (req, res, next) => {
   // POST /post/images
   console.log(req.files);
   if (req.files) {
-    const mappedFiles = (req.files as Express.Multer.File[]).map((v) => ({
-      ...v,
-      location: v.filename.replace(/\/original\//, "/thumb/"),
-    }));
-
-    res.json(mappedFiles);
+    res.json((req.files as Express.Multer.File[]).map((v) => v.filename));
   } else {
     res.status(400).json({ error: "No files provided." });
   }

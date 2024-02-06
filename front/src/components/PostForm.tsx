@@ -49,15 +49,17 @@ const PostForm: React.FC = () => {
     []
   );
 
-  const onChangeImages = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // 여기
-    console.log("images", e.target.files);
-    const imageFormData = new FormData();
-    [].forEach.call(e.target.files, (f) => {
-      imageFormData.append("image", f);
-    });
-    dispatch(uploadImage(imageFormData));
-  };
+  const onChangeImages = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      console.log("images", e.target.files);
+      const imageFormData = new FormData();
+      [].forEach.call(e.target.files, (f) => {
+        imageFormData.append("image", f);
+      });
+      dispatch(uploadImage(imageFormData));
+    },
+    [dispatch]
+  );
 
   const onSubmit = useCallback(
     (e: React.SyntheticEvent) => {
@@ -99,12 +101,12 @@ const PostForm: React.FC = () => {
         </Button>
       </div>
       <div>
-        {imagePaths.map((v) => (
+        {imagePaths.map((filename, i) => (
           <div key={uuidv4()} style={{ display: "inline-block" }}>
             <img
-              src={"http://localhost:8000/" + v}
+              src={`http://localhost:8000/${filename}`}
               style={{ width: "200px" }}
-              alt={v}
+              alt={filename}
             />
             <div>
               <Button>제거</Button>

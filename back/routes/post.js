@@ -15,10 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const models_1 = require("../models");
 const middlewares_1 = require("./middlewares");
-const multer_1 = __importDefault(require("multer"));
-const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
-const uuidv4_1 = require("uuidv4");
+const multer_1 = __importDefault(require("multer")); // 추가
+const path_1 = __importDefault(require("path")); // 추가
+const fs_1 = __importDefault(require("fs")); // 추가
 const router = express_1.default.Router();
 try {
     fs_1.default.readdirSync("uploads"); // uploads라는 폴더가 있는지 확인.  readdirSync: 동기방식으로 파일을 불러옴.
@@ -27,37 +26,22 @@ catch (error) {
     console.error("uploads 폴더가 없어 uploads 폴더를 생성합니다.");
     fs_1.default.mkdirSync("uploads"); // 없으면 폴더 만들기.   mkdirSync: Directory 생성.
 }
-// const upload = multer({
-//   // nmulter 설정.
-//   storage: multer.diskStorage({
-//     // 어디에 저장할 것인가, 우리는 사용자가 업로드한 것을 disk에 저장한다.
-//     destination(req, file, done) {
-//       done(null, "uploads/"); // 생성한 uploads폴더에 저장.
-//     },
-//     filename(req, file, done) {
-//       // 파일 이름 설정
-//       const ext = path.extname(file.originalname);
-//       // 확장자 추출.  이미지.png -> 이미지2023090234.png = 이미지+날짜스트링.png
-//       done(
-//         null,
-//         path.basename(file.originalname, ext) + "_" + Date.now() + ext
-//       ); // 파일명에 확장자를 분리 시킨뒤 사이에 날짜를 넣고 다시 확장자를 넣어 줌.
-//     },
-//   }),
-//   limits: { fileSize: 5 * 1024 * 1024 }, // 파일 사이즈 5mg bite가 작을수도 있으니 변경 가능.
-// });
 const upload = (0, multer_1.default)({
+    // nmulter 설정.
     storage: multer_1.default.diskStorage({
+        // 어디에 저장할 것인가, 우리는 사용자가 업로드한 것을 disk에 저장한다.
         destination(req, file, done) {
-            done(null, "uploads/");
+            done(null, "uploads"); // 생성한 uploads폴더에 저장.
         },
         filename(req, file, done) {
+            // 파일 이름 설정
             const ext = path_1.default.extname(file.originalname);
-            const filename = (0, uuidv4_1.uuid)() + ext; // UUID로 파일 이름 생성
-            done(null, filename);
+            // 확장자 추출.  이미지.png -> 이미지2023090234.png = 이미지+날짜스트링.png
+            done(null, path_1.default.basename(file.originalname, ext) + Date.now() + ext);
+            // 파일명에 확장자를 분리 시킨뒤 사이에 날짜를 넣고 다시 확장자를 넣어 줌.
         },
     }),
-    limits: { fileSize: 5 * 1024 * 1024 },
+    limits: { fileSize: 5 * 1024 * 1024 }, // 파일 사이즈 5mg bite가 작을수도 있으니 변경 가능.
 });
 router.post("/", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -65,19 +49,18 @@ router.post("/", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0,
             content: req.body.content,
             UserId: parseInt(req.body.userId, 10),
         });
-        // if (req.body.image) {
-        //   if (Array.isArray(req.body.image)) {
-        //     // 이미지를 여러 개 올리면 image: [사진.png, 사진2.png]
-        //     const images = await Promise.all(
-        //       req.body.image.map((image: any) => Image.create({ src: image }))
-        //     );
-        //     await post.addImages(images);
-        //   } else {
-        //     // 이미지를 하나만 올리면 image: 사진.png
-        //     const image = await Image.create({ src: req.body.image });
-        //     await post.addImages(image);
-        //   }
-        // }
+        if (req.body.image) {
+            if (Array.isArray(req.body.image)) {
+                // 이미지를 여러 개 올리면 image: [aa.png, bb.png]
+                const images = yield Promise.all(req.body.image.map((image) => models_1.Image.create({ src: image })));
+                yield post.addImages(images);
+            }
+            else {
+                // 이미지를 하나만 올리면 image: aa.png
+                const image = yield models_1.Image.create({ src: req.body.image });
+                yield post.addImages([image]);
+            }
+        }
         const fullPost = yield models_1.Post.findOne({
             where: { id: post.id },
             include: [
@@ -111,61 +94,17 @@ router.post("/", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0,
         next(err);
     }
 }));
-// router.post("/images", isLoggedIn, upload.array("image"), (req, res, next) => {
-//   // front의 input name "image"와 array 동일, 한 장만 업로드하면 single
-//   // POST /post/images
-//   console.log(req.files);
-//   if (req.files) {
-//     const mappedFiles = (req.files as Express.Multer.File[]).map((v) => ({
-//       ...v,
-//       location: v.filename.replace(/\/original\//, "/thumb/"),
-//     }));
-//     res.json(mappedFiles);
-//   } else {
-//     res.status(400).json({ error: "No files provided." });
-//   }
-// });
 router.post("/images", middlewares_1.isLoggedIn, upload.array("image"), (req, res, next) => {
     // front의 input name "image"와 array 동일, 한 장만 업로드하면 single
     // POST /post/images
     console.log(req.files);
     if (req.files) {
-        const mappedFiles = req.files.map((v) => (Object.assign(Object.assign({}, v), { filename: String(v.filename), location: String(v.filename).replace(/\/original\//, "/thumb/") })));
-        res.json(mappedFiles);
+        res.json(req.files.map((v) => v.filename));
     }
     else {
         res.status(400).json({ error: "No files provided." });
     }
 });
-// router.get("/:postId", async (req: Request, res: Response, next) => {
-//   // GET /post/1
-//   try {
-//     const post = await Post.findOne({
-//       where: { id: req.params.postId },
-//     });
-//     if (!post) {
-//       return res.status(404).send("존재하지 않는 게시글입니다.");
-//     }
-//     const comment = await Comment.create({
-//       content: req.body.content,
-//       PostId: parseInt(req.params.postId, 10),
-//       UserId: req.body.id,
-//     });
-//     const fullComment = await Comment.findOne({
-//       where: { id: comment.id },
-//       include: [
-//         {
-//           model: User,
-//           attributes: ["id", "nick"],
-//         },
-//       ],
-//     });
-//     res.status(200).json(fullComment);
-//   } catch (error) {
-//     console.error(error);
-//     next(error);
-//   }
-// });
 router.get("/:postId", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     // GET /post/1
     try {
@@ -307,16 +246,6 @@ router.patch("/:postId", middlewares_1.isLoggedIn, (req, res, next) => __awaiter
             },
         });
         const post = yield models_1.Post.findOne({ where: { id: req.params.postId } });
-        // if (hashtags) {
-        //   const result = await Promise.all(
-        //     hashtags.map((tag) =>
-        //       Hashtag.findOrCreate({
-        //         where: { name: tag.slice(1).toLowerCase() },
-        //       })
-        //     )
-        //   ); // [[노드, true], [리액트, true]]
-        //   await post.setHashtags(result.map((v) => v[0]));
-        // }
         res.status(200).json({
             PostId: parseInt(req.params.postId, 10),
             content: req.body.content,
