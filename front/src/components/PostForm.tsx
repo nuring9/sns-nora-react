@@ -4,8 +4,7 @@ import { Form, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store/configureStore";
 import styled from "styled-components";
-import { addPost, uploadImage } from "../reducers/post"; // 액션 가져옴.
-import { PostText } from "../types";
+import postSlice, { addPost, uploadImage } from "../reducers/post"; // 액션 가져옴.
 import { AppDispatch } from "../store/configureStore";
 import "../styles/Post.scss";
 
@@ -49,6 +48,36 @@ const PostForm: React.FC = () => {
     []
   );
 
+  // const onSubmit = useCallback(
+  //   (e: React.SyntheticEvent) => {
+  //     e.preventDefault();
+  //     const postData: PostText = {
+  //       content: text,
+  //       userId: id,
+  //     };
+  //     dispatch(addPost(postData));
+  //     setText("");
+  //   },
+  //   [dispatch, text, id]
+  // );
+
+  const onSubmit = useCallback(() => {
+    if (!text || !text.trim()) {
+      return alert("게시글을 작성하세요.");
+    }
+    const formData = new FormData();
+    // multer의 미들웨어 none을 사용하기 위해 formData를 만들어서 작성.
+    imagePaths.forEach((p) => {
+      formData.append("image", p);
+    });
+    formData.append("content", text);
+    formData.append("userId", id);
+    // formData로 서버로 보낼땐 append로 다 쪼개서 보내야 함!!
+
+    console.log("onsubmitdata", formData);
+    return dispatch(addPost(formData));
+  }, [dispatch, imagePaths, text, id]);
+
   const onChangeImages = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       console.log("images", e.target.files);
@@ -61,17 +90,12 @@ const PostForm: React.FC = () => {
     [dispatch]
   );
 
-  const onSubmit = useCallback(
-    (e: React.SyntheticEvent) => {
-      e.preventDefault();
-      const postData: PostText = {
-        content: text,
-        userId: id,
-      };
-      dispatch(addPost(postData));
-      setText("");
+  const onRemoveImage = useCallback(
+    // 고차 함수
+    (index: number) => () => {
+      dispatch(postSlice.actions.removeImage(index));
     },
-    [dispatch, text, id]
+    [dispatch]
   );
 
   return (
@@ -109,7 +133,8 @@ const PostForm: React.FC = () => {
               alt={filename}
             />
             <div>
-              <Button>제거</Button>
+              <Button onClick={onRemoveImage(i)}>제거</Button>
+              {/* map안에 데이터를 넣고 싶으면, 고차 함수 */}
             </div>
           </div>
         ))}

@@ -43,7 +43,8 @@ const upload = (0, multer_1.default)({
     }),
     limits: { fileSize: 5 * 1024 * 1024 }, // 파일 사이즈 5mg bite가 작을수도 있으니 변경 가능.
 });
-router.post("/", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/", middlewares_1.isLoggedIn, upload.none(), // onSubmit의 formData
+(req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const post = yield models_1.Post.create({
             content: req.body.content,
@@ -52,7 +53,9 @@ router.post("/", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0,
         if (req.body.image) {
             if (Array.isArray(req.body.image)) {
                 // 이미지를 여러 개 올리면 image: [aa.png, bb.png]
-                const images = yield Promise.all(req.body.image.map((image) => models_1.Image.create({ src: image })));
+                const images = yield Promise.all(
+                // 파일들이 전부 Promise이므로, Promise.all 을 사용하면 한번에 두개가 저장됨.
+                req.body.image.map((image) => models_1.Image.create({ src: image })));
                 yield post.addImages(images);
             }
             else {
@@ -87,6 +90,7 @@ router.post("/", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0,
                 },
             ],
         });
+        console.log("fullPost확인", fullPost);
         res.status(201).json(fullPost); // 프론트로 돌려주기. 그럼 reducer에 response에 들어간다.
     }
     catch (err) {

@@ -32,57 +32,64 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 파일 사이즈 5mg bite가 작을수도 있으니 변경 가능.
 });
 
-router.post("/", isLoggedIn, async (req: Request, res: Response, next) => {
-  try {
-    const post = await Post.create({
-      content: req.body.content,
-      UserId: parseInt(req.body.userId, 10),
-    });
-    if (req.body.image) {
-      if (Array.isArray(req.body.image)) {
-        // 이미지를 여러 개 올리면 image: [aa.png, bb.png]
-        const images = await Promise.all(
-          req.body.image.map((image: any) => Image.create({ src: image }))
-        );
-        await post.addImages(images);
-      } else {
-        // 이미지를 하나만 올리면 image: aa.png
-        const image = await Image.create({ src: req.body.image });
-        await post.addImages([image]);
+router.post(
+  "/",
+  isLoggedIn,
+  upload.none(), // onSubmit의 formData
+  async (req: Request, res: Response, next) => {
+    try {
+      const post = await Post.create({
+        content: req.body.content,
+        UserId: parseInt(req.body.userId, 10),
+      });
+      if (req.body.image) {
+        if (Array.isArray(req.body.image)) {
+          // 이미지를 여러 개 올리면 image: [aa.png, bb.png]
+          const images = await Promise.all(
+            // 파일들이 전부 Promise이므로, Promise.all 을 사용하면 한번에 두개가 저장됨.
+            req.body.image.map((image: any) => Image.create({ src: image }))
+          );
+          await post.addImages(images);
+        } else {
+          // 이미지를 하나만 올리면 image: aa.png
+          const image = await Image.create({ src: req.body.image });
+          await post.addImages([image]);
+        }
       }
+      const fullPost = await Post.findOne({
+        where: { id: post.id },
+        include: [
+          {
+            model: Image,
+          },
+          {
+            model: Comment,
+            include: [
+              {
+                model: User, // 댓글 작성자
+                attributes: ["id", "nick"],
+              },
+            ],
+          },
+          {
+            model: User, // 게시글 작성자
+            attributes: ["id", "nick"],
+          },
+          {
+            model: User, // 좋아요 누른 사람
+            as: "Likers",
+            attributes: ["id"],
+          },
+        ],
+      });
+      console.log("fullPost확인", fullPost);
+      res.status(201).json(fullPost); // 프론트로 돌려주기. 그럼 reducer에 response에 들어간다.
+    } catch (err) {
+      console.error(err);
+      next(err);
     }
-    const fullPost = await Post.findOne({
-      where: { id: post.id },
-      include: [
-        {
-          model: Image,
-        },
-        {
-          model: Comment,
-          include: [
-            {
-              model: User, // 댓글 작성자
-              attributes: ["id", "nick"],
-            },
-          ],
-        },
-        {
-          model: User, // 게시글 작성자
-          attributes: ["id", "nick"],
-        },
-        {
-          model: User, // 좋아요 누른 사람
-          as: "Likers",
-          attributes: ["id"],
-        },
-      ],
-    });
-    res.status(201).json(fullPost); // 프론트로 돌려주기. 그럼 reducer에 response에 들어간다.
-  } catch (err) {
-    console.error(err);
-    next(err);
   }
-});
+);
 
 router.post("/images", isLoggedIn, upload.array("image"), (req, res, next) => {
   // front의 input name "image"와 array 동일, 한 장만 업로드하면 single

@@ -43,6 +43,7 @@ export interface PostText {
   content?: string;
   userId?: number;
   id?: number;
+  formData?: FormData;
 }
 
 export interface CommentDataType {

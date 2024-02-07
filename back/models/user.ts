@@ -71,7 +71,7 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   }
 
   static associate() {
-    User.hasMany(Post);
+    User.hasMany(Post, { foreignKey: "UserId" });
     User.hasMany(Comment);
     User.belongsToMany(User, {
       foreignKey: "followingId",

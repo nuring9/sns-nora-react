@@ -96,7 +96,7 @@ export const loadPost = createAsyncThunk("post/loadPost", async (data) => {
 
 export const addPost = createAsyncThunk(
   "post/addPost",
-  async (data: PostText) => {
+  async (data: FormData) => {
     const response = await axios.post("/post", data);
     return response.data;
   }
@@ -202,7 +202,7 @@ const postSlice = createSlice({
         draft.addPostLoading = false;
         draft.addPostDone = true;
         draft.mainPosts.unshift(action.payload); // Post.create의 데이터가 여기로 들어옴.
-        draft.imagePaths = [];
+        draft.imagePaths = []; // 이미지 초기화
       })
       .addCase(addPost.rejected, (draft, action) => {
         draft.addPostLoading = false;
