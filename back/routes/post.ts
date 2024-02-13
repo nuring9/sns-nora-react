@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import { Post, Comment, Image, User } from "../models";
+import { Post, Comment, Image, User, Hashtag } from "../models";
 import { isLoggedIn } from "./middlewares";
 import multer from "multer"; // 추가
 import path from "path"; // 추가
@@ -38,10 +38,21 @@ router.post(
   upload.none(), // onSubmit의 formData
   async (req: Request, res: Response, next) => {
     try {
+      const hashtags = req.body.content.match(/#[^\s#]+/g);
       const post = await Post.create({
         content: req.body.content,
         UserId: parseInt(req.body.userId, 10),
       });
+      if (hashtags) {
+        const result = await Promise.all(
+          hashtags.map((tag: any) =>
+            Hashtag.findOrCreate({
+              where: { title: tag.slice(1).toLowerCase() },
+            })
+          )
+        ); // [[월요일, 화요일], [수요일, 목요일]] 이렇게 배열이므로 map 사용.
+        await post.addHashtags(result.map((v) => v[0]));
+      }
       if (req.body.image) {
         if (Array.isArray(req.body.image)) {
           // 이미지를 여러 개 올리면 image: [aa.png, bb.png]
@@ -246,6 +257,16 @@ router.patch("/:postId", isLoggedIn, async (req, res, next) => {
       }
     );
     const post = await Post.findOne({ where: { id: req.params.postId } });
+    if (hashtags) {
+      const result = await Promise.all(
+        hashtags.map((tag: any) =>
+          Hashtag.findOrCreate({
+            where: { title: tag.slice(1).toLowerCase() },
+          })
+        )
+      ); // [[노드, true], [리액트, true]]
+      await post?.setHashtags(result.map((v) => v[0]));
+    }
 
     res.status(200).json({
       PostId: parseInt(req.params.postId, 10),

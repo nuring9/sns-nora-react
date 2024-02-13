@@ -46,10 +46,17 @@ const upload = (0, multer_1.default)({
 router.post("/", middlewares_1.isLoggedIn, upload.none(), // onSubmit의 formData
 (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const hashtags = req.body.content.match(/#[^\s#]+/g);
         const post = yield models_1.Post.create({
             content: req.body.content,
             UserId: parseInt(req.body.userId, 10),
         });
+        if (hashtags) {
+            const result = yield Promise.all(hashtags.map((tag) => models_1.Hashtag.findOrCreate({
+                where: { title: tag.slice(1).toLowerCase() },
+            }))); // [[월요일, 화요일], [수요일, 목요일]] 이렇게 배열이므로 map 사용.
+            yield post.addHashtags(result.map((v) => v[0]));
+        }
         if (req.body.image) {
             if (Array.isArray(req.body.image)) {
                 // 이미지를 여러 개 올리면 image: [aa.png, bb.png]
@@ -250,6 +257,12 @@ router.patch("/:postId", middlewares_1.isLoggedIn, (req, res, next) => __awaiter
             },
         });
         const post = yield models_1.Post.findOne({ where: { id: req.params.postId } });
+        if (hashtags) {
+            const result = yield Promise.all(hashtags.map((tag) => models_1.Hashtag.findOrCreate({
+                where: { title: tag.slice(1).toLowerCase() },
+            }))); // [[노드, true], [리액트, true]]
+            yield (post === null || post === void 0 ? void 0 : post.setHashtags(result.map((v) => v[0])));
+        }
         res.status(200).json({
             PostId: parseInt(req.params.postId, 10),
             content: req.body.content,
