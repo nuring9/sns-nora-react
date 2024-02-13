@@ -35,6 +35,9 @@ interface PostsState {
   uploadImagesLoading: boolean;
   uploadImagesDone: boolean;
   uploadImagesError: unknown;
+  retweetLoading: boolean;
+  retweetDone: boolean;
+  retweetError: unknown;
 }
 
 const initialState: PostsState = {
@@ -69,6 +72,9 @@ const initialState: PostsState = {
   uploadImagesLoading: false,
   uploadImagesDone: false,
   uploadImagesError: null,
+  retweetLoading: false,
+  retweetDone: false,
+  retweetError: null,
 };
 
 const loadPostsThrottle = async (lastId: number) => {
@@ -146,6 +152,14 @@ export const unlikePost = createAsyncThunk(
   "post/unlikePost",
   async (data: number) => {
     const response = await axios.delete(`/post/${data}/like`);
+    return response.data;
+  }
+);
+
+export const retweet = createAsyncThunk(
+  "post/retweet",
+  async (data: number) => {
+    const response = await axios.post(`/post/${data}/retweet`);
     return response.data;
   }
 );
@@ -316,6 +330,21 @@ const postSlice = createSlice({
       .addCase(unlikePost.rejected, (draft, action) => {
         draft.unlikePostLoading = false;
         draft.unlikePostError = action.error;
+      })
+      .addCase(retweet.pending, (state, action) => {
+        state.retweetLoading = true;
+        state.retweetDone = false;
+        state.retweetError = null;
+      })
+      .addCase(retweet.fulfilled, (state, action) => {
+        state.retweetLoading = false;
+        state.retweetDone = true;
+        state.mainPosts.unshift(action.payload);
+        // 새로운 요소를 배열의 맨 앞쪽에 추가하고, 새로운 길이를 반환
+      })
+      .addCase(retweet.rejected, (state, action) => {
+        state.retweetLoading = false;
+        state.retweetError = action.error;
       })
       .addDefaultCase((state) => state);
   },

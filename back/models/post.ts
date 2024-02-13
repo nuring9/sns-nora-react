@@ -6,6 +6,7 @@ import Sequelize, {
   ForeignKey,
   BelongsToManyAddAssociationsMixin,
   BelongsToManyRemoveAssociationsMixin,
+  HasManyAddAssociationsMixin,
 } from "sequelize";
 import User from "./user";
 import Hashtag from "./hashtag";
@@ -24,6 +25,8 @@ class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
   declare removeLikers: BelongsToManyRemoveAssociationsMixin<User, number>;
   declare addImages: BelongsToManyAddAssociationsMixin<Image, number>;
   declare setHashtags: BelongsToManyAddAssociationsMixin<Hashtag, number>;
+  declare RetweetId: ForeignKey<Post["id"]> | null;
+  declare Retweet: ForeignKey<Post> | null;
 
   static initiate(sequelize: Sequelize.Sequelize) {
     Post.init(

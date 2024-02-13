@@ -23,6 +23,13 @@ export interface LikersType {
   id: number;
 }
 
+export interface Retweet {
+  userId?: number;
+  nick?: string;
+  User: User;
+  content?: string;
+}
+
 export interface Post {
   id: number;
   email?: string;
@@ -33,6 +40,8 @@ export interface Post {
   Comments: Comment[];
   Likers?: LikersType[] | null;
   nick?: string;
+  RetweetId?: number;
+  Retweet?: Retweet;
 }
 
 export interface Posts extends Post {

@@ -168,6 +168,88 @@ router.get("/:postId", async (req, res, next) => {
   }
 });
 
+router.post("/:postId/retweet", isLoggedIn, async (req, res, next) => {
+  // POST /post/1/retweet
+  try {
+    const post = await Post.findOne({
+      where: { id: req.params.postId },
+      include: [
+        {
+          model: Post,
+          as: "Retweet",
+        },
+      ],
+    });
+    if (!post) {
+      return res.status(403).send("존재하지 않는 게시글입니다.");
+    }
+    if (
+      req.user?.id === post.UserId || // 내 아이디와 게시글의 아이디가 같으면 내 게시글. 즉 내 게시글을 리트윗 하는 경우와
+      (post.Retweet && post.Retweet.UserId === req.user?.id) // 내 글을 다른사람이 리트윗하고 또 내가 그글 을 리트윗 하는 경우 막기
+    ) {
+      return res.status(403).send("자신의 글은 리트윗할 수 없습니다.");
+    }
+    const retweetTargetId = post.RetweetId || post.id; // 리트윗한 게시글을 찾아보고, RetweetId 사용하거나 post.id를 사용.
+    const exPost = await Post.findOne({
+      where: {
+        UserId: req.user?.id,
+        RetweetId: retweetTargetId,
+      },
+    });
+    if (exPost) {
+      return res.status(403).send("이미 리트윗했습니다.");
+    }
+    const retweet = await Post.create({
+      UserId: req.user?.id, // 클라이언트에서 제공하는 userId 대신에 서버에서 가져온 현재 사용자의 ID를 사용.
+      RetweetId: retweetTargetId,
+      content: "retweet", //  allowNull: false이므로 무조껀 넣음.
+    });
+    const retweetWithPrevPost = await Post.findOne({
+      where: { id: retweet.id },
+      include: [
+        {
+          model: Post,
+          as: "Retweet",
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nick"],
+            },
+            {
+              model: Image,
+            },
+          ],
+        },
+        {
+          model: User,
+          attributes: ["id", "nick"],
+        },
+        {
+          model: User, // 좋아요 누른 사람
+          as: "Likers",
+          attributes: ["id"],
+        },
+        {
+          model: Image,
+        },
+        {
+          model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nick"],
+            },
+          ],
+        },
+      ],
+    });
+    res.status(201).json(retweetWithPrevPost);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
 router.post(
   "/:postId/comment",
   isLoggedIn,

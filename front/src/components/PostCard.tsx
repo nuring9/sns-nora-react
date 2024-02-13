@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from "react";
+import React, { useCallback, useState, useMemo, useEffect } from "react";
 import { Post, Image } from "../types";
 import { v4 as uuidv4 } from "uuid";
 import { Button, Card, Dropdown, ListGroup } from "react-bootstrap";
@@ -16,7 +16,13 @@ import PostImages from "./PostImages";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/configureStore";
 import { AppDispatch } from "../store/configureStore";
-import { likePost, unlikePost, removePost, updatePost } from "../reducers/post";
+import {
+  likePost,
+  unlikePost,
+  removePost,
+  updatePost,
+  retweet,
+} from "../reducers/post";
 
 import Avatar from "react-avatar";
 import CommentForm from "./CommentForm";
@@ -45,6 +51,7 @@ const FolloWrapper = styled.div`
 
 const CommentNick = styled.div`
   font-weight: bold;
+  margin-right: 10px;
 
   & p {
     margin: auto;
@@ -82,7 +89,15 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const [commentFormOpened, setCommentFormOpened] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const id = useSelector((state: RootState) => state.user.me?.id);
-  const { removePostLoading } = useSelector((state: RootState) => state.post);
+  const { removePostLoading, retweetError } = useSelector(
+    (state: RootState) => state.post
+  );
+
+  // useEffect(() => {
+  //   if (retweetError) {
+  //     alert(retweetError);
+  //   }
+  // }, [retweetError]);
 
   const liked = useMemo(
     () => post.Likers?.find((v) => v.id === id),
@@ -133,6 +148,14 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     return dispatch(removePost(post.id));
   }, [id, dispatch, post.id]);
 
+  const onRetweet = useCallback(() => {
+    if (!id) {
+      return alert("로그인이 필요합니다.");
+    }
+
+    return dispatch(retweet(post.id));
+  }, [id, dispatch, post.id]);
+
   return (
     <CardWrapper>
       <Card>
@@ -159,7 +182,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             />
           </Card.Text>
           <div className="card-button">
-            <Button variant="white">
+            <Button variant="white" onClick={onRetweet}>
               <ShareFill />
             </Button>
             <Button variant="white">
@@ -206,6 +229,37 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             </Dropdown>
           </div>
         </Card.Body>
+
+        {post.RetweetId && !Number.isNaN(post.RetweetId) && post.Retweet ? (
+          <Card>
+            <Card.Header>
+              <small>리트윗됨 by {post.User.nick}</small>
+            </Card.Header>
+            <Card.Body>
+              <div className="d-flex align-items-center">
+                <AvatarWrapper
+                  name={post.Retweet.User.nick}
+                  src="/images/sa.jpeg"
+                  size="40"
+                  round={true}
+                  textSizeRatio={2}
+                />
+                <div>
+                  <Card.Title>{post.Retweet.User?.nick}</Card.Title>
+                  <Card.Text>
+                    <PostCardContent
+                      postData={post.Retweet.content}
+                      editMode={editMode}
+                      onChangePost={onChangePost}
+                      onCancelUpdate={onCancelUpdate}
+                    />
+                  </Card.Text>
+                </div>
+              </div>
+            </Card.Body>
+          </Card>
+        ) : null}
+
         {/* {commentFormOpened && post.Comments.length > 0 && ( */}
         {commentFormOpened && post.Comments && post.Comments.length >= 0 && (
           <CommentWrapper>
