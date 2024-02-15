@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { Post, CommentDataType, PostText, UpdatePostDataType } from "../types";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import _ from "lodash";
 
 interface PostsState {
@@ -156,11 +156,27 @@ export const unlikePost = createAsyncThunk(
   }
 );
 
+// export const retweet = createAsyncThunk(
+//   "post/retweet",
+//   async (data: number) => {
+//     const response = await axios.post(`/post/${data}/retweet`);
+//     return response.data;
+//   }
+// );
+
 export const retweet = createAsyncThunk(
   "post/retweet",
   async (data: number) => {
-    const response = await axios.post(`/post/${data}/retweet`);
-    return response.data;
+    try {
+      const response = await axios.post(`/post/${data}/retweet`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response.status === 403) {
+        throw new Error(error.response.data); // 403 에러가 발생하면 해당 메시지를 throw합니다.
+      } else {
+        throw error;
+      }
+    }
   }
 );
 
@@ -331,20 +347,21 @@ const postSlice = createSlice({
         draft.unlikePostLoading = false;
         draft.unlikePostError = action.error;
       })
-      .addCase(retweet.pending, (state, action) => {
-        state.retweetLoading = true;
-        state.retweetDone = false;
-        state.retweetError = null;
+      .addCase(retweet.pending, (draft, action) => {
+        draft.retweetLoading = true;
+        draft.retweetDone = false;
+        draft.retweetError = null;
       })
-      .addCase(retweet.fulfilled, (state, action) => {
-        state.retweetLoading = false;
-        state.retweetDone = true;
-        state.mainPosts.unshift(action.payload);
+      .addCase(retweet.fulfilled, (draft, action) => {
+        draft.retweetLoading = false;
+        draft.retweetDone = true;
+        draft.mainPosts.unshift(action.payload);
         // 새로운 요소를 배열의 맨 앞쪽에 추가하고, 새로운 길이를 반환
       })
-      .addCase(retweet.rejected, (state, action) => {
-        state.retweetLoading = false;
-        state.retweetError = action.error;
+      .addCase(retweet.rejected, (draft, action) => {
+        draft.retweetLoading = false;
+        // draft.retweetError = action.error;
+        draft.retweetError = action.error.message;
       })
       .addDefaultCase((state) => state);
   },

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import AppLayout from "../components/AppLayout";
 import { v4 as uuidv4 } from "uuid";
@@ -17,9 +17,8 @@ const Home: React.FC = () => {
   const { me } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();
   // const { isLoggedIn } = useSelector((state: RootState) => state.user);
-  const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(
-    (state: RootState) => state.post
-  );
+  const { mainPosts, hasMorePosts, loadPostsLoading, retweetError } =
+    useSelector((state: RootState) => state.post);
 
   // 경로가 변경될 때마다 타이틀 업데이트
   useEffect(() => {
@@ -29,6 +28,12 @@ const Home: React.FC = () => {
       document.title = title + " - " + subTitle;
     }
   }, [location.pathname, title]);
+
+  useEffect(() => {
+    if (retweetError) {
+      alert(retweetError);
+    }
+  }, [retweetError]);
 
   // const lastIdValue = mainPosts[mainPosts.length - 1]?.id;
 

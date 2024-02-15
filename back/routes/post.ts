@@ -202,7 +202,7 @@ router.post("/:postId/retweet", isLoggedIn, async (req, res, next) => {
     const retweet = await Post.create({
       UserId: req.user?.id, // 클라이언트에서 제공하는 userId 대신에 서버에서 가져온 현재 사용자의 ID를 사용.
       RetweetId: retweetTargetId,
-      content: "retweet", //  allowNull: false이므로 무조껀 넣음.
+      content: "Retweet", //  allowNull: false이므로 무조껀 넣음.
     });
     const retweetWithPrevPost = await Post.findOne({
       where: { id: retweet.id },
@@ -243,7 +243,7 @@ router.post("/:postId/retweet", isLoggedIn, async (req, res, next) => {
         },
       ],
     });
-    res.status(201).json(retweetWithPrevPost);
+    return res.status(201).json(retweetWithPrevPost);
   } catch (error) {
     console.error(error);
     next(error);

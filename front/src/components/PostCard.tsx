@@ -89,15 +89,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const [commentFormOpened, setCommentFormOpened] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const id = useSelector((state: RootState) => state.user.me?.id);
-  const { removePostLoading, retweetError } = useSelector(
-    (state: RootState) => state.post
-  );
-
-  // useEffect(() => {
-  //   if (retweetError) {
-  //     alert(retweetError);
-  //   }
-  // }, [retweetError]);
+  const { removePostLoading } = useSelector((state: RootState) => state.post);
 
   const liked = useMemo(
     () => post.Likers?.find((v) => v.id === id),
@@ -233,7 +225,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         {post.RetweetId && !Number.isNaN(post.RetweetId) && post.Retweet ? (
           <Card>
             <Card.Header>
-              <small>리트윗됨 by {post.User.nick}</small>
+              <small>{post.User.nick}님이 리트윗 했습니다.</small>
             </Card.Header>
             <Card.Body>
               <div className="d-flex align-items-center">
