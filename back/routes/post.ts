@@ -199,10 +199,16 @@ router.post("/:postId/retweet", isLoggedIn, async (req, res, next) => {
     if (exPost) {
       return res.status(403).send("이미 리트윗했습니다.");
     }
+    const retweetContent = await User.findOne({ where: { id: post.UserId } })
+      .then((user) => `${user?.nick}님의 글을 리트윗 했습니다.`)
+      .catch((err) => {
+        console.error("Error retweet content:", err);
+        return "Retweet";
+      });
     const retweet = await Post.create({
       UserId: req.user?.id, // 클라이언트에서 제공하는 userId 대신에 서버에서 가져온 현재 사용자의 ID를 사용.
       RetweetId: retweetTargetId,
-      content: "Retweet", //  allowNull: false이므로 무조껀 넣음.
+      content: retweetContent, //  allowNull: false이므로 무조껀 넣음.
     });
     const retweetWithPrevPost = await Post.findOne({
       where: { id: retweet.id },

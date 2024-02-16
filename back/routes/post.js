@@ -187,8 +187,9 @@ router.post("/:postId/retweet", middlewares_1.isLoggedIn, (req, res, next) => __
         if (!post) {
             return res.status(403).send("존재하지 않는 게시글입니다.");
         }
-        if (((_a = req.user) === null || _a === void 0 ? void 0 : _a.id) === post.UserId ||
-            (post.Retweet && post.Retweet.UserId === ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id))) {
+        if (((_a = req.user) === null || _a === void 0 ? void 0 : _a.id) === post.UserId || // 내 아이디와 게시글의 아이디가 같으면 내 게시글. 즉 내 게시글을 리트윗 하는 경우와
+            (post.Retweet && post.Retweet.UserId === ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id)) // 내 글을 다른사람이 리트윗하고 또 내가 그글 을 리트윗 하는 경우 막기
+        ) {
             return res.status(403).send("자신의 글은 리트윗할 수 없습니다.");
         }
         const retweetTargetId = post.RetweetId || post.id; // 리트윗한 게시글을 찾아보고, RetweetId 사용하거나 post.id를 사용.
@@ -201,10 +202,16 @@ router.post("/:postId/retweet", middlewares_1.isLoggedIn, (req, res, next) => __
         if (exPost) {
             return res.status(403).send("이미 리트윗했습니다.");
         }
+        const retweetContent = yield models_1.User.findOne({ where: { id: post.UserId } })
+            .then((user) => `${user === null || user === void 0 ? void 0 : user.nick}님의 글을 리트윗 했습니다.`)
+            .catch((err) => {
+            console.error("Error retweet content:", err);
+            return "Retweet";
+        });
         const retweet = yield models_1.Post.create({
             UserId: (_d = req.user) === null || _d === void 0 ? void 0 : _d.id, // 클라이언트에서 제공하는 userId 대신에 서버에서 가져온 현재 사용자의 ID를 사용.
             RetweetId: retweetTargetId,
-            content: "Retweet", //  allowNull: false이므로 무조껀 넣음.
+            content: retweetContent, //  allowNull: false이므로 무조껀 넣음.
         });
         const retweetWithPrevPost = yield models_1.Post.findOne({
             where: { id: retweet.id },

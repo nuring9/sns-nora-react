@@ -173,6 +173,38 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               onCancelUpdate={onCancelUpdate}
             />
           </Card.Text>
+
+          {/* 리트윗 */}
+          {post.RetweetId && !Number.isNaN(post.RetweetId) && post.Retweet ? (
+            <Card>
+              {/* <Card.Header>
+                <small>{post.User.nick}님이 리트윗 했습니다.</small>
+              </Card.Header> */}
+              <Card.Body>
+                <div className="d-flex align-items-center">
+                  <AvatarWrapper
+                    name={post.Retweet.User.nick}
+                    src="/images/sa.jpeg"
+                    size="40"
+                    round={true}
+                    textSizeRatio={2}
+                  />
+                  <div>
+                    <Card.Title>{post.Retweet.User?.nick}</Card.Title>
+                    <Card.Text>
+                      <PostCardContent
+                        postData={post.Retweet.content}
+                        editMode={editMode}
+                        onChangePost={onChangePost}
+                        onCancelUpdate={onCancelUpdate}
+                      />
+                    </Card.Text>
+                  </div>
+                </div>
+              </Card.Body>
+            </Card>
+          ) : null}
+
           <div className="card-button">
             <Button variant="white" onClick={onRetweet}>
               <ShareFill />
@@ -221,36 +253,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             </Dropdown>
           </div>
         </Card.Body>
-
-        {post.RetweetId && !Number.isNaN(post.RetweetId) && post.Retweet ? (
-          <Card>
-            <Card.Header>
-              <small>{post.User.nick}님이 리트윗 했습니다.</small>
-            </Card.Header>
-            <Card.Body>
-              <div className="d-flex align-items-center">
-                <AvatarWrapper
-                  name={post.Retweet.User.nick}
-                  src="/images/sa.jpeg"
-                  size="40"
-                  round={true}
-                  textSizeRatio={2}
-                />
-                <div>
-                  <Card.Title>{post.Retweet.User?.nick}</Card.Title>
-                  <Card.Text>
-                    <PostCardContent
-                      postData={post.Retweet.content}
-                      editMode={editMode}
-                      onChangePost={onChangePost}
-                      onCancelUpdate={onCancelUpdate}
-                    />
-                  </Card.Text>
-                </div>
-              </div>
-            </Card.Body>
-          </Card>
-        ) : null}
 
         {/* {commentFormOpened && post.Comments.length > 0 && ( */}
         {commentFormOpened && post.Comments && post.Comments.length >= 0 && (

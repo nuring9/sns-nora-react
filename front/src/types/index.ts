@@ -76,3 +76,8 @@ export interface FollowersType {
   id?: number;
   userId?: number;
 }
+
+export interface RetweetType {
+  postId?: number;
+  userNick?: string | undefined;
+}
