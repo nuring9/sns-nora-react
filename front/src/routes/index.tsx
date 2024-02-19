@@ -1,7 +1,9 @@
 import IndexPage from "../pages/index";
 import Signup from "../pages/signup";
 import Profile from "../pages/profile";
-import { Post } from "../types";
+import PostComponent from "../pages/post";
+
+// import { Post } from "../types";
 
 type MyType = {
   path: string;
@@ -26,6 +28,11 @@ const routes: MyType[] = [
     title: "프로필",
     element: <Profile />,
     auth: true,
+  },
+  {
+    path: "/post/:id",
+    title: "포스트",
+    element: <PostComponent />,
   },
 ];
 

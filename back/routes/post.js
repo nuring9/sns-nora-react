@@ -148,7 +148,7 @@ router.get("/:postId", (req, res, next) => __awaiter(void 0, void 0, void 0, fun
                 {
                     model: models_1.User,
                     as: "Likers",
-                    attributes: ["id", "nickname"],
+                    attributes: ["id", "nick"],
                 },
                 {
                     model: models_1.Image,
@@ -158,7 +158,7 @@ router.get("/:postId", (req, res, next) => __awaiter(void 0, void 0, void 0, fun
                     include: [
                         {
                             model: models_1.User,
-                            attributes: ["id", "nickname"],
+                            attributes: ["id", "nick"],
                         },
                     ],
                 },

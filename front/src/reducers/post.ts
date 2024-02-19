@@ -7,6 +7,7 @@ interface PostsState {
   mainPosts: Post[];
   imagePaths: string[];
   hasMorePosts: boolean;
+  singlePost: Post | null;
   // postAdded: boolean;
   loadPostLoading: boolean;
   loadPostDone: boolean;
@@ -42,7 +43,7 @@ interface PostsState {
 
 const initialState: PostsState = {
   mainPosts: [],
-  // singlePost: null,
+  singlePost: null,
   imagePaths: [],
   hasMorePosts: true,
   loadPostLoading: false,
@@ -95,10 +96,13 @@ export const loadPosts = createAsyncThunk(
   }
 );
 
-export const loadPost = createAsyncThunk("post/loadPost", async (data) => {
-  const response = await axios.get(`/post/${data}`);
-  return response.data;
-});
+export const loadPost = createAsyncThunk(
+  "post/loadPost",
+  async (data: number) => {
+    const response = await axios.get(`/post/${data}`);
+    return response.data;
+  }
+);
 
 export const addPost = createAsyncThunk(
   "post/addPost",
@@ -202,7 +206,7 @@ const postSlice = createSlice({
       .addCase(loadPost.fulfilled, (draft, action) => {
         draft.loadPostLoading = false;
         draft.loadPostDone = true;
-        // draft.singlePost = action.payload;
+        draft.singlePost = action.payload;
       })
       .addCase(loadPost.rejected, (draft, action) => {
         draft.loadPostLoading = false;
