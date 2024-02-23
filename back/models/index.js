@@ -18,7 +18,7 @@ const commend_1 = __importDefault(require("./commend"));
 exports.Comment = commend_1.default;
 const env = process.env.NODE_ENV || "development"; // 환경변수 설정. 배포일때는 production, 개발용은 development
 const config = config_1.default[env]; // config.ts를 가져와 env를 적용함.
-exports.sequelize = new sequelize_1.default.Sequelize(config.database, config.username, config.password, config);
+exports.sequelize = new sequelize_1.default.Sequelize(config.database, config.username, config.password, Object.assign(Object.assign({}, config), { logging: true }));
 // config에서 가져옴. 즉, 시퀄라이즈가 노드와 mysql을 연결해준다.(시퀄라이즈가 mysql2 드라이버에 설정 정보를 보내줘서 노드와 mysql연결을 도와줌.)
 user_1.default.initiate(exports.sequelize);
 post_1.default.initiate(exports.sequelize);

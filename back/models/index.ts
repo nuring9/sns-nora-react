@@ -13,7 +13,10 @@ export const sequelize = new Sequelize.Sequelize(
   config.database,
   config.username,
   config.password,
-  config
+  {
+    ...config,
+    logging: true, // 쿼리 로깅 활성화
+  }
 );
 // config에서 가져옴. 즉, 시퀄라이즈가 노드와 mysql을 연결해준다.(시퀄라이즈가 mysql2 드라이버에 설정 정보를 보내줘서 노드와 mysql연결을 도와줌.)
 

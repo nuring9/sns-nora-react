@@ -1,7 +1,9 @@
 import IndexPage from "../pages/index";
 import Signup from "../pages/signup";
 import Profile from "../pages/profile";
-import PostComponent from "../pages/post";
+import PostPage from "../pages/post";
+import UserPage from "../pages/user";
+import HashtagPage from "../pages/hashtag";
 
 // import { Post } from "../types";
 
@@ -31,8 +33,18 @@ const routes: MyType[] = [
   },
   {
     path: "/post/:id",
-    title: "포스트",
-    element: <PostComponent />,
+    title: "게시글",
+    element: <PostPage />,
+  },
+  {
+    path: "/user/:id/posts",
+    title: "내 게시글",
+    element: <UserPage />,
+  },
+  {
+    path: "/hashtag/:tag",
+    title: "태그",
+    element: <HashtagPage />,
   },
 ];
 

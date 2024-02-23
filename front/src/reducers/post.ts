@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { Post, CommentDataType, PostText, UpdatePostDataType } from "../types";
-import axios, { AxiosError } from "axios";
+import { Post, CommentDataType, UpdatePostDataType } from "../types";
+import axios from "axios";
 import _ from "lodash";
 
 interface PostsState {
@@ -83,16 +83,50 @@ const loadPostsThrottle = async (lastId: number) => {
   return response.data;
 };
 
-// export const loadPosts = createAsyncThunk(
-//   "post/loadPosts",
-//   _.throttle(loadPostsThrottle, 5000)
-// );  // 원래 코드, 아래 코드 문제가 생기면 이 코드를 활성 화.
-
+// 게시글 목록
 export const loadPosts = createAsyncThunk(
   "post/loadPosts",
   async (lastId: number) => {
     const loadPostsThrottled = _.throttle(loadPostsThrottle, 5000);
     return loadPostsThrottled(lastId);
+  }
+);
+// export const loadPosts = createAsyncThunk(
+//   "post/loadPosts",
+//   _.throttle(loadPostsThrottle, 5000)
+// );  // 원래 코드, 아래 코드 문제가 생기면 이 코드를 활성 화.
+
+// 유저 게시글
+const loadUserPostsThrottle = async (lastId: number, id: number) => {
+  const response = await axios.get(`/user/${id}/posts?lastId=${lastId || 0}`);
+  return response.data;
+};
+
+export const loadUserPosts = createAsyncThunk(
+  "post/loadUserPosts",
+  async ({ lastId, id }: { lastId: number; id: number }) => {
+    const loadUserPostsThrottled = _.throttle(loadUserPostsThrottle, 5000);
+    return loadUserPostsThrottled(lastId, id);
+  }
+);
+
+// 해시태그 목록
+const loadHashtagPostsThrottle = async (lastId: number, tag: string) => {
+  const response = await axios.get(
+    `/hashtag/${encodeURIComponent(tag)}?lastId=${lastId || 0}`
+  );
+  console.log("서버 응답 데이터:", response.data); // 서버 응답 데이터 출력
+  return response.data;
+};
+
+export const loadHashtagPosts = createAsyncThunk(
+  "post/loadHashtagPosts",
+  async ({ lastId, tag }: { lastId: number; tag: string }) => {
+    const loadHashtagPostsThrottled = _.throttle(
+      loadHashtagPostsThrottle,
+      5000
+    );
+    return loadHashtagPostsThrottled(lastId, tag);
   }
 );
 
@@ -288,8 +322,10 @@ const postSlice = createSlice({
         const post = draft.mainPosts.find(
           (v) => v.id === action.payload.PostId
         ); // action.payload.PostId는 back의 router의 PostId는에서 가져오므로 대문자.
-        console.log("draft", draft, "post", post, "Comments", post?.Comments);
-        post?.Comments.unshift(action.payload);
+        // console.log("draft", draft, "post", post, "Comments", post?.Comments);
+        if (post?.Comments) {
+          post.Comments.unshift(action.payload);
+        }
         draft.addCommentLoading = false;
         draft.addCommentDone = true;
       })
@@ -366,6 +402,36 @@ const postSlice = createSlice({
         draft.retweetLoading = false;
         // draft.retweetError = action.error;
         draft.retweetError = action.error.message;
+      })
+      .addCase(loadUserPosts.pending, (draft, action) => {
+        draft.loadPostsLoading = true;
+        draft.loadPostsDone = false;
+        draft.loadPostsError = null;
+      })
+      .addCase(loadUserPosts.fulfilled, (draft, action) => {
+        draft.loadPostsLoading = false;
+        draft.loadPostsDone = true;
+        draft.mainPosts = draft.mainPosts.concat(action.payload);
+        draft.hasMorePosts = action.payload.length === 10;
+      })
+      .addCase(loadUserPosts.rejected, (draft, action) => {
+        draft.loadPostsLoading = false;
+        draft.loadPostsError = action.error;
+      })
+      .addCase(loadHashtagPosts.pending, (state, action) => {
+        state.loadPostsLoading = true;
+        state.loadPostsDone = false;
+        state.loadPostsError = null;
+      })
+      .addCase(loadHashtagPosts.fulfilled, (state, action) => {
+        state.loadPostsLoading = false;
+        state.loadPostsDone = true;
+        state.mainPosts = state.mainPosts.concat(action.payload);
+        state.hasMorePosts = action.payload.length === 10;
+      })
+      .addCase(loadHashtagPosts.rejected, (state, action) => {
+        state.loadPostsLoading = false;
+        state.loadPostsError = action.error;
       })
       .addDefaultCase((state) => state);
   },

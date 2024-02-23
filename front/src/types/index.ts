@@ -6,6 +6,10 @@ export interface User {
   password?: string;
   nickname?: string;
   nick?: string;
+  Posts?: Post[];
+  Followers?: FollowersType[];
+  Followings?: FollowersType[];
+  tag?: string;
 }
 
 export interface Image {
@@ -14,7 +18,8 @@ export interface Image {
 }
 
 export interface Comment {
-  User: User;
+  id?: number;
+  User?: User;
   content?: string;
   userId?: number;
 }
@@ -33,11 +38,11 @@ export interface Retweet {
 export interface Post {
   id: number;
   email?: string;
-  User: User;
+  User?: User;
   content?: string;
-  createdAt: number;
+  createdAt?: string;
   Images?: Image[];
-  Comments: Comment[];
+  Comments?: Comment[];
   Likers?: LikersType[] | null;
   nick?: string;
   RetweetId?: number;
@@ -75,6 +80,8 @@ export interface FollowersType {
   postId?: number;
   id?: number;
   userId?: number;
+  length?: number;
+  nick?: string;
 }
 
 export interface RetweetType {

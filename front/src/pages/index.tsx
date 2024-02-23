@@ -59,7 +59,7 @@ const Home: React.FC = () => {
       dispatch(loadPosts(lastId));
       console.log(lastId, `라스트아이디`);
     }
-  }, [dispatch, lastId, hasMorePosts]);
+  }, [dispatch, lastId, hasMorePosts, loadPostsLoading]);
 
   //   window.addEventListener('scroll', onScroll);
   //   return () => {

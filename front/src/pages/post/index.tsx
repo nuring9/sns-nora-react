@@ -10,7 +10,7 @@ import PostCard from "../../components/PostCard";
 import { Post } from "../../types";
 import { Helmet } from "react-helmet";
 
-const PostComponent = () => {
+const PostPage = () => {
   const { id } = useParams<{ id: string }>();
   const postId = id ? parseInt(id) : undefined;
   const dispatch = useDispatch<AppDispatch>();
@@ -34,13 +34,13 @@ const PostComponent = () => {
       <AppLayout>
         <Helmet>
           <title>
-            {singlePost.User.nick}
+            {singlePost.User?.nick}
             님의 글
           </title>
           <meta name="description" content={singlePost.content} />
           <meta
             property="og:title"
-            content={`${singlePost.User.nick}님의 게시글`}
+            content={`${singlePost.User?.nick}님의 게시글`}
           />
           <meta property="og:description" content={singlePost.content} />
           {/* <meta
@@ -59,4 +59,4 @@ const PostComponent = () => {
   );
 };
 
-export default PostComponent;
+export default PostPage;

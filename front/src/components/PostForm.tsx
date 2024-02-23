@@ -71,7 +71,7 @@ const PostForm: React.FC = () => {
       formData.append("image", p);
     });
     formData.append("content", text);
-    formData.append("userId", id);
+    formData.append("userId", (id || 0).toString());
     // formData로 서버로 보낼땐 append로 다 쪼개서 보내야 함!!
 
     console.log("onsubmitdata", formData);

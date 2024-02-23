@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { logOut } from "../reducers/user";
 import { AppDispatch } from "../store/configureStore";
 import { RootState } from "../store/configureStore";
-import { User } from "../types";
 
 const ContainerWrapper = styled(Container)`
   background-color: #ffffff;
@@ -59,17 +58,17 @@ const UserProfile: React.FC = () => {
 
             <ListGroup horizontal className="w-100">
               <ListGroup.Item className="flex-fill text-center">
-                <LinkStyled href={`/user/${me.id}`}>게시물</LinkStyled>
+                <LinkStyled href={`/user/${me?.id}`}>게시물</LinkStyled>
                 <br />
-                {me.Posts?.length}
+                {me?.Posts?.length}
               </ListGroup.Item>
               <ListGroup.Item className="flex-fill text-center">
                 <LinkStyled href="/profile"> 팔로워 </LinkStyled>
-                <br /> {me.Followers?.length}
+                <br /> {me?.Followers?.length}
               </ListGroup.Item>
               <ListGroup.Item className="flex-fill text-center">
                 <LinkStyled href="/profile"> 팔로우 </LinkStyled>
-                <br /> {me.Followings?.length}
+                <br /> {me?.Followings?.length}
               </ListGroup.Item>
             </ListGroup>
           </div>

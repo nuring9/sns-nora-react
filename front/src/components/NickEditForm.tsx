@@ -27,7 +27,7 @@ const NickEditForm: React.FC = () => {
   const onSubmit = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      dispatch(changeNickname(nickname));
+      dispatch(changeNickname({ nickname }));
       setNicname("");
     },
     [dispatch, nickname]

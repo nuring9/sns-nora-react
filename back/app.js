@@ -15,6 +15,7 @@ const passport_2 = __importDefault(require("./passport"));
 const posts_1 = __importDefault(require("./routes/posts"));
 const post_1 = __importDefault(require("./routes/post"));
 const user_1 = __importDefault(require("./routes/user"));
+const hashtag_1 = __importDefault(require("./routes/hashtag"));
 // import pageRouter from "./routes/page";
 const models_1 = require("./models");
 dotenv_1.default.config();
@@ -56,6 +57,7 @@ app.use(passport_1.default.session());
 app.use("/posts", posts_1.default); // 순서 중요. 게시글들 불러오니 먼저
 app.use("/post", post_1.default);
 app.use("/user", user_1.default);
+app.use("/hashtag", hashtag_1.default);
 app.use((req, res, next) => {
     const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
     // error.status = 404;

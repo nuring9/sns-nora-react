@@ -157,7 +157,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         <Card.Body>
           <Card.Title>
             <AvatarWrapper
-              name={post.User.nick}
+              name={post.User?.nick}
               src="/images/sa.jpeg"
               size="40"
               round={true}
@@ -236,7 +236,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 {post.User && !id && (
                   <Dropdown.Item href="#action3">신고</Dropdown.Item>
                 )} */}
-                {id && post.User.id === id ? (
+                {id && post.User?.id === id ? (
                   <>
                     <Dropdown.Item onClick={onClickUpdate}>수정</Dropdown.Item>
                     <Dropdown.Item

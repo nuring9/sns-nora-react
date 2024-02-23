@@ -41,8 +41,8 @@ interface UserState {
   removeFollowerDone: boolean;
   removeFollowerError: unknown;
   message?: string;
-  me: any; // 사용자 정보 객체 타입
-  userInfo: any;
+  me: User | null; // 사용자 정보 객체 타입
+  userInfo: User | null;
   // signUpDate: number;
   // loginDate: number;
 }
@@ -93,13 +93,12 @@ export const logIn = createAsyncThunk("user/logIn", async (data: User) => {
 
 export const loadMyInfo = createAsyncThunk("user/loadMyInfo", async () => {
   const response = await axios.get("/user");
-  console.log("response", response.data);
   return response.data || null;
 });
 
 export const loadUser = createAsyncThunk(
   "user/loadUser",
-  async (data: User) => {
+  async (data: number) => {
     const response = await axios.get(`/user/${data}`);
     return response.data;
   }
@@ -167,30 +166,37 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     addPostToMe(draft, action) {
-      draft.me.Posts.unshift({ id: action.payload });
+      // draft.me.Posts.unshift({ id: action.payload });
+      // draft.me가 있을때만 unshift
+      if (draft.me) {
+        draft.me.Posts?.unshift({ id: action.payload });
+      }
     },
     removePostOfMe(draft, action) {
-      draft.me.Posts = draft.me.Posts.filter(
-        (v: any) => v.id !== action.payload
-      );
+      // draft.me.Posts = draft.me.Posts.filter(
+      //   (v: any) => v.id !== action.payload
+      // );
+      // draft.me 가 있을 때만 filter
+      if (draft.me) {
+        draft.me.Posts = draft.me.Posts?.filter(
+          (v: any) => v.id !== action.payload
+        );
+      }
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(loadMyInfo.pending, (draft) => {
-        console.log("pending");
         draft.loadMyInfoLoading = true;
         draft.loadMyInfoError = null;
         draft.loadMyInfoDone = false;
       })
       .addCase(loadMyInfo.fulfilled, (draft, action) => {
-        console.log("payload", action.payload);
         draft.loadMyInfoLoading = false;
         draft.me = action.payload || null;
         draft.loadMyInfoDone = true;
       })
       .addCase(loadMyInfo.rejected, (draft, action) => {
-        console.log("rejected");
         draft.loadMyInfoLoading = false;
         draft.loadMyInfoError = action.error;
       })
@@ -215,7 +221,10 @@ const userSlice = createSlice({
       })
       .addCase(loadFollowings.fulfilled, (draft, action) => {
         draft.loadFollowingsLoading = false;
-        draft.me.Followings = action.payload;
+        // draft.me.Followings = action.payload;
+        if (draft.me) {
+          draft.me.Followings = action.payload;
+        }
         draft.loadFollowingsDone = true;
       })
       .addCase(loadFollowings.rejected, (draft, action) => {
@@ -229,7 +238,10 @@ const userSlice = createSlice({
       })
       .addCase(loadFollowers.fulfilled, (draft, action) => {
         draft.loadFollowersLoading = false;
-        draft.me.Followers = action.payload;
+        // draft.me.Followers = action.payload;
+        if (draft.me) {
+          draft.me.Followers = action.payload;
+        }
         draft.loadFollowersDone = true;
       })
       .addCase(loadFollowers.rejected, (draft, action) => {
@@ -257,7 +269,11 @@ const userSlice = createSlice({
       })
       .addCase(follow.fulfilled, (draft, action) => {
         draft.followLoading = false;
-        draft.me.Followings.push({ id: action.payload.UserId });
+        // draft.me.Followings.push({ id: action.payload.UserId });
+        // draft.me와 draft.me.Followings가 null이거나 선택적선언이(옵셔널체이닝)이기때문에 if문으로 확실히 해줘야함.
+        if (draft.me && draft.me.Followings) {
+          draft.me.Followings.push({ id: action.payload.UserId });
+        }
         draft.followDone = true;
       })
       .addCase(follow.rejected, (draft, action) => {
@@ -271,9 +287,15 @@ const userSlice = createSlice({
       })
       .addCase(unfollow.fulfilled, (draft, action) => {
         draft.unfollowLoading = false;
-        draft.me.Followings = draft.me.Followings.filter(
-          (v: any) => v.id !== action.payload.UserId
-        );
+        // draft.me.Followings = draft.me.Followings.filter(
+        //   (v: any) => v.id !== action.payload.UserId
+        // );
+        //draft.me와 draft.me.Followings가 null이거나 선택적선언이(옵셔널체이닝)이기때문에 if문으로 확실히 해줘야함.
+        if (draft.me && draft.me.Followings) {
+          draft.me.Followings = draft.me.Followings.filter(
+            (v: any) => v.id !== action.payload.UserId
+          );
+        }
         draft.unfollowDone = true;
       })
       .addCase(unfollow.rejected, (draft, action) => {
@@ -287,9 +309,15 @@ const userSlice = createSlice({
       })
       .addCase(removeFollower.fulfilled, (state, action) => {
         state.removeFollowerLoading = false;
-        state.me.Followers = state.me.Followers.filter(
-          (v: any) => v.id !== action.payload.UserId
-        );
+        // state.me.Followers = state.me?.Followers?.filter(
+        //   (v: any) => v.id !== action.payload.UserId
+        // );
+        // state.me와 state.me.Followers가 null이거나 선택적선언이(옵셔널체이닝)이기때문에 if문으로 확실히 해줘야함.
+        if (state.me && state.me.Followers) {
+          state.me.Followers = state.me.Followers.filter(
+            (follower) => follower.id !== action.payload.UserId
+          );
+        }
         state.removeFollowerDone = true;
       })
       .addCase(removeFollower.rejected, (draft, action) => {
@@ -329,7 +357,10 @@ const userSlice = createSlice({
         draft.changeNicknameDone = false;
       })
       .addCase(changeNickname.fulfilled, (draft, action) => {
-        draft.me.nickname = action.payload.nickname;
+        // draft.me가 null일 수도 있기때문에 if문으로 확실하게..
+        if (draft.me) {
+          draft.me.nickname = action.payload.nickname;
+        }
         draft.changeNicknameLoading = false;
         draft.changeNicknameDone = true;
       })

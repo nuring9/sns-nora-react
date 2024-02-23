@@ -17,7 +17,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({ post }) => {
     (state: RootState) => state.user
   );
 
-  const isFollowing = me?.Followings?.find((v: any) => v.id === post.User.id);
+  const isFollowing = me?.Followings?.find((v: any) => v.id === post.User?.id);
   // Followings?.(내가 팔로잉한 목록 중에 게시글 작성자 아이디가 있으면 내가 팔로잉한 사람)
   const userId = post.User?.id;
 
@@ -31,7 +31,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({ post }) => {
     }
   }, [isFollowing, dispatch, userId, me]);
 
-  if (me?.id === post.User.id) {
+  if (me?.id === post.User?.id) {
     return null;
   }
 

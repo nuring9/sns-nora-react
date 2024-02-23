@@ -14,6 +14,7 @@ import { UserModel } from "./types";
 import postsRouter from "./routes/posts";
 import postRouter from "./routes/post";
 import userRouter from "./routes/user";
+import hashtagRouter from "./routes/hashtag";
 // import pageRouter from "./routes/page";
 import { sequelize } from "./models";
 
@@ -72,6 +73,7 @@ app.use(passport.session());
 app.use("/posts", postsRouter); // 순서 중요. 게시글들 불러오니 먼저
 app.use("/post", postRouter);
 app.use("/user", userRouter);
+app.use("/hashtag", hashtagRouter);
 
 app.use((req, res, next) => {
   const error: any = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);

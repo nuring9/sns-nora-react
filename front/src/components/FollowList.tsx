@@ -1,18 +1,19 @@
 import { ListGroup, Button, Card, Row, Container } from "react-bootstrap";
 import styled from "styled-components";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../store/configureStore";
-import { unfollow, removeFollower } from "../reducers/user";
+// import { useDispatch } from "react-redux";
+// import { AppDispatch } from "../store/configureStore";
+// import { unfollow, removeFollower } from "../reducers/user";
+import { FollowersType } from "../types";
 import { useEffect } from "react";
 
-interface FollowItem {
-  nick: string;
-  id: string;
-}
+// interface FollowItem {
+//   nick?: string;
+//   id?: number;
+// }
 
 interface FollowProps {
   header: string;
-  data: FollowItem[];
+  data: FollowersType[] | undefined;
   onClickMore: () => void;
 }
 
@@ -37,6 +38,10 @@ export default function FollowList({ header, data, onClickMore }: FollowProps) {
   useEffect(() => {
     console.log("item data:", data);
   });
+
+  if (!data) {
+    return <p>데이터를 불러오는 중입니다...</p>;
+  }
 
   return (
     <ContainerWrapper>
