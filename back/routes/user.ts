@@ -3,8 +3,8 @@ import bcrypt from "bcrypt";
 import { User, Post, Image, Comment } from "../models";
 import { isLoggedIn, isNotLoggedIn } from "./middlewares";
 import passport from "passport";
-import { Request, Response } from "express";
-import { Op } from "sequelize";
+import { Request } from "express";
+import { Op, InferAttributes } from "sequelize";
 
 const router = express.Router();
 
@@ -14,10 +14,18 @@ interface PassportUser {
   nick: string;
 }
 
+interface UserData extends InferAttributes<User> {
+  id: number;
+  email: string;
+  nick: string;
+  Posts?: any[]; // 포스트 배열
+  Followers?: any[]; // 팔로워 배열
+  Followings?: any[]; // 팔로잉 배열
+}
+
 router.get("/", async (req, res, next) => {
   // GET /user
   try {
-    console.log("req.user", req.user);
     if (req.user) {
       const fullUserWithoutPassword = await User.findOne({
         where: { id: req.user.id },
@@ -137,6 +145,7 @@ router.post("/login", isNotLoggedIn, async (req, res, next) => {
 router.get("/:userId", async (req, res, next) => {
   // GET /user/1
   try {
+    console.log("req.user확인", req.user);
     const fullUserWithoutPassword = await User.findOne({
       where: { id: req.params.userId },
       attributes: {
@@ -159,16 +168,17 @@ router.get("/:userId", async (req, res, next) => {
         },
       ],
     });
-    // if (fullUserWithoutPassword) {
-    //   const data: UserResponse = fullUserWithoutPassword.toJSON();
-    //   data.Posts = data.Posts?.length; // 개인정보 침해 예방
-    //   data.Followers = data.Followers?.length;
-    //   data.Followings = data.Followings?.length;
-    //   res.status(200).json(data);
-    // } else {
-    //   res.status(404).json("존재하지 않는 사용자입니다.");
-    // }
-    res.status(200).json(fullUserWithoutPassword);
+    console.log(`풀유저`, fullUserWithoutPassword);
+    if (fullUserWithoutPassword) {
+      const data = fullUserWithoutPassword.toJSON() as UserData;
+      data.Posts = (data as any).Posts?.length; // 개인정보 침해 예방
+      data.Followers = (data as any).Followers?.length;
+      data.Followings = (data as any).Followings?.length;
+      res.status(200).json(data);
+    } else {
+      res.status(404).json("존재하지 않는 사용자입니다.");
+    }
+    // res.status(200).json(fullUserWithoutPassword);
   } catch (error) {
     console.error(error);
     next(error);
@@ -178,17 +188,32 @@ router.get("/:userId", async (req, res, next) => {
 router.get("/:userId/posts", async (req, res, next) => {
   // GET /user/1/posts
   try {
-    const where: { UserId: string; id?: { [Op.lt]: number } } = {
+    const where: { UserId: string; id?: any } = {
       UserId: req.params.userId,
     };
-    if (req.query.lastId) {
-      // 초기 로딩이 아닐 때
-      where.id = { [Op.lt]: parseInt(req.query.lastId as string, 10) || 0 };
+    const lastId: number | undefined = parseInt(
+      req.query.lastId?.toString() || "0",
+      10
+    );
+    console.log("req!!!", req.user);
+    // if (req.query.lastId) {
+    //   // 초기 로딩이 아닐 때
+    //   where.id = { [Op.lt]: lastId };
+    // }
+
+    if (!isNaN(lastId) && lastId > 0) {
+      // 초기 로딩이 아닐 때, && lastId가 0보다 큰 경우에만 where.id 조건이 추가.
+      // 이렇게 해야 실행된다.
+      where.id = { [Op.lt]: lastId };
+      console.log(lastId, "라스트아이디");
     }
     const posts = await Post.findAll({
       where,
       limit: 10,
-      order: [["createdAt", "DESC"]],
+      order: [
+        ["createdAt", "DESC"],
+        [Comment, "createdAt", "DESC"],
+      ],
       include: [
         {
           model: User,

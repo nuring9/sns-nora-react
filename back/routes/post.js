@@ -331,6 +331,7 @@ router.delete("/:postId/like", middlewares_1.isLoggedIn, (req, res, next) => __a
         next(error);
     }
 }));
+// 게시글 id로 찾기
 router.patch("/:postId", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _f;
     // PATCH /post/10

@@ -48,6 +48,7 @@ router.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
                         {
                             model: models_1.User,
                             attributes: ["id", "nick"],
+                            order: [["createdAt", "DESC"]],
                         },
                     ],
                 },

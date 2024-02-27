@@ -22,7 +22,6 @@ const router = express_1.default.Router();
 router.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     // GET /user
     try {
-        console.log("req.user", req.user);
         if (req.user) {
             const fullUserWithoutPassword = yield models_1.User.findOne({
                 where: { id: req.user.id },
@@ -135,8 +134,10 @@ router.post("/login", middlewares_1.isNotLoggedIn, (req, res, next) => __awaiter
 //   }
 // });
 router.get("/:userId", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c;
     // GET /user/1
     try {
+        console.log("req.user확인", req.user);
         const fullUserWithoutPassword = yield models_1.User.findOne({
             where: { id: req.params.userId },
             attributes: {
@@ -159,16 +160,18 @@ router.get("/:userId", (req, res, next) => __awaiter(void 0, void 0, void 0, fun
                 },
             ],
         });
-        // if (fullUserWithoutPassword) {
-        //   const data: UserResponse = fullUserWithoutPassword.toJSON();
-        //   data.Posts = data.Posts?.length; // 개인정보 침해 예방
-        //   data.Followers = data.Followers?.length;
-        //   data.Followings = data.Followings?.length;
-        //   res.status(200).json(data);
-        // } else {
-        //   res.status(404).json("존재하지 않는 사용자입니다.");
-        // }
-        res.status(200).json(fullUserWithoutPassword);
+        console.log(`풀유저`, fullUserWithoutPassword);
+        if (fullUserWithoutPassword) {
+            const data = fullUserWithoutPassword.toJSON();
+            data.Posts = (_a = data.Posts) === null || _a === void 0 ? void 0 : _a.length; // 개인정보 침해 예방
+            data.Followers = (_b = data.Followers) === null || _b === void 0 ? void 0 : _b.length;
+            data.Followings = (_c = data.Followings) === null || _c === void 0 ? void 0 : _c.length;
+            res.status(200).json(data);
+        }
+        else {
+            res.status(404).json("존재하지 않는 사용자입니다.");
+        }
+        // res.status(200).json(fullUserWithoutPassword);
     }
     catch (error) {
         console.error(error);
@@ -176,19 +179,31 @@ router.get("/:userId", (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     }
 }));
 router.get("/:userId/posts", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _d;
     // GET /user/1/posts
     try {
         const where = {
             UserId: req.params.userId,
         };
-        if (req.query.lastId) {
-            // 초기 로딩이 아닐 때
-            where.id = { [sequelize_1.Op.lt]: parseInt(req.query.lastId, 10) || 0 };
+        const lastId = parseInt(((_d = req.query.lastId) === null || _d === void 0 ? void 0 : _d.toString()) || "0", 10);
+        console.log("req!!!", req.user);
+        // if (req.query.lastId) {
+        //   // 초기 로딩이 아닐 때
+        //   where.id = { [Op.lt]: lastId };
+        // }
+        if (!isNaN(lastId) && lastId > 0) {
+            // 초기 로딩이 아닐 때, && lastId가 0보다 큰 경우에만 where.id 조건이 추가.
+            // 이렇게 해야 실행된다.
+            where.id = { [sequelize_1.Op.lt]: lastId };
+            console.log(lastId, "라스트아이디");
         }
         const posts = yield models_1.Post.findAll({
             where,
             limit: 10,
-            order: [["createdAt", "DESC"]],
+            order: [
+                ["createdAt", "DESC"],
+                [models_1.Comment, "createdAt", "DESC"],
+            ],
             include: [
                 {
                     model: models_1.User,
@@ -326,14 +341,14 @@ router.post("/logout", middlewares_1.isLoggedIn, (req, res) => {
     });
 });
 router.patch("/nickname", middlewares_1.isLoggedIn, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _e;
     try {
         yield models_1.User.update(
         //수정
         {
             nick: req.body.nickname, // front에서 제공
         }, {
-            where: { id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id }, // 조건, 내 아이디 수정
+            where: { id: (_e = req.user) === null || _e === void 0 ? void 0 : _e.id }, // 조건, 내 아이디 수정
         });
         res.status(200).json({ nick: req.body.nickname });
     }

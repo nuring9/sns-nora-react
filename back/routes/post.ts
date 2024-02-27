@@ -329,6 +329,7 @@ router.delete("/:postId/like", isLoggedIn, async (req, res, next) => {
   }
 });
 
+// 게시글 id로 찾기
 router.patch("/:postId", isLoggedIn, async (req, res, next) => {
   // PATCH /post/10
   const hashtags = req.body.content.match(/#[^\s#]+/g);

@@ -20,20 +20,15 @@ router.get("/:hashtag", (req, res, next) => __awaiter(void 0, void 0, void 0, fu
     var _a;
     // GET /hashtag/해시태그
     try {
-        // const where: { id?: any } = {};
         const where = {};
-        // const lastId: number | undefined = parseInt(
-        //   req.query.lastId?.toString() || "0",
-        //   10
-        // );
         const lastId = parseInt(((_a = req.query.lastId) === null || _a === void 0 ? void 0 : _a.toString()) || "0", 10);
         // if (!isNaN(lastId)) {
         //   // 초기 로딩이 아닐 때
         //   where.id = { [Op.lt]: lastId };
-        //   console.log(lastId, "라스트아이디");
-        // } // 21 20 19 18 17 16 15 ... 1
+        // }  오류 코드 reducers/post의 mainPosts 생성되지 않음.
         if (!isNaN(lastId) && lastId > 0) {
-            // 초기 로딩이 아닐 때
+            // 초기 로딩이 아닐 때, && lastId가 0보다 큰 경우에만 where.id 조건이 추가.
+            // 이렇게 해야 실행된다.
             where.id = { [sequelize_1.Op.lt]: lastId };
             console.log(lastId, "라스트아이디");
         }
