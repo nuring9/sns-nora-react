@@ -108,39 +108,55 @@ router.post("/login", isNotLoggedIn, async (req, res, next) => {
   )(req, res, next);
 });
 
-// router.get("/followers", isLoggedIn, async (req, res, next) => {
-//   // GET /user/followers
-//   try {
-//     const user = await User.findOne({ where: { id: req.user?.id } });
-//     if (!user) {
-//       res.status(403).send("없는 사람을 찾으려고 하시네요?");
-//     }
-//     const followers = await user?.getFollowers({
-//       limit: parseInt(req.query.limit, 10),
-//     });
-//     res.status(200).json(followers);
-//   } catch (error) {
-//     console.error(error);
-//     next(error);
-//   }
-// });
+router.get("/followers", isLoggedIn, async (req, res, next) => {
+  // GET /user/followers
+  try {
+    const user = await User.findOne({ where: { id: req.user?.id } });
+    if (!user) {
+      res.status(403).send("존재하지 않는 사용자");
+    }
 
-// router.get("/followings", isLoggedIn, async (req, res, next) => {
-//   // GET /user/followings
-//   try {
-//     const user = await User.findOne({ where: { id: req.user?.id } });
-//     if (!user) {
-//       res.status(403).send("없는 사람을 찾으려고 하시네요?");
-//     }
-//     const followings = await user.getFollowings({
-//       limit: parseInt(req.query.limit, 10),
-//     });
-//     res.status(200).json(followings);
-//   } catch (error) {
-//     console.error(error);
-//     next(error);
-//   }
-// });
+    // req.query.limit가 undefined일 때의 경우를 처리
+    let limit: number | undefined = 3; // 기본 값으로 3을 설정
+    if (typeof req.query.limit === "string") {
+      // 문자열인 경우에만 숫자로 변환
+      limit = parseInt(req.query.limit, 10);
+    }
+
+    const followers = await user?.getFollowers({
+      limit: limit,
+    });
+    res.status(200).json(followers);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.get("/followings", isLoggedIn, async (req, res, next) => {
+  // GET /user/followings
+  try {
+    const user = await User.findOne({ where: { id: req.user?.id } });
+    if (!user) {
+      res.status(403).send("존재하지 않는 사용자");
+    }
+
+    // req.query.limit가 undefined일 때의 경우를 처리
+    let limit: number | undefined = 3; // 기본 값으로 3을 설정
+    if (typeof req.query.limit === "string") {
+      // 문자열인 경우에만 숫자로 변환
+      limit = parseInt(req.query.limit, 10);
+    }
+
+    const followings = await user?.getFollowings({
+      limit: limit,
+    });
+    res.status(200).json(followings);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
 
 router.get("/:userId", async (req, res, next) => {
   // GET /user/1
@@ -168,6 +184,7 @@ router.get("/:userId", async (req, res, next) => {
         },
       ],
     });
+
     console.log(`풀유저`, fullUserWithoutPassword);
     if (fullUserWithoutPassword) {
       const data = fullUserWithoutPassword.toJSON() as UserData;
@@ -185,16 +202,98 @@ router.get("/:userId", async (req, res, next) => {
   }
 });
 
+// //로그인유저 팔로잉 팔로워
+// router.get("/:userId/followers", isLoggedIn, async (req, res, next) => {
+//   // GET /user/id/followers
+//   try {
+//     console.log("req.user확인임", req.user);
+//     const user = await User.findOne({
+//       where: { id: req.params.userId },
+//       include: [
+//         {
+//           model: Post,
+//           attributes: ["id"],
+//         },
+//         {
+//           model: User,
+//           as: "Followings",
+//           attributes: ["id", "nick"],
+//         },
+//         {
+//           model: User,
+//           as: "Followers",
+//           attributes: ["id", "nick"],
+//         },
+//       ],
+//     });
+
+//     res.status(200).json(user);
+//   } catch (error) {
+//     console.error(error);
+//     next(error);
+//   }
+// });
+
+// router.get("/:userId/followings", isLoggedIn, async (req, res, next) => {
+//   // GET /user/id/followings
+//   try {
+//     const where: { UserId: string; id?: any } = {
+//       UserId: req.params.userId,
+//     };
+//     const user = await User.findOne({
+//       include: [
+//         {
+//           model: Post,
+//           attributes: ["id"],
+//         },
+//         {
+//           model: User,
+//           as: "Followings",
+//           attributes: ["id", "nick"],
+//         },
+//         {
+//           model: User,
+//           as: "Followers",
+//           attributes: ["id", "nick"],
+//         },
+//       ],
+//     });
+//     // const user = await User.findOne({
+//     //   where:{ UserId: string; id?: any }= {   UserId: req.params.userId, },
+//     //   include: [
+//     //     {
+//     //       model: Post,
+//     //       attributes: ["id"],
+//     //     },
+//     //     {
+//     //       model: User,
+//     //       as: "Followings",
+//     //       attributes: ["id", "nick"],
+//     //     },
+//     //     {
+//     //       model: User,
+//     //       as: "Followers",
+//     //       attributes: ["id", "nick"],
+//     //     },
+//     //   ],
+//     // });
+//     res.status(200).json(user);
+//   } catch (error) {
+//     console.error(error);
+//     next(error);
+//   }
+// });
+
 router.get("/:userId/posts", async (req, res, next) => {
   // GET /user/1/posts
   try {
-    const where: { UserId: string; id?: any } = {
-      UserId: req.params.userId,
-    };
     const lastId: number | undefined = parseInt(
       req.query.lastId?.toString() || "0",
       10
     );
+    const where: { UserId: string; id?: any } = {
+      UserId: req.params.userId,
+    };
     console.log("req!!!", req.user);
     // if (req.query.lastId) {
     //   // 초기 로딩이 아닐 때
@@ -252,6 +351,7 @@ router.get("/:userId/posts", async (req, res, next) => {
         },
       ],
     });
+
     res.status(200).json(posts);
   } catch (error) {
     console.error(error);

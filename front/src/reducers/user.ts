@@ -100,6 +100,7 @@ export const loadUser = createAsyncThunk(
   "user/loadUser",
   async (data: number) => {
     const response = await axios.get(`/user/${data}`);
+    console.log("loadUser실행되니", data);
     return response.data;
   }
 );

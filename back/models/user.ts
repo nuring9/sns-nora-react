@@ -5,6 +5,7 @@ import Sequelize, {
   Model,
   BelongsToManyAddAssociationsMixin,
   BelongsToManyRemoveAssociationsMixin,
+  HasManyGetAssociationsMixin,
 } from "sequelize";
 import Post from "./post";
 import Comment from "./commend";
@@ -22,6 +23,8 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare addFollowers: BelongsToManyAddAssociationsMixin<User, number>;
   declare removeFollowers: BelongsToManyRemoveAssociationsMixin<User, number>;
   declare removeFollowings: BelongsToManyRemoveAssociationsMixin<User, number>;
+  declare getFollowers: HasManyGetAssociationsMixin<User>;
+  declare getFollowings: HasManyGetAssociationsMixin<User>;
 
   static initiate(sequelize: Sequelize.Sequelize) {
     User.init(

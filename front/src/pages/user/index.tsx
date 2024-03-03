@@ -20,7 +20,7 @@ const ContainerWrapper = styled(Container)`
 `;
 
 const ImageStyled = styled(Image)`
-  width: 100%;
+  /* width: 100%; */
   height: 50px;
   border-radius: 20px;
 `;
@@ -31,39 +31,39 @@ const LinkStyled = styled.a`
 `;
 
 const UserPage: React.FC = () => {
-  const { userId } = useParams<{ userId: string }>();
-
+  const { id } = useParams<{ id: string }>();
+  const userId = id ? parseInt(id) : undefined;
   const dispatch = useDispatch<AppDispatch>();
   const userInfo = useSelector((state: RootState) => state.user.userInfo);
   const { me } = useSelector((state: RootState) => state.user);
-  const { mainPosts } = useSelector((state: RootState) => state.post);
+  const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(
+    (state: RootState) => state.post
+  );
   const navigate = useNavigate();
 
   const imagePath = process.env.PUBLIC_URL + "/images/heart.png";
 
-  // useEffect(() => {
-  //   if (userId !== undefined) {
-  //     dispatch(loadUser(parseInt(userId))); // 숫자로 변환 리듀서에서 number로 가기 때문.
-  //     dispatch(loadMyInfo());
-  //   }
-  // }, [dispatch, userId]);
+  const lastId = mainPosts[mainPosts.length - 1]?.id;
 
   useEffect(() => {
-    if (userId !== undefined) {
-      dispatch(loadUser(parseInt(userId))); // 숫자로 변환 리듀서에서 number로 가기 때문.
-      dispatch(loadMyInfo());
-      const lastId = mainPosts[mainPosts.length - 1]?.id;
-      if (lastId !== undefined) {
-        dispatch(loadUserPosts({ lastId: lastId, id: parseInt(userId) }));
-      }
-    }
-  }, [dispatch, userId, mainPosts]);
+    dispatch(loadMyInfo());
 
-  if (!userInfo) {
-    // 로그인 페이지로
-    navigate("/");
-    return <div>로그인을 해주세요.</div>;
-  }
+    if (hasMorePosts && !loadPostsLoading && userId !== undefined) {
+      dispatch(loadUser(userId)); // 숫자로 변환 리듀서에서 number로 가기 때문.
+      dispatch(loadUserPosts({ lastId: lastId, id: userId }));
+    }
+  }, [dispatch, userId, mainPosts, lastId, hasMorePosts, loadPostsLoading]);
+
+  // useEffect(() => {
+  //   if (!me) {
+  //     // 로그인 페이지로
+  //     navigate("/");
+  //   }
+  // }, [me, navigate]);
+  const shouldShowContainerWrapper =
+    !loadPostsLoading &&
+    (!userId || userInfo) &&
+    !window.location.href.includes("/posts");
 
   return (
     <AppLayout>
@@ -81,50 +81,50 @@ const UserPage: React.FC = () => {
           />
         </Helmet>
       )}
-      {userInfo && userInfo.id !== me?.id ? (
+      {userInfo && userInfo.id !== me?.id && shouldShowContainerWrapper && (
         <ContainerWrapper>
           <Row>
             <Col>
               <div className="p-3">
                 <Row>
-                  <Col xs={4} md={5} lg={4}>
+                  <Col xs={2} md={2} lg={2}>
                     <ImageStyled src={imagePath} alt="profileheart.png" />
                   </Col>
                   <Col xs={8} md={7} lg={8}>
-                    <h4>{me?.nick}</h4>
-                    {/* <Button
-                      onClick={onLogOut}
-                      disabled={logOutLoading}
-                      variant="primary"
-                      size="sm"
-                    >
-                      {logOutLoading ? "로그아웃중..." : "로그아웃"}
-                    </Button> */}
+                    <h4>{userInfo.nick}</h4>
                   </Col>
                 </Row>
                 <br />
 
                 <ListGroup horizontal className="w-100">
                   <ListGroup.Item className="flex-fill text-center">
-                    <LinkStyled href={`/user/${me?.id}`}>게시물</LinkStyled>
+                    <LinkStyled href={`/user/${userInfo.id}`}>
+                      게시물
+                    </LinkStyled>
                     <br />
-                    {me?.Posts?.length}
+                    {userInfo.Posts && userInfo.Posts.length > 0
+                      ? userInfo.Posts.length
+                      : 0}
                   </ListGroup.Item>
                   <ListGroup.Item className="flex-fill text-center">
                     <LinkStyled href="/profile"> 팔로워 </LinkStyled>
-                    <br /> {me?.Followers?.length}
+                    <br />
+                    {userInfo.Followers && userInfo.Followers.length > 0
+                      ? userInfo.Followers.length
+                      : 0}
                   </ListGroup.Item>
                   <ListGroup.Item className="flex-fill text-center">
                     <LinkStyled href="/profile"> 팔로우 </LinkStyled>
-                    <br /> {me?.Followings?.length}
+                    <br />
+                    {userInfo.Followings ? userInfo.Followings.length : 0}
                   </ListGroup.Item>
                 </ListGroup>
               </div>
             </Col>
           </Row>
         </ContainerWrapper>
-      ) : null}
-      {/* {me && <PostForm />} */}
+      )}
+
       {mainPosts.map((post) => (
         <PostCard key={uuidv4()} post={post} images={post.Images} />
       ))}

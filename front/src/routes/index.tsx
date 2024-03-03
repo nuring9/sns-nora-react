@@ -37,8 +37,13 @@ const routes: MyType[] = [
     element: <PostPage />,
   },
   {
+    path: "/user/:id",
+    title: "유저 게시글",
+    element: <UserPage />,
+  },
+  {
     path: "/user/:id/posts",
-    title: "내 게시글",
+    title: "유저 게시글",
     element: <UserPage />,
   },
   {

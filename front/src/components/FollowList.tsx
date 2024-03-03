@@ -15,6 +15,7 @@ interface FollowProps {
   header: string;
   data: FollowersType[] | undefined;
   onClickMore: () => void;
+  loading: boolean;
 }
 
 const ContainerWrapper = styled(Container)`
@@ -34,7 +35,12 @@ const ButtonWrapper = styled.div`
   margin: 10px;
 `;
 
-export default function FollowList({ header, data, onClickMore }: FollowProps) {
+export default function FollowList({
+  header,
+  data,
+  onClickMore,
+  loading,
+}: FollowProps) {
   useEffect(() => {
     console.log("item data:", data);
   });
@@ -71,8 +77,8 @@ export default function FollowList({ header, data, onClickMore }: FollowProps) {
         )}
       </Row>
 
-      <Button variant="primary" onClick={onClickMore}>
-        더 보기
+      <Button variant="primary" onClick={onClickMore} disabled={loading}>
+        {loading ? "로딩 중..." : "더 보기"}
       </Button>
     </ContainerWrapper>
   );

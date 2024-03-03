@@ -25,9 +25,10 @@ const HashtagPage: React.FC = () => {
 
     if (hasMorePosts && !loadPostsLoading && tag !== undefined) {
       //hasMorePosts && !loadPostsLoading일 때 해야 dispatch계속 되는걸 방지할 수 있음.
+      console.log("Fetching hashtag posts. LastId:", lastId);
       dispatch(loadHashtagPosts({ lastId: lastId, tag: tag }));
+      console.log(tag, `태그`, lastId, `라스트아이디`);
     }
-    console.log(tag, `태그`, lastId, `라스트아이디`); // dispatch 하고나서 if문 바깥에서 lastId가 콘솔에 찍힘.
   }, [dispatch, tag, hasMorePosts, loadPostsLoading, lastId]);
 
   if (loadPostsLoading && mainPosts.length === 0) {
