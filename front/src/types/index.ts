@@ -10,6 +10,8 @@ export interface User {
   Followers?: FollowersType[];
   Followings?: FollowersType[];
   tag?: string;
+  // followingsData?: FollowersType[];
+  // followersData?: FollowersType[];
 }
 
 export interface Image {

@@ -78,12 +78,12 @@ const initialState: PostsState = {
   retweetError: null,
 };
 
+// 게시글 목록
 const loadPostsThrottle = async (lastId: number) => {
   const response = await axios.get(`/posts?lastId=${lastId}`);
   return response.data;
 };
 
-// 게시글 목록
 export const loadPosts = createAsyncThunk(
   "post/loadPosts",
   async (lastId: number) => {
@@ -91,14 +91,11 @@ export const loadPosts = createAsyncThunk(
     return loadPostsThrottled(lastId);
   }
 );
-// export const loadPosts = createAsyncThunk(
-//   "post/loadPosts",
-//   _.throttle(loadPostsThrottle, 5000)
-// );  // 원래 코드, 아래 코드 문제가 생기면 이 코드를 활성 화.
 
 // 유저 게시글
 const loadUserPostsThrottle = async (lastId: number, id: number) => {
   const response = await axios.get(`/user/${id}/posts?lastId=${lastId || 0}`);
+  console.log("서버 응답 데이터:", response.data); // 서버 응답 데이터 출력
   return response.data;
 };
 
@@ -115,7 +112,6 @@ const loadHashtagPostsThrottle = async (lastId: number, tag: string) => {
   const response = await axios.get(
     `/hashtag/${encodeURIComponent(tag)}?lastId=${lastId || 0}`
   );
-  console.log("서버 응답 데이터:", response.data); // 서버 응답 데이터 출력
   return response.data;
 };
 
