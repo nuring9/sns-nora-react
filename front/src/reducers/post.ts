@@ -109,6 +109,9 @@ export const loadUserPosts = createAsyncThunk(
 
 // 해시태그 목록
 const loadHashtagPostsThrottle = async (lastId: number, tag: string) => {
+  if (lastId === 0) {
+    return [];
+  }
   const response = await axios.get(
     `/hashtag/${encodeURIComponent(tag)}?lastId=${lastId || 0}`
   );

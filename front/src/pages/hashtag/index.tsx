@@ -13,23 +13,27 @@ import PostCard from "../../components/PostCard";
 const HashtagPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { tag } = useParams<{ tag: string }>();
+  const encodedTag = encodeURIComponent(tag || "");
 
   const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(
     (state: RootState) => state.post
   );
-
-  const lastId = mainPosts.length > 0 ? mainPosts[mainPosts.length - 1]?.id : 0;
 
   useEffect(() => {
     dispatch(loadMyInfo());
 
     if (hasMorePosts && !loadPostsLoading && tag !== undefined) {
       //hasMorePosts && !loadPostsLoading일 때 해야 dispatch계속 되는걸 방지할 수 있음.
-      console.log("Fetching hashtag posts. LastId:", lastId);
-      dispatch(loadHashtagPosts({ lastId: lastId, tag: tag }));
-      console.log(tag, `태그`, lastId, `라스트아이디`);
+      dispatch(
+        loadHashtagPosts({
+          lastId:
+            mainPosts[mainPosts.length - 1] &&
+            mainPosts[mainPosts.length - 1].id,
+          tag: encodedTag,
+        })
+      );
     }
-  }, [dispatch, tag, hasMorePosts, loadPostsLoading, lastId]);
+  }, [dispatch, tag, hasMorePosts, loadPostsLoading, mainPosts]);
 
   if (loadPostsLoading && mainPosts.length === 0) {
     return <div>Loading...</div>;

@@ -1,10 +1,34 @@
-import { Container, Nav, Navbar, Form, InputGroup } from "react-bootstrap";
+import React, { useState, ChangeEvent, useCallback, FormEvent } from "react";
+import {
+  Container,
+  Nav,
+  Navbar,
+  Form,
+  InputGroup,
+  Button,
+} from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const StyledNavbar = styled(Navbar)`
   margin-bottom: 10px;
 `;
-export default function NavbarLayout() {
+
+const NavbarLayout: React.FC = () => {
+  const [searchInput, setSearchInput] = useState("");
+  const navigate = useNavigate();
+
+  const onSearch = useCallback(() => {
+    navigate(`/hashtag/${encodeURIComponent(searchInput)}`);
+  }, [searchInput, navigate]);
+
+  const onChangeSearchInput = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setSearchInput(e.target.value);
+    },
+    []
+  );
+
   return (
     <div>
       <StyledNavbar bg="primary" data-bs-theme="dark">
@@ -14,16 +38,23 @@ export default function NavbarLayout() {
             <Nav.Link href="/profile">프로필</Nav.Link>
             <Nav.Link href="/signup">회원가입</Nav.Link>
           </Nav>
-          <InputGroup className="w-auto">
-            <Form.Control
-              placeholder="해쉬태그 입력"
-              aria-label="해쉬태그 입력"
-              aria-describedby="basic-addon2"
-            />
-            <InputGroup.Text id="basic-addon2">검색</InputGroup.Text>
-          </InputGroup>
+          <Form onSubmit={onSearch}>
+            <InputGroup className="w-auto">
+              <Form.Control
+                placeholder="해쉬태그 입력"
+                aria-label="해쉬태그 입력"
+                aria-describedby="basic-addon2"
+                value={searchInput}
+                onChange={onChangeSearchInput}
+              />
+              <Button variant="primary" type="submit">
+                검색
+              </Button>
+            </InputGroup>
+          </Form>
         </Container>
       </StyledNavbar>
     </div>
   );
-}
+};
+export default NavbarLayout;

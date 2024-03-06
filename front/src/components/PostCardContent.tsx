@@ -1,10 +1,11 @@
 import React, { useCallback, useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { v4 as uuidv4 } from "uuid";
 import { InputGroup, Form, ButtonGroup, Button } from "react-bootstrap";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/configureStore";
+import { AppDispatch } from "../store/configureStore";
+import { loadHashtagPosts } from "../reducers/post";
 
 interface PostCardContentProps {
   postData?: string;
@@ -13,9 +14,10 @@ interface PostCardContentProps {
   onCancelUpdate: any;
 }
 
-const LinkedText = styled(Link)`
+const HashTagLink = styled(Link)`
   text-decoration: none;
   color: black;
+  cursor: pointer; /* 커서를 포인터로 변경하여 클릭 가능한 상태로 만듭니다. */
 `;
 
 const PostCardContent: React.FC<PostCardContentProps> = ({
@@ -24,10 +26,12 @@ const PostCardContent: React.FC<PostCardContentProps> = ({
   onChangePost,
   onCancelUpdate,
 }) => {
-  const { updatePostLoading, updatePostDone } = useSelector(
+  const { updatePostLoading, updatePostDone, mainPosts } = useSelector(
     (state: RootState) => state.post
   );
+  const dispatch = useDispatch<AppDispatch>();
   const [editText, setEditText] = useState(postData);
+  const { tag } = useParams<{ tag: string }>();
 
   useEffect(() => {
     if (updatePostDone) {
@@ -46,6 +50,16 @@ const PostCardContent: React.FC<PostCardContentProps> = ({
     setEditText(postData);
     onCancelUpdate();
   }, [onCancelUpdate, postData]);
+
+  const lastId =
+    mainPosts[mainPosts.length - 1] && mainPosts[mainPosts.length - 1].id;
+
+  const onHashTagClick = useCallback(() => {
+    console.log(tag);
+    if (tag !== undefined) {
+      dispatch(loadHashtagPosts({ lastId: lastId, tag }));
+    }
+  }, [dispatch, tag, lastId]);
 
   const splittedData = postData?.split(/(#[^\s#]+)/g);
 
@@ -75,17 +89,25 @@ const PostCardContent: React.FC<PostCardContentProps> = ({
           </ButtonGroup>
         </>
       ) : (
-        splittedData?.map((v) => {
+        splittedData?.map((v, i) => {
           if (v.match(/(#[^\s#]+)/)) {
-            // 만약 해시태그인애들은 링크로 return (즉, map 반복문중에 해시태그 정규식을 match한 결과값만 Link로 감싸줌. )
-            return (
-              <span key={uuidv4()}>
-                <LinkedText to={`/hashtag/${v.slice(1)}`}>{v}</LinkedText>
-              </span>
-            );
+            // 만약 해시태그인애들은 링크로 return (즉, map 반복문중에 해시태그 정규식을 match한 결과값만 Link로 감싸줌.
+            if (v.startsWith("#")) {
+              // 해시태그는 "#"으로 시작하기 때문에, #로 시작하는지 확인하여 결과를 boolean 반환
+              const tag = v.slice(1); // 그럼 앞에 #를 slice
+              return (
+                <span key={i}>
+                  <HashTagLink to={`/hashtag/${tag}`} onClick={onHashTagClick}>
+                    {v}
+                  </HashTagLink>
+                  {/* <HashTagLink to={`/hashtag/${v.slice(1)}`}>{v}</HashTagLink> */}
+                </span>
+              );
+            }
+          } else {
+            return v;
+            // 일반적인 글은 그대로 return
           }
-          return v;
-          // 일반적인 글은 그대로 return
         })
       )}
     </>

@@ -32,6 +32,11 @@ const routes: MyType[] = [
     auth: true,
   },
   {
+    path: "/hashtag/:tag",
+    title: "태그",
+    element: <HashtagPage />,
+  },
+  {
     path: "/post/:id",
     title: "게시글",
     element: <PostPage />,
@@ -45,11 +50,6 @@ const routes: MyType[] = [
     path: "/user/:id/posts",
     title: "유저 게시글",
     element: <UserPage />,
-  },
-  {
-    path: "/hashtag/:tag",
-    title: "태그",
-    element: <HashtagPage />,
   },
 ];
 

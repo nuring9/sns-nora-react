@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo, useEffect } from "react";
+import React, { useCallback, useState, useMemo } from "react";
 import { Post, Image } from "../types";
 import { v4 as uuidv4 } from "uuid";
 import { Button, Card, Dropdown, ListGroup } from "react-bootstrap";
