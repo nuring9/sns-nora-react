@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { InputGroup, Form, ButtonGroup, Button } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
@@ -32,6 +32,7 @@ const PostCardContent: React.FC<PostCardContentProps> = ({
   const dispatch = useDispatch<AppDispatch>();
   const [editText, setEditText] = useState(postData);
   const { tag } = useParams<{ tag: string }>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (updatePostDone) {
@@ -57,7 +58,7 @@ const PostCardContent: React.FC<PostCardContentProps> = ({
   const onHashTagClick = useCallback(() => {
     console.log(tag);
     if (tag !== undefined) {
-      dispatch(loadHashtagPosts({ lastId: lastId, tag }));
+      dispatch(loadHashtagPosts({ lastId, tag }));
     }
   }, [dispatch, tag, lastId]);
 
@@ -96,12 +97,13 @@ const PostCardContent: React.FC<PostCardContentProps> = ({
               // 해시태그는 "#"으로 시작하기 때문에, #로 시작하는지 확인하여 결과를 boolean 반환
               const tag = v.slice(1); // 그럼 앞에 #를 slice
               return (
-                <span key={i}>
-                  <HashTagLink to={`/hashtag/${tag}`} onClick={onHashTagClick}>
-                    {v}
-                  </HashTagLink>
-                  {/* <HashTagLink to={`/hashtag/${v.slice(1)}`}>{v}</HashTagLink> */}
-                </span>
+                <HashTagLink
+                  key={i}
+                  to={`/hashtag/${tag}`}
+                  onClick={onHashTagClick}
+                >
+                  {v}
+                </HashTagLink>
               );
             }
           } else {

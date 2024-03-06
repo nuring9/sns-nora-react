@@ -26,6 +26,9 @@ router.get("/:hashtag", async (req, res, next) => {
     }
     console.log("해시태그:", req.params.hashtag); // 해시태그 파싱 확인
 
+    // 해시태그를 URI 디코딩하여 사용
+    const decodedHashtag = decodeURIComponent(req.params.hashtag);
+
     const posts = await Post.findAll({
       where,
       limit: 10,
@@ -33,7 +36,7 @@ router.get("/:hashtag", async (req, res, next) => {
       include: [
         {
           model: Hashtag,
-          where: { title: decodeURIComponent(req.params.hashtag) }, //  Hashtag모델에서 title가져옴.
+          where: { title: decodedHashtag }, //  Hashtag모델에서 title가져옴.
           // URI 디코딩
         },
         {

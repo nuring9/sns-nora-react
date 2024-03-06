@@ -417,20 +417,20 @@ const postSlice = createSlice({
         draft.loadPostsLoading = false;
         draft.loadPostsError = action.error;
       })
-      .addCase(loadHashtagPosts.pending, (state, action) => {
-        state.loadPostsLoading = true;
-        state.loadPostsDone = false;
-        state.loadPostsError = null;
+      .addCase(loadHashtagPosts.pending, (draft, action) => {
+        draft.loadPostsLoading = true;
+        draft.loadPostsDone = false;
+        draft.loadPostsError = null;
       })
-      .addCase(loadHashtagPosts.fulfilled, (state, action) => {
-        state.loadPostsLoading = false;
-        state.loadPostsDone = true;
-        state.mainPosts = state.mainPosts.concat(action.payload);
-        state.hasMorePosts = action.payload.length === 10;
+      .addCase(loadHashtagPosts.fulfilled, (draft, action) => {
+        draft.loadPostsLoading = false;
+        draft.loadPostsDone = true;
+        draft.mainPosts = draft.mainPosts.concat(action.payload);
+        draft.hasMorePosts = action.payload.length === 10;
       })
-      .addCase(loadHashtagPosts.rejected, (state, action) => {
-        state.loadPostsLoading = false;
-        state.loadPostsError = action.error;
+      .addCase(loadHashtagPosts.rejected, (draft, action) => {
+        draft.loadPostsLoading = false;
+        draft.loadPostsError = action.error;
       })
       .addDefaultCase((state) => state);
   },

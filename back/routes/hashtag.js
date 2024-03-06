@@ -33,6 +33,8 @@ router.get("/:hashtag", (req, res, next) => __awaiter(void 0, void 0, void 0, fu
             console.log(lastId, "라스트아이디");
         }
         console.log("해시태그:", req.params.hashtag); // 해시태그 파싱 확인
+        // 해시태그를 URI 디코딩하여 사용
+        const decodedHashtag = decodeURIComponent(req.params.hashtag);
         const posts = yield models_1.Post.findAll({
             where,
             limit: 10,
@@ -40,7 +42,7 @@ router.get("/:hashtag", (req, res, next) => __awaiter(void 0, void 0, void 0, fu
             include: [
                 {
                     model: models_1.Hashtag,
-                    where: { title: decodeURIComponent(req.params.hashtag) }, //  Hashtag모델에서 title가져옴.
+                    where: { title: decodedHashtag }, //  Hashtag모델에서 title가져옴.
                     // URI 디코딩
                 },
                 {
