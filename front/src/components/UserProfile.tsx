@@ -5,6 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { logOut } from "../reducers/user";
 import { AppDispatch } from "../store/configureStore";
 import { RootState } from "../store/configureStore";
+import { Link } from "react-router-dom";
+import Avatar from "react-avatar";
 
 const ContainerWrapper = styled(Container)`
   background-color: #ffffff;
@@ -20,6 +22,10 @@ const ImageStyled = styled(Image)`
 const LinkStyled = styled.a`
   color: inherit;
   text-decoration: none;
+`;
+
+const AvatarWrapper = styled(Avatar)`
+  margin-right: 10px;
 `;
 
 const UserProfile: React.FC = () => {
@@ -40,7 +46,16 @@ const UserProfile: React.FC = () => {
           <div className="p-3">
             <Row>
               <Col xs={4} md={5} lg={4}>
-                <ImageStyled src={imagePath} alt="profileheart.png" />
+                <Link to={`/user/${me?.id}`}>
+                  <AvatarWrapper
+                    // name={me?.nick}
+                    src="/images/sa.jpeg"
+                    size="70"
+                    round={true}
+                    textSizeRatio={2}
+                  />
+                  {/* <ImageStyled src={imagePath} alt="profileheart.png" /> */}
+                </Link>
               </Col>
               <Col xs={8} md={7} lg={8}>
                 <h4>{me?.nick}</h4>
@@ -67,7 +82,7 @@ const UserProfile: React.FC = () => {
                 <br /> {me?.Followers?.length}
               </ListGroup.Item>
               <ListGroup.Item className="flex-fill text-center">
-                <LinkStyled href="/profile"> 팔로우 </LinkStyled>
+                <LinkStyled href="/profile"> 팔로잉 </LinkStyled>
                 <br /> {me?.Followings?.length}
               </ListGroup.Item>
             </ListGroup>

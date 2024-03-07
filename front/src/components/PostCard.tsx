@@ -28,6 +28,7 @@ import Avatar from "react-avatar";
 import CommentForm from "./CommentForm";
 import PostCardContent from "./PostCardContent";
 import FollowButton from "./FollowButton";
+import { Link } from "react-router-dom";
 
 const CommentWrapper = styled.div`
   padding: 2px 15px;
@@ -156,13 +157,15 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         {/* <Card.Img variant="top" src="/images/art-1.jpg" /> */}
         <Card.Body>
           <Card.Title>
-            <AvatarWrapper
-              name={post.User?.nick}
-              src="/images/sa.jpeg"
-              size="40"
-              round={true}
-              textSizeRatio={2}
-            />
+            <Link to={`/user/${post.User?.id}`}>
+              <AvatarWrapper
+                name={post.User?.nick}
+                src="/images/sa.jpeg"
+                size="40"
+                round={true}
+                textSizeRatio={2}
+              />
+            </Link>
             {post.User?.nick}
           </Card.Title>
           <Card.Text>
@@ -182,13 +185,15 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               </Card.Header> */}
               <Card.Body>
                 <div className="d-flex align-items-center">
-                  <AvatarWrapper
-                    name={post.Retweet.User.nick}
-                    src="/images/sa.jpeg"
-                    size="40"
-                    round={true}
-                    textSizeRatio={2}
-                  />
+                  <Link to={`/user/${post.Retweet.User.id}`}>
+                    <AvatarWrapper
+                      name={post.Retweet.User.nick}
+                      src="/images/sa.jpeg"
+                      size="40"
+                      round={true}
+                      textSizeRatio={2}
+                    />
+                  </Link>
                   <div>
                     <Card.Title>{post.Retweet.User?.nick}</Card.Title>
                     <Card.Text>
@@ -265,11 +270,13 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               {post.Comments.map((item) => (
                 <ListGroupItem key={uuidv4()}>
                   <div className="d-flex align-items-center">
-                    <AvatarWrapper
-                      name={item.User?.nick}
-                      size="30"
-                      round={true}
-                    />
+                    <Link to={`/user/${item.User?.id}`}>
+                      <AvatarWrapper
+                        name={item.User?.nick}
+                        size="30"
+                        round={true}
+                      />
+                    </Link>
                     <CommentNick>{item.User?.nick}</CommentNick>
                     <span>
                       <CommentContent>{item.content}</CommentContent>
