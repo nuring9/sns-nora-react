@@ -18,6 +18,7 @@ const FormTextarea = styled(Form.Control)`
   width: 100%;
   border: 1px solid #ced4da;
   border-radius: 0.25rem;
+  height: 10vh;
 `;
 
 const PostForm: React.FC = () => {

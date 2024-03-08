@@ -1,6 +1,7 @@
 import IndexPage from "../pages/index";
 import Signup from "../pages/signup";
 import Profile from "../pages/profile";
+import Follow from "../pages/follow";
 import PostPage from "../pages/post";
 import UserPage from "../pages/user";
 import HashtagPage from "../pages/hashtag";
@@ -29,6 +30,12 @@ const routes: MyType[] = [
     path: "/profile",
     title: "프로필",
     element: <Profile />,
+    auth: true,
+  },
+  {
+    path: "/follow",
+    title: "팔로우 팔로워",
+    element: <Follow />,
     auth: true,
   },
   {

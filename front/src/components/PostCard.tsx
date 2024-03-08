@@ -11,6 +11,7 @@ import {
 } from "react-bootstrap-icons";
 import "../styles/Post.scss";
 import styled from "styled-components";
+import { Link } from "react-router-dom";
 
 import PostImages from "./PostImages";
 import { useSelector, useDispatch } from "react-redux";
@@ -28,7 +29,7 @@ import Avatar from "react-avatar";
 import CommentForm from "./CommentForm";
 import PostCardContent from "./PostCardContent";
 import FollowButton from "./FollowButton";
-import { Link } from "react-router-dom";
+import moment from "moment";
 
 const CommentWrapper = styled.div`
   padding: 2px 15px;
@@ -80,10 +81,17 @@ const ListGroupItem = styled(ListGroup.Item)`
   padding: 2px 0px;
 `;
 
+const MomentStyle = styled.div`
+  font-size: 12px;
+  opacity: 0.4;
+`;
+
 interface PostCardProps {
   post: Post;
   images?: Image[];
 }
+
+moment.locale("ko"); // 한글으로 변경
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -154,7 +162,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       <Card>
         <FolloWrapper>{id && <FollowButton post={post} />}</FolloWrapper>
         {post.Images && post.Images[0] && <PostImages images={post.Images} />}
-        {/* <Card.Img variant="top" src="/images/art-1.jpg" /> */}
         <Card.Body>
           <Card.Title>
             <Link to={`/user/${post.User?.id}`}>
@@ -175,14 +182,14 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               onChangePost={onChangePost}
               onCancelUpdate={onCancelUpdate}
             />
+            <MomentStyle>
+              {moment(post.createdAt).format("YYYY.MM.DD")}
+            </MomentStyle>
           </Card.Text>
 
           {/* 리트윗 */}
           {post.RetweetId && !Number.isNaN(post.RetweetId) && post.Retweet ? (
             <Card>
-              {/* <Card.Header>
-                <small>{post.User.nick}님이 리트윗 했습니다.</small>
-              </Card.Header> */}
               <Card.Body>
                 <div className="d-flex align-items-center">
                   <Link to={`/user/${post.Retweet.User.id}`}>
@@ -231,19 +238,13 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 </Dropdown.Toggle>
               </span>
               <Dropdown.Menu>
-                {/* {post.User && id && post.User.id === id && (
-                  <>
-                    <Dropdown.Item href="#action1">수정</Dropdown.Item>
-                    <Dropdown.Item href="#action2">삭제</Dropdown.Item>
-                  </>
-                )}
-
-                {post.User && !id && (
-                  <Dropdown.Item href="#action3">신고</Dropdown.Item>
-                )} */}
                 {id && post.User?.id === id ? (
                   <>
-                    <Dropdown.Item onClick={onClickUpdate}>수정</Dropdown.Item>
+                    {!post.RetweetId && (
+                      <Dropdown.Item onClick={onClickUpdate}>
+                        수정
+                      </Dropdown.Item>
+                    )}
                     <Dropdown.Item
                       disabled={removePostLoading}
                       onClick={onRemovePost}
@@ -259,7 +260,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           </div>
         </Card.Body>
 
-        {/* {commentFormOpened && post.Comments.length > 0 && ( */}
         {commentFormOpened && post.Comments && post.Comments.length >= 0 && (
           <CommentWrapper>
             <ListGroup>

@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { Container, Row, Col, Image, ListGroup, Button } from "react-bootstrap";
+import { Container, Row, Col, ListGroup, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { logOut } from "../reducers/user";
 import { AppDispatch } from "../store/configureStore";
@@ -13,12 +13,6 @@ const ContainerWrapper = styled(Container)`
   border-radius: 15px;
 `;
 
-const ImageStyled = styled(Image)`
-  width: 100%;
-  height: 50px;
-  border-radius: 20px;
-`;
-
 const LinkStyled = styled.a`
   color: inherit;
   text-decoration: none;
@@ -28,11 +22,17 @@ const AvatarWrapper = styled(Avatar)`
   margin-right: 10px;
 `;
 
+// const ImageStyled = styled(Image)`
+//   width: 100%;
+//   height: 50px;
+//   border-radius: 20px;
+// `;
+
 const UserProfile: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { me, logOutLoading } = useSelector((state: RootState) => state.user);
 
-  const imagePath = process.env.PUBLIC_URL + "/images/heart.png";
+  // const imagePath = process.env.PUBLIC_URL + "/images/heart.png";
 
   const onLogOut = useCallback(() => {
     dispatch(logOut({}));
@@ -48,7 +48,6 @@ const UserProfile: React.FC = () => {
               <Col xs={4} md={5} lg={4}>
                 <Link to={`/user/${me?.id}`}>
                   <AvatarWrapper
-                    // name={me?.nick}
                     src="/images/sa.jpeg"
                     size="70"
                     round={true}
@@ -82,7 +81,7 @@ const UserProfile: React.FC = () => {
                 <br /> {me?.Followers?.length}
               </ListGroup.Item>
               <ListGroup.Item className="flex-fill text-center">
-                <LinkStyled href="/profile"> 팔로잉 </LinkStyled>
+                <LinkStyled href="/profile"> 팔로우 </LinkStyled>
                 <br /> {me?.Followings?.length}
               </ListGroup.Item>
             </ListGroup>

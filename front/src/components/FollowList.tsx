@@ -65,7 +65,7 @@ export default function FollowList({
                   </Card.Body>
                   <ButtonWrapper>
                     <Button variant="danger" size="sm">
-                      Stop
+                      언팔
                     </Button>
                   </ButtonWrapper>
                 </CardWrapper>

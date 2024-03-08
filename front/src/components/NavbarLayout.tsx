@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, useCallback, FormEvent } from "react";
+import React, { useState, ChangeEvent, useCallback } from "react";
 import {
   Container,
   Nav,
@@ -9,6 +9,7 @@ import {
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import "../styles/Post.scss";
 
 const StyledNavbar = styled(Navbar)`
   margin-bottom: 10px;
@@ -47,9 +48,7 @@ const NavbarLayout: React.FC = () => {
                 value={searchInput}
                 onChange={onChangeSearchInput}
               />
-              <Button variant="primary" type="submit">
-                검색
-              </Button>
+              <Button style={{ border: "1px solid #495057" }}>검색</Button>
             </InputGroup>
           </Form>
         </Container>

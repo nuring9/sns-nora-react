@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { InputGroup, Form, ButtonGroup, Button } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
@@ -32,7 +32,6 @@ const PostCardContent: React.FC<PostCardContentProps> = ({
   const dispatch = useDispatch<AppDispatch>();
   const [editText, setEditText] = useState(postData);
   const { tag } = useParams<{ tag: string }>();
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (updatePostDone) {
@@ -110,6 +109,7 @@ const PostCardContent: React.FC<PostCardContentProps> = ({
             return v;
             // 일반적인 글은 그대로 return
           }
+          return null;
         })
       )}
     </>

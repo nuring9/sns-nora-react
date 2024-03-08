@@ -11,16 +11,15 @@ import { Post } from "../types";
 import { loadMyInfo, follow, unfollow } from "../reducers/user";
 
 import AppLayout from "../components/AppLayout";
-import NickEditForm from "../components/NickEditForm";
 import FollowList from "../components/FollowList";
 
-interface ProfileProps {
+interface FollowProps {
   post?: Post;
 }
 
 const fetcher = (url: string) => axios.get(url).then((result) => result.data);
 
-const Profile: React.FC<ProfileProps> = ({ post }) => {
+const Follow: React.FC<FollowProps> = ({ post }) => {
   const location = useLocation(); // 현재 페이지 location
   const id = useSelector((state: RootState) => state.user.me?.id);
   const dispatch = useDispatch<AppDispatch>();
@@ -85,9 +84,8 @@ const Profile: React.FC<ProfileProps> = ({ post }) => {
   return (
     <div>
       <AppLayout>
-        <Container>
+        <Container className="mt-5">
           <Row>
-            <NickEditForm />
             <FollowList
               header="팔로우 목록"
               data={followingsData}
@@ -107,4 +105,4 @@ const Profile: React.FC<ProfileProps> = ({ post }) => {
   );
 };
 
-export default Profile;
+export default Follow;

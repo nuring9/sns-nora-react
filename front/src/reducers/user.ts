@@ -157,7 +157,7 @@ export const signUp = createAsyncThunk("user/signUp", async (data: User) => {
 export const changeNickname = createAsyncThunk(
   "user/changeNickname",
   async (data: { nickname: string }) => {
-    const response = await axios.patch("/user/nickname", { nickname: data });
+    const response = await axios.patch("/user/nickname", data);
     return response.data;
   }
 );
@@ -360,7 +360,7 @@ const userSlice = createSlice({
       .addCase(changeNickname.fulfilled, (draft, action) => {
         // draft.me가 null일 수도 있기때문에 if문으로 확실하게..
         if (draft.me) {
-          draft.me.nickname = action.payload.nickname;
+          draft.me.nick = action.payload.nick;
         }
         draft.changeNicknameLoading = false;
         draft.changeNicknameDone = true;

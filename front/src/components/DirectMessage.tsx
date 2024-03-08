@@ -1,26 +1,27 @@
 import React from "react";
 import ListGroup from "react-bootstrap/ListGroup";
 import styled from "styled-components";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/configureStore";
 
 const ListGroupWrapper = styled(ListGroup)`
   margin: 0;
 `;
 
 export default function DirectMessage() {
-  const alertClicked = () => {
-    alert("You clicked the third ListGroupItem");
-  };
+  const { me } = useSelector((state: RootState) => state.user);
+  // const alertClicked = () => {
+  //   alert("You clicked the third ListGroupItem");
+  // };
   return (
-    <ListGroupWrapper defaultActiveKey="#link1">
-      <ListGroup.Item action href="#link1">
-        Link 1
+    <ListGroupWrapper defaultActiveKey={`/user/${me?.id}`}>
+      <ListGroup.Item action href={`/user/${me?.id}`}>
+        내 게시글
       </ListGroup.Item>
-      <ListGroup.Item action href="#link2">
-        Link 2
+      <ListGroup.Item action href="/follow">
+        팔로우 팔로워
       </ListGroup.Item>
-      <ListGroup.Item action onClick={alertClicked}>
-        This one is a button
-      </ListGroup.Item>
+      <ListGroup.Item action>This one is a button</ListGroup.Item>
     </ListGroupWrapper>
   );
 }

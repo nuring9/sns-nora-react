@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import AppLayout from "../../components/AppLayout";
 import { v4 as uuidv4 } from "uuid";
 
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch } from "../../store/configureStore";
 import { RootState } from "../../store/configureStore";
@@ -39,7 +39,6 @@ const UserPage: React.FC = () => {
   const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(
     (state: RootState) => state.post
   );
-  const navigate = useNavigate();
 
   const imagePath = process.env.PUBLIC_URL + "/images/heart.png";
 

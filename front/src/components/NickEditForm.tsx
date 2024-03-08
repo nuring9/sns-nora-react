@@ -12,14 +12,19 @@ const FormWrapper = styled(Form)`
   margin: auto;
 `;
 
+const NickH4 = styled.h4`
+  text-align: center;
+  margin-bottom: 30px;
+`;
+
 const NickEditForm: React.FC = () => {
   const { me } = useSelector((state: RootState) => state.user);
-  const [nickname, setNicname] = useState(me?.nickname || "");
+  const [nickname, setNickname] = useState(me?.nickname || "");
   const dispatch = useDispatch<AppDispatch>();
 
   const onChangeNick = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setNicname(e.target.value);
+      setNickname(e.target.value);
     },
     []
   );
@@ -28,7 +33,7 @@ const NickEditForm: React.FC = () => {
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       dispatch(changeNickname({ nickname }));
-      setNicname("");
+      setNickname("");
     },
     [dispatch, nickname]
   );
@@ -36,7 +41,9 @@ const NickEditForm: React.FC = () => {
   return (
     <div>
       <FormWrapper onSubmit={onSubmit}>
-        <InputGroup className="mb-3 mt-3 p-0">
+        <Form.Label className="mb-0 mt-5 p-0">닉네임 수정</Form.Label>
+
+        <InputGroup className="mb-2 p-0">
           <Form.Control
             value={nickname}
             onChange={onChangeNick}
@@ -48,6 +55,7 @@ const NickEditForm: React.FC = () => {
             수정
           </Button>
         </InputGroup>
+        <NickH4>{me?.nick}</NickH4>
       </FormWrapper>
     </div>
   );
