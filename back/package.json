@@ -4,7 +4,8 @@
   "description": "sns프로젝트",
   "main": "app.ts",
   "scripts": {
-    "start": "nodemon app",
+    "dev": "nodemon app",
+    "start": "node app",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "nora",
