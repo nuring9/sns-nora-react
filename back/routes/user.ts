@@ -20,7 +20,7 @@ interface UserData extends InferAttributes<User> {
   nick: string;
   Posts?: any[]; // 포스트 배열
   Followers?: any[]; // 팔로워 배열
-  Followings?: any[]; // 팔로잉 배열
+  Followings?: any[]; // 팔로우 배열
 }
 
 router.get("/", async (req, res, next) => {
@@ -202,7 +202,7 @@ router.get("/:userId", async (req, res, next) => {
   }
 });
 
-// //로그인유저 팔로잉 팔로워
+// //로그인유저 팔로우 팔로워
 // router.get("/:userId/followers", isLoggedIn, async (req, res, next) => {
 //   // GET /user/id/followers
 //   try {

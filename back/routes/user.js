@@ -194,7 +194,7 @@ router.get("/:userId", (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         next(error);
     }
 }));
-// //로그인유저 팔로잉 팔로워
+// //로그인유저 팔로우 팔로워
 // router.get("/:userId/followers", isLoggedIn, async (req, res, next) => {
 //   // GET /user/id/followers
 //   try {

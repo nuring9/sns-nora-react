@@ -21,7 +21,7 @@ export default function DirectMessage() {
       <ListGroup.Item action href="/follow">
         팔로우 팔로워
       </ListGroup.Item>
-      <ListGroup.Item action>This one is a button</ListGroup.Item>
+      <ListGroup.Item action>continew</ListGroup.Item>
     </ListGroupWrapper>
   );
 }
