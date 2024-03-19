@@ -224,14 +224,12 @@ const postSlice = createSlice({
     // removeImage 액션은 비동기가 아님. 동기 액션만 여기에 작성.
     // 보통 이미지는 서버에서 제거하지 않으므로 동기액션만 구현했는데, 나중에 서버에서도 제거가능하게 하려면 비동기로 전환.
     removeImage(state, action) {
-      state.imagePaths = state.imagePaths.filter(
-        (v, i) => i !== action.payload
-      );
+      state.imagePaths = state.imagePaths.filter((i) => i !== action.payload);
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loadPost.pending, (draft, action) => {
+      .addCase(loadPost.pending, (draft) => {
         draft.loadPostLoading = true;
         draft.loadPostDone = false;
         draft.loadPostError = null;
@@ -245,7 +243,7 @@ const postSlice = createSlice({
         draft.loadPostLoading = false;
         draft.loadPostError = action.error;
       })
-      .addCase(loadPosts.pending, (state, action) => {
+      .addCase(loadPosts.pending, (state) => {
         state.loadPostsLoading = true;
         state.loadPostsDone = false;
         state.loadPostsError = null;
@@ -260,7 +258,7 @@ const postSlice = createSlice({
         state.loadPostsLoading = false;
         state.loadPostsError = action.error;
       })
-      .addCase(addPost.pending, (draft, action) => {
+      .addCase(addPost.pending, (draft) => {
         draft.addPostLoading = true;
         draft.addPostDone = false;
         draft.addPostError = null;
@@ -275,7 +273,7 @@ const postSlice = createSlice({
         draft.addPostLoading = false;
         draft.addPostError = action.error;
       })
-      .addCase(updatePost.pending, (draft, action) => {
+      .addCase(updatePost.pending, (draft) => {
         draft.updatePostLoading = true;
         draft.updatePostDone = false;
         draft.updatePostError = null;
@@ -296,7 +294,7 @@ const postSlice = createSlice({
         draft.updatePostLoading = false;
         draft.updatePostError = action.error;
       })
-      .addCase(removePost.pending, (draft, action) => {
+      .addCase(removePost.pending, (draft) => {
         draft.removePostLoading = true;
         draft.removePostDone = false;
         draft.removePostError = null;
@@ -312,7 +310,7 @@ const postSlice = createSlice({
         draft.removePostLoading = false;
         draft.removePostError = action.error;
       })
-      .addCase(addComment.pending, (draft, action) => {
+      .addCase(addComment.pending, (draft) => {
         draft.addCommentLoading = true;
         draft.addCommentDone = false;
         draft.addCommentError = null;
@@ -332,7 +330,7 @@ const postSlice = createSlice({
         draft.addCommentLoading = false;
         draft.addCommentError = action.error;
       })
-      .addCase(uploadImage.pending, (draft, action) => {
+      .addCase(uploadImage.pending, (draft) => {
         draft.uploadImagesLoading = true;
         draft.uploadImagesDone = false;
         draft.uploadImagesError = null;
@@ -346,7 +344,7 @@ const postSlice = createSlice({
         draft.uploadImagesLoading = false;
         draft.uploadImagesError = action.error;
       })
-      .addCase(likePost.pending, (draft, action) => {
+      .addCase(likePost.pending, (draft) => {
         draft.likePostLoading = true;
         draft.likePostDone = false;
         draft.likePostError = null;
@@ -365,7 +363,7 @@ const postSlice = createSlice({
         draft.likePostLoading = false;
         draft.likePostError = action.error;
       })
-      .addCase(unlikePost.pending, (draft, action) => {
+      .addCase(unlikePost.pending, (draft) => {
         draft.unlikePostLoading = true;
         draft.unlikePostDone = false;
         draft.unlikePostError = null;
@@ -386,7 +384,7 @@ const postSlice = createSlice({
         draft.unlikePostLoading = false;
         draft.unlikePostError = action.error;
       })
-      .addCase(retweet.pending, (draft, action) => {
+      .addCase(retweet.pending, (draft) => {
         draft.retweetLoading = true;
         draft.retweetDone = false;
         draft.retweetError = null;
@@ -402,7 +400,7 @@ const postSlice = createSlice({
         // draft.retweetError = action.error;
         draft.retweetError = action.error.message;
       })
-      .addCase(loadUserPosts.pending, (draft, action) => {
+      .addCase(loadUserPosts.pending, (draft) => {
         draft.loadPostsLoading = true;
         draft.loadPostsDone = false;
         draft.loadPostsError = null;
@@ -417,7 +415,7 @@ const postSlice = createSlice({
         draft.loadPostsLoading = false;
         draft.loadPostsError = action.error;
       })
-      .addCase(loadHashtagPosts.pending, (draft, action) => {
+      .addCase(loadHashtagPosts.pending, (draft) => {
         draft.loadPostsLoading = true;
         draft.loadPostsDone = false;
         draft.loadPostsError = null;

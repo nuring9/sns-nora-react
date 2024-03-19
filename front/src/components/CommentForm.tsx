@@ -37,9 +37,7 @@ const StyledFormGroup = styled(Form.Group)`
 const CommentForm: React.FC<PostCardProps> = ({ post }) => {
   const dispatch = useDispatch<AppDispatch>();
   const id = useSelector((state: RootState) => state.user.me?.id);
-  const { addCommentDone, addCommentLoading } = useSelector(
-    (state: RootState) => state.post
-  );
+  const { addCommentDone } = useSelector((state: RootState) => state.post);
   const [commentText, setCommentText] = useState<string>("");
 
   useEffect(() => {

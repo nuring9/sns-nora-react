@@ -1,11 +1,35 @@
 {
   "compilerOptions": {
+    "outDir": "./dist",
     "target": "ES5",
-    "module": "CommonJS",
-    "strict": true,
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "noImplicitAny": true,
+    "allowSyntheticDefaultImports": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
+    "skipLibCheck": true,
     "esModuleInterop": true,
-    "jsx": "react-jsx"
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+
+    // 절대 경로
+    "baseUrl": ".",
+    "paths": {
+      "@src/*": ["src/*"]
+    }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"],
+
+  // ("webpack"설정 파일들을 "typescript"로 처리하기 위해 사용
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS",
+      "isolatedModules": false
+    }
+  }
 }

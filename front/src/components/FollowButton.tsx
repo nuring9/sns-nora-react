@@ -3,7 +3,7 @@ import { AppDispatch } from "../store/configureStore";
 import { RootState } from "../store/configureStore";
 import { useDispatch, useSelector } from "react-redux";
 import { follow, unfollow } from "../reducers/user";
-import { Post, Image } from "../types";
+import { Post } from "../types";
 import { Button } from "react-bootstrap";
 import "../styles/Post.scss";
 
