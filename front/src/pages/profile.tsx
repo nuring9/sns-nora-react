@@ -14,6 +14,8 @@ import AppLayout from "../components/AppLayout";
 import NickEditForm from "../components/NickEditForm";
 import FollowList from "../components/FollowList";
 
+import { backUrl } from "@src/config/config";
+
 interface ProfileProps {
   post?: Post;
 }
@@ -31,11 +33,11 @@ const Profile: React.FC<ProfileProps> = ({ post }) => {
   const [followingsLimit, setFollowingsLimit] = useState(3);
 
   const { data: followersData, error: followerError } = useSWR(
-    `http://localhost:8000/user/followers?limit=${followersLimit}`,
+    `${backUrl}/user/followers?limit=${followersLimit}`,
     fetcher
   );
   const { data: followingsData, error: followingError } = useSWR(
-    `http://localhost:8000/user/followings?limit=${followingsLimit}`,
+    `${backUrl}/user/followings?limit=${followingsLimit}`,
     fetcher
   );
 

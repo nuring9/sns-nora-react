@@ -8,6 +8,8 @@ import postSlice, { addPost, uploadImage } from "../reducers/post"; // 액션 �
 import { AppDispatch } from "../store/configureStore";
 import "../styles/Post.scss";
 
+import { backUrl } from "@src/config/config";
+
 const FormWrapper = styled(Form)`
   margin: 10px 0 20px;
   width: 100%;
@@ -129,7 +131,7 @@ const PostForm: React.FC = () => {
         {imagePaths.map((filename, i) => (
           <div key={uuidv4()} style={{ display: "inline-block" }}>
             <img
-              src={`http://localhost:8000/${filename}`}
+              src={`${backUrl}/${filename}`}
               style={{ width: "200px" }}
               alt={filename}
             />

@@ -12,6 +12,7 @@ import { loadMyInfo, follow, unfollow } from "../reducers/user";
 
 import AppLayout from "../components/AppLayout";
 import FollowList from "../components/FollowList";
+import { backUrl } from "@src/config/config";
 
 interface FollowProps {
   post?: Post;
@@ -30,11 +31,11 @@ const Follow: React.FC<FollowProps> = ({ post }) => {
   const [followingsLimit, setFollowingsLimit] = useState(3);
 
   const { data: followersData, error: followerError } = useSWR(
-    `http://localhost:8000/user/followers?limit=${followersLimit}`,
+    `${backUrl}/user/followers?limit=${followersLimit}`,
     fetcher
   );
   const { data: followingsData, error: followingError } = useSWR(
-    `http://localhost:8000/user/followings?limit=${followingsLimit}`,
+    `${backUrl}/user/followings?limit=${followingsLimit}`,
     fetcher
   );
 

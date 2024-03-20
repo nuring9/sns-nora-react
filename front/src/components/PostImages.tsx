@@ -5,6 +5,8 @@ import { PlusCircle } from "react-bootstrap-icons";
 import "../styles/Post.scss";
 import ImagesZoom from "./ImagesZoom";
 
+import { backUrl } from "@src/config/config";
+
 interface PostImagesProps {
   images: Image[];
 }
@@ -33,7 +35,7 @@ const PostImages: React.FC<PostImagesProps> = ({ images }) => {
         <img
           role="presentation" // 구지 누를 필요가없다라는 시각장애인을 위한 속성 스크린리더가 읽음.
           className="imgViewOne"
-          src={`http://localhost:8000/${images[0].src}`}
+          src={`${backUrl}/${images[0].src}`}
           alt={images[0].src}
           onClick={onZoom}
         />
@@ -48,14 +50,14 @@ const PostImages: React.FC<PostImagesProps> = ({ images }) => {
         <img
           role="presentation"
           className="imgView"
-          src={`http://localhost:8000/${images[0].src}`}
+          src={`${backUrl}/${images[0].src}`}
           alt={images[0].src}
           onClick={onZoom}
         />
         <img
           role="presentation"
           className="imgView"
-          src={`http://localhost:8000/${images[1].src}`}
+          src={`${backUrl}/${images[1].src}`}
           alt={images[1].src}
           onClick={onZoom}
         />
@@ -70,7 +72,7 @@ const PostImages: React.FC<PostImagesProps> = ({ images }) => {
         <img
           role="presentation"
           className="imgView"
-          src={`http://localhost:8000/${images[0].src}`}
+          src={`${backUrl}/${images[0].src}`}
           alt={images[0].src}
           onClick={onZoom}
         />

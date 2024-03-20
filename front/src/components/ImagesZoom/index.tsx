@@ -12,6 +12,8 @@ import {
   Global,
 } from "./styles";
 
+import { backUrl } from "@src/config/config";
+
 interface ImagesZoomProps {
   images: Image[];
   onClose: () => void;
@@ -38,7 +40,7 @@ const ImagesZoom: React.FC<ImagesZoomProps> = ({ images, onClose }) => {
         >
           {images.map((v) => (
             <ImgWrapper key={uuidv4()}>
-              <img src={`http://localhost:8000/${v.src}`} alt={v.src} />
+              <img src={`${backUrl}/${v.src}`} alt={v.src} />
             </ImgWrapper>
           ))}
         </Slick>
