@@ -41,6 +41,10 @@ const config: Configuration = {
   },
   resolve: {
     extensions: [".tsx", ".ts", ".js", ".jsx"],
+    alias: {
+      // tsconfig.json에서 설정한것과 동일해야함.
+      "@src": path.resolve(__dirname, "src"),
+    },
   },
   plugins: [
     // moment.js에서 한국 로캘만 사용하도록 설정
