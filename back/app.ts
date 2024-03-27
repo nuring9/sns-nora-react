@@ -42,13 +42,26 @@ declare global {
 
 app.use(morgan("dev"));
 app.use(express.static(path.join(__dirname, "../front/build"))); // 뷰엔진 대신 react프로젝트 연결 (__dirname: 현재폴더)
+
+// CORS 문제 해결하기
 app.use(
   cors({
     origin: true, // 추후 배포 도메인변경
     credentials: true, // 추후 배포 후 true로 변경
   })
 );
-// CORS 문제 해결하기
+//추후 아래와 비슷하게 변경
+// app.use(cors({
+//   origin: 'http://nora.com',
+//   credentials: true,
+// }));
+// } else {
+// app.use(morgan('dev'));
+// app.use(cors({
+//   origin: true,
+//   credentials: true,
+// }));
+// }
 
 app.use("/", express.static(path.join(__dirname, "uploads")));
 // express가 uploads폴더를 front에 제공함.  (__dirname: 현재폴더), "/"는 localhosts:8000 뒤의 /가 됨.
