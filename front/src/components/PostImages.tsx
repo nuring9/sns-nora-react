@@ -1,11 +1,11 @@
-"import React, { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Image } from "../types";
 import styled from "styled-components";
 import { PlusCircle } from "react-bootstrap-icons";
 import "../styles/Post.scss";
 import ImagesZoom from "./ImagesZoom";
 
-import { backUrl } from "@src/config/config";
+import { backUrl } from "../config/config";
 
 interface PostImagesProps {
   images: Image[];

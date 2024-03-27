@@ -8,7 +8,7 @@ import postSlice, { addPost, uploadImage } from "../reducers/post"; // 액션 �
 import { AppDispatch } from "../store/configureStore";
 import "../styles/Post.scss";
 
-import { backUrl } from "@src/config/config";
+import { backUrl } from "../config/config";
 
 const FormWrapper = styled(Form)`
   margin: 10px 0 20px;

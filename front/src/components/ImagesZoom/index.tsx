@@ -12,7 +12,7 @@ import {
   Global,
 } from "./styles";
 
-import { backUrl } from "@src/config/config";
+import { backUrl } from "../../config/config";
 
 interface ImagesZoomProps {
   images: Image[];

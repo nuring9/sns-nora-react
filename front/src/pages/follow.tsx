@@ -12,7 +12,7 @@ import { loadMyInfo, follow, unfollow } from "../reducers/user";
 
 import AppLayout from "../components/AppLayout";
 import FollowList from "../components/FollowList";
-import { backUrl } from "@src/config/config";
+import { backUrl } from "../config/config";
 
 interface FollowProps {
   post?: Post;

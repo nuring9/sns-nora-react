@@ -14,7 +14,7 @@ import AppLayout from "../components/AppLayout";
 import NickEditForm from "../components/NickEditForm";
 import FollowList from "../components/FollowList";
 
-import { backUrl } from "@src/config/config";
+import { backUrl } from "../config/config";
 
 interface ProfileProps {
   post?: Post;

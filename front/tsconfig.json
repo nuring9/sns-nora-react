@@ -14,13 +14,13 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    "isolatedModules": true
 
     // 절대 경로
-    "baseUrl": ".",
-    "paths": {
-      "@src/*": ["src/*"]
-    }
+    // "baseUrl": ".",
+    // "paths": {
+    //   "@src/*": ["src/*"]
+    // }
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"],
