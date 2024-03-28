@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
-const morgan_1 = __importDefault(require("morgan"));
 const path_1 = __importDefault(require("path"));
 const express_session_1 = __importDefault(require("express-session"));
 const cors_1 = __importDefault(require("cors"));
@@ -30,13 +29,28 @@ models_1.sequelize
     .catch((err) => {
     console.error(err);
 });
-app.use((0, morgan_1.default)("dev"));
 app.use(express_1.default.static(path_1.default.join(__dirname, "../front/build"))); // 뷰엔진 대신 react프로젝트 연결 (__dirname: 현재폴더)
+// CORS 문제 해결하기
 app.use((0, cors_1.default)({
-    origin: true, // 추후 배포 도메인변경
+    origin: ["http://localhost:8000", "http://13.209.49.219"], // 추후 배포 도메인변경, 백에서는 프론트 주소
     credentials: true, // 추후 배포 후 true로 변경
 }));
-// CORS 문제 해결하기
+// 추후 아래와 같이 변경
+// if (process.env.NODE_ENV === 'production') {
+//   app.use(morgan('combined'));
+//   app.use(hpp());
+//   app.use(helmet({ contentSecurityPolicy: false }));
+//   app.use(cors({
+//     origin: 'http://도메인주소.com',
+//     credentials: true,
+//   }));
+// } else {
+//   app.use(morgan('dev'));
+//   app.use(cors({
+//     origin: true,
+//     credentials: true,
+//   }));
+// }
 app.use("/", express_1.default.static(path_1.default.join(__dirname, "uploads")));
 // express가 uploads폴더를 front에 제공함.  (__dirname: 현재폴더), "/"는 localhosts:8000 뒤의 /가 됨.
 app.use(express_1.default.json()); // front에서 넘어오는 데이터

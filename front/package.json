@@ -47,7 +47,8 @@
     "start": "NODE_ENV=production react-scripts start -p 80",
     "build": "react-scripts build && ANALYZE=true webpack --config webpack.config.ts && npx webpack-bundle-analyzer dist/stats.json",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "dev": "react-scripts -p 8000"
   },
   "eslintConfig": {
     "extends": [

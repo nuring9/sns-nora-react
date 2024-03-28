@@ -40,27 +40,30 @@ declare global {
   }
 }
 
-app.use(morgan("dev"));
 app.use(express.static(path.join(__dirname, "../front/build"))); // 뷰엔진 대신 react프로젝트 연결 (__dirname: 현재폴더)
 
 // CORS 문제 해결하기
 app.use(
   cors({
-    origin: true, // 추후 배포 도메인변경
+    origin: ["http://localhost:8000", "http://13.209.49.219"], // 추후 배포 도메인변경, 백에서는 프론트 주소
     credentials: true, // 추후 배포 후 true로 변경
   })
 );
-//추후 아래와 비슷하게 변경
-// app.use(cors({
-//   origin: 'http://nora.com',
-//   credentials: true,
-// }));
+// 추후 아래와 같이 변경
+// if (process.env.NODE_ENV === 'production') {
+//   app.use(morgan('combined'));
+//   app.use(hpp());
+//   app.use(helmet({ contentSecurityPolicy: false }));
+//   app.use(cors({
+//     origin: 'http://도메인주소.com',
+//     credentials: true,
+//   }));
 // } else {
-// app.use(morgan('dev'));
-// app.use(cors({
-//   origin: true,
-//   credentials: true,
-// }));
+//   app.use(morgan('dev'));
+//   app.use(cors({
+//     origin: true,
+//     credentials: true,
+//   }));
 // }
 
 app.use("/", express.static(path.join(__dirname, "uploads")));
