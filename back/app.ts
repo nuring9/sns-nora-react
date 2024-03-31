@@ -97,12 +97,12 @@ app.use("/post", postRouter);
 app.use("/user", userRouter);
 app.use("/hashtag", hashtagRouter);
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../front/build/index.html"));
-}); // 메인페이지 라우팅
 // app.get("/", (req, res) => {
-//   res.send("Express 성공");
+//   res.sendFile(path.join(__dirname, "../front/build/index.html"));
 // }); // 메인페이지 라우팅
+app.get("/", (req, res) => {
+  res.send("Express 성공");
+}); // 메인페이지 라우팅
 
 app.use((req, res, next) => {
   const error: any = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
