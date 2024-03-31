@@ -18,11 +18,33 @@ import hashtagRouter from "./routes/hashtag";
 // import pageRouter from "./routes/page";
 import { sequelize } from "./models";
 
+import hpp from "hpp";
+import helmet from "helmet";
+
 dotenv.config();
 const app = express();
 passportConfig(); // 패스포트 설정
-app.set("port", process.env.PORT || 8000);
 
+app.set("port", process.env.PORT || 8000);
+if (process.env.NODE_ENV === "production") {
+  app.use(morgan("combined"));
+  app.use(hpp());
+  app.use(helmet({ contentSecurityPolicy: false }));
+  app.use(
+    cors({
+      origin: ["http://localhost:8000", "http://13.209.49.219"],
+      credentials: true,
+    })
+  );
+} else {
+  app.use(morgan("dev"));
+  app.use(
+    cors({
+      origin: true,
+      credentials: true,
+    })
+  );
+}
 sequelize
   .sync({ force: false })
   .then(() => {
@@ -33,6 +55,14 @@ sequelize
   });
 // 시퀄라이즈 연결
 
+// CORS 문제 해결하기
+// app.use(
+//   cors({
+//     origin: ["http://localhost:8000", "http://13.209.49.219"], // 추후 배포 도메인변경, 백에서는 프론트 주소
+//     credentials: true, // 추후 배포 후 true로 변경
+//   })
+// );
+
 declare global {
   // 타입 확장
   namespace Express {
@@ -41,30 +71,6 @@ declare global {
 }
 
 app.use(express.static(path.join(__dirname, "../front/build"))); // 뷰엔진 대신 react프로젝트 연결 (__dirname: 현재폴더)
-
-// CORS 문제 해결하기
-app.use(
-  cors({
-    origin: ["http://localhost:8000", "http://13.209.49.219"], // 추후 배포 도메인변경, 백에서는 프론트 주소
-    credentials: true, // 추후 배포 후 true로 변경
-  })
-);
-// 추후 아래와 같이 변경
-// if (process.env.NODE_ENV === 'production') {
-//   app.use(morgan('combined'));
-//   app.use(hpp());
-//   app.use(helmet({ contentSecurityPolicy: false }));
-//   app.use(cors({
-//     origin: 'http://도메인주소.com',
-//     credentials: true,
-//   }));
-// } else {
-//   app.use(morgan('dev'));
-//   app.use(cors({
-//     origin: true,
-//     credentials: true,
-//   }));
-// }
 
 app.use("/", express.static(path.join(__dirname, "uploads")));
 // express가 uploads폴더를 front에 제공함.  (__dirname: 현재폴더), "/"는 localhosts:8000 뒤의 /가 됨.
@@ -90,6 +96,10 @@ app.use("/posts", postsRouter); // 순서 중요. 게시글들 불러오니 먼�
 app.use("/post", postRouter);
 app.use("/user", userRouter);
 app.use("/hashtag", hashtagRouter);
+
+app.get("/", (req, res) => {
+  res.send("Express 성공");
+}); // 메인페이지 라우팅
 
 app.use((req, res, next) => {
   const error: any = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
