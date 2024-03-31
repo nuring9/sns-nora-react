@@ -70,9 +70,6 @@ app.use("/posts", posts_1.default); // 순서 중요. 게시글들 불러오니 
 app.use("/post", post_1.default);
 app.use("/user", user_1.default);
 app.use("/hashtag", hashtag_1.default);
-app.get("/", (req, res) => {
-    res.send("Express 성공");
-}); // 메인페이지 라우팅
 app.use((req, res, next) => {
     const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
     // error.status = 404;
@@ -85,8 +82,11 @@ app.use((err, req, res, next) => {
     res.status(err.status || 500).send({ error: err.message }); // 에러 메시지를 응답으로 보냄
     return;
 });
+// app.get("/", (req, res) => {
+//   res.sendFile(path.join(__dirname, "../front/build/index.html"));
+// }); // 메인페이지 라우팅
 app.get("/", (req, res) => {
-    res.sendFile(path_1.default.join(__dirname, "../front/build/index.html"));
+    res.send("Express 성공");
 }); // 메인페이지 라우팅
 app.listen(app.get("port"), () => {
     console.log(app.get("port"), "번 포트에서 대기 중");
