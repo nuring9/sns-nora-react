@@ -97,6 +97,13 @@ app.use("/post", postRouter);
 app.use("/user", userRouter);
 app.use("/hashtag", hashtagRouter);
 
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../front/build/index.html"));
+}); // 메인페이지 라우팅
+// app.get("/", (req, res) => {
+//   res.send("Express 성공");
+// }); // 메인페이지 라우팅
+
 app.use((req, res, next) => {
   const error: any = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
   // error.status = 404;
@@ -124,13 +131,6 @@ app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
 
   return;
 });
-
-// app.get("/", (req, res) => {
-//   res.sendFile(path.join(__dirname, "../front/build/index.html"));
-// }); // 메인페이지 라우팅
-app.get("/", (req, res) => {
-  res.send("Express 성공");
-}); // 메인페이지 라우팅
 
 app.listen(app.get("port"), () => {
   console.log(app.get("port"), "번 포트에서 대기 중");
