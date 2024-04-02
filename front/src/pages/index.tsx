@@ -35,19 +35,6 @@ const Home: React.FC = () => {
     }
   }, [retweetError]);
 
-  // const lastIdValue = mainPosts[mainPosts.length - 1]?.id;
-
-  // useEffect(() => {
-  //   dispatch(loadMyInfo());
-  //   const lastId = {
-  //     lastId: lastIdValue,
-  //   } as PostLastId;
-
-  //   if (hasMorePosts) {
-  //     dispatch(loadPosts(lastId));
-  //   }
-  // }, [dispatch, lastIdValue, hasMorePosts]);
-
   const lastId = mainPosts[mainPosts.length - 1]?.id;
 
   useEffect(() => {
@@ -55,17 +42,12 @@ const Home: React.FC = () => {
     console.log(lastId, `라스트아이디`);
 
     //posts 불러오기
-    if (hasMorePosts && !loadPostsLoading) {
+    if (lastId && hasMorePosts && !loadPostsLoading) {
+      // lastId 값이 존재하는지 확인
       dispatch(loadPosts(lastId));
       console.log(lastId, `라스트아이디`);
     }
   }, [dispatch, lastId, hasMorePosts, loadPostsLoading]);
-
-  //   window.addEventListener('scroll', onScroll);
-  //   return () => {
-  //     window.removeEventListener('scroll', onScroll);
-  //   };
-  // }, [hasMorePosts, loadPostsLoading, mainPosts]);
 
   return (
     <AppLayout>
