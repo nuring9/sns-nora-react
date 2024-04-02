@@ -25,7 +25,7 @@ dotenv.config();
 const app = express();
 passportConfig(); // 패스포트 설정
 
-// app.set("port", process.env.PORT || 8000);
+app.set("port", process.env.PORT || 8000);
 if (process.env.NODE_ENV === "production") {
   app.use(morgan("combined"));
   app.use(hpp());
@@ -132,12 +132,12 @@ app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
   return;
 });
 
-// app.listen(app.get("port"), () => {
-//   console.log(app.get("port"), "서버 실행 중!");
-// });
-
-app.listen(8000, () => {
-  console.log("서버 실행 중!");
+app.listen(app.get("port"), () => {
+  console.log(app.get("port"), "서버 실행 중!");
 });
+
+// app.listen(8000, () => {
+//   console.log("서버 실행 중!");
+// });
 
 export default app;
