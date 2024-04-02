@@ -35,7 +35,7 @@ const UserProfile: React.FC = () => {
   // const imagePath = process.env.PUBLIC_URL + "/images/heart.png";
 
   const onLogOut = useCallback(() => {
-    dispatch(logOut({}));
+    dispatch(logOut());
     // setIsLoggedIn?.(false);
   }, [dispatch]);
 

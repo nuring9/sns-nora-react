@@ -144,8 +144,8 @@ export const removeFollower = createAsyncThunk(
   }
 );
 
-export const logOut = createAsyncThunk("user/logOut", async (data: User) => {
-  const response = await axios.post("/user/logout", data);
+export const logOut = createAsyncThunk("user/logOut", async () => {
+  const response = await axios.post("/user/logout");
   return response.data;
 });
 
