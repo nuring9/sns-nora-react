@@ -42,12 +42,12 @@ const Home: React.FC = () => {
     console.log(lastId, `라스트아이디`);
 
     //posts 불러오기
-    if (lastId && hasMorePosts && !loadPostsLoading) {
+    if (hasMorePosts && !loadPostsLoading) {
       // lastId 값이 존재하는지 확인
       dispatch(loadPosts(lastId));
       console.log(lastId, `라스트아이디`);
     }
-  }, [dispatch, lastId, hasMorePosts, loadPostsLoading]);
+  }, []);
 
   return (
     <AppLayout>
