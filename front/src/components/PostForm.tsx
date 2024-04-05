@@ -8,8 +8,6 @@ import postSlice, { addPost, uploadImage } from "../reducers/post"; // 액션 �
 import { AppDispatch } from "../store/configureStore";
 import "../styles/Post.scss";
 
-import { backUrl } from "../config/config";
-
 const FormWrapper = styled(Form)`
   margin: 10px 0 20px;
   width: 100%;
@@ -50,19 +48,6 @@ const PostForm: React.FC = () => {
     },
     []
   );
-
-  // const onSubmit = useCallback(
-  //   (e: React.SyntheticEvent) => {
-  //     e.preventDefault();
-  //     const postData: PostText = {
-  //       content: text,
-  //       userId: id,
-  //     };
-  //     dispatch(addPost(postData));
-  //     setText("");
-  //   },
-  //   [dispatch, text, id]
-  // );
 
   const onSubmit = useCallback(() => {
     if (!text || !text.trim()) {
@@ -130,11 +115,7 @@ const PostForm: React.FC = () => {
       <div>
         {imagePaths.map((filename, i) => (
           <div key={uuidv4()} style={{ display: "inline-block" }}>
-            <img
-              src={`${backUrl}/${filename}`}
-              style={{ width: "200px" }}
-              alt={filename}
-            />
+            <img src={filename} style={{ width: "200px" }} alt={filename} />
             <div>
               <Button onClick={onRemoveImage(i)}>제거</Button>
               {/* map안에 데이터를 넣고 싶으면, 고차 함수 */}

@@ -18,6 +18,9 @@ const middlewares_1 = require("./middlewares");
 const multer_1 = __importDefault(require("multer")); // 추가
 const path_1 = __importDefault(require("path")); // 추가
 const fs_1 = __importDefault(require("fs")); // 추가
+const multer_s3_1 = __importDefault(require("multer-s3"));
+const aws_sdk_1 = __importDefault(require("aws-sdk"));
+const client_s3_1 = require("@aws-sdk/client-s3");
 const router = express_1.default.Router();
 try {
     fs_1.default.readdirSync("uploads"); // uploads라는 폴더가 있는지 확인.  readdirSync: 동기방식으로 파일을 불러옴.
@@ -26,22 +29,23 @@ catch (error) {
     console.error("uploads 폴더가 없어 uploads 폴더를 생성합니다.");
     fs_1.default.mkdirSync("uploads"); // 없으면 폴더 만들기.   mkdirSync: Directory 생성.
 }
+// asw 보안 자격
+aws_sdk_1.default.config.update({
+    accessKeyId: process.env.S3_ACCESS_KEY_ID,
+    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+    region: "ap-northeast-2", // 서울
+});
+// s3 적용
+const s3 = new client_s3_1.S3Client();
 const upload = (0, multer_1.default)({
-    // nmulter 설정.
-    storage: multer_1.default.diskStorage({
-        // 어디에 저장할 것인가, 우리는 사용자가 업로드한 것을 disk에 저장한다.
-        destination(req, file, done) {
-            done(null, "uploads"); // 생성한 uploads폴더에 저장.
-        },
-        filename(req, file, done) {
-            // 파일 이름 설정
-            const ext = path_1.default.extname(file.originalname);
-            // 확장자 추출.  이미지.png -> 이미지2023090234.png = 이미지+날짜스트링.png
-            done(null, path_1.default.basename(file.originalname, ext) + Date.now() + ext);
-            // 파일명에 확장자를 분리 시킨뒤 사이에 날짜를 넣고 다시 확장자를 넣어 줌.
+    storage: (0, multer_s3_1.default)({
+        s3: s3,
+        bucket: "sns-nora-s3",
+        key(req, file, cb) {
+            cb(null, `original/${Date.now()}_${path_1.default.basename(file.originalname)}`);
         },
     }),
-    limits: { fileSize: 5 * 1024 * 1024 }, // 파일 사이즈 5mg bite가 작을수도 있으니 변경 가능.
+    limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
 });
 router.post("/", middlewares_1.isLoggedIn, upload.none(), // onSubmit의 formData
 (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -110,10 +114,11 @@ router.post("/images", middlewares_1.isLoggedIn, upload.array("image"), (req, re
     // POST /post/images
     console.log(req.files);
     if (req.files) {
-        res.json(req.files.map((v) => v.filename));
+        const locations = req.files.map((file) => file.location); // 파일의 위치 정보를 가져옴
+        res.json(locations); // 기존 filename를 location으로
     }
     else {
-        res.status(400).json({ error: "No files provided." });
+        res.status(400).json({ error: "제공된 파일이 없습니다" });
     }
 });
 router.get("/:postId", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

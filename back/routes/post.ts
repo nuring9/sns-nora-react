@@ -4,6 +4,9 @@ import { isLoggedIn } from "./middlewares";
 import multer from "multer"; // 추가
 import path from "path"; // 추가
 import fs from "fs"; // 추가
+import multerS3 from "multer-s3";
+import AWS from "aws-sdk";
+import { S3Client } from "@aws-sdk/client-s3";
 
 const router = express.Router();
 
@@ -14,22 +17,24 @@ try {
   fs.mkdirSync("uploads"); // 없으면 폴더 만들기.   mkdirSync: Directory 생성.
 }
 
+// asw 보안 자격
+AWS.config.update({
+  accessKeyId: process.env.S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  region: "ap-northeast-2", // 서울
+});
+
+// s3 적용
+const s3 = new S3Client();
 const upload = multer({
-  // nmulter 설정.
-  storage: multer.diskStorage({
-    // 어디에 저장할 것인가, 우리는 사용자가 업로드한 것을 disk에 저장한다.
-    destination(req, file, done) {
-      done(null, "uploads"); // 생성한 uploads폴더에 저장.
-    },
-    filename(req, file, done) {
-      // 파일 이름 설정
-      const ext = path.extname(file.originalname);
-      // 확장자 추출.  이미지.png -> 이미지2023090234.png = 이미지+날짜스트링.png
-      done(null, path.basename(file.originalname, ext) + Date.now() + ext);
-      // 파일명에 확장자를 분리 시킨뒤 사이에 날짜를 넣고 다시 확장자를 넣어 줌.
+  storage: multerS3({
+    s3: s3,
+    bucket: "sns-nora-s3",
+    key(req, file, cb) {
+      cb(null, `original/${Date.now()}_${path.basename(file.originalname)}`);
     },
   }),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 파일 사이즈 5mg bite가 작을수도 있으니 변경 가능.
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
 });
 
 router.post(
@@ -107,9 +112,12 @@ router.post("/images", isLoggedIn, upload.array("image"), (req, res, next) => {
   // POST /post/images
   console.log(req.files);
   if (req.files) {
-    res.json((req.files as Express.Multer.File[]).map((v) => v.filename));
+    const locations = (req.files as Express.MulterS3.File[]).map(
+      (file) => file.location
+    ); // 파일의 위치 정보를 가져옴
+    res.json(locations); // 기존 filename를 location으로
   } else {
-    res.status(400).json({ error: "No files provided." });
+    res.status(400).json({ error: "제공된 파일이 없습니다" });
   }
 });
 
