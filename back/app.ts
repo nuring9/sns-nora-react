@@ -32,7 +32,7 @@ if (process.env.NODE_ENV === "production") {
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(
     cors({
-      origin: ["http://localhost:8000", "http://13.209.49.219"],
+      origin: "http://snsnora.store", // 프론트 도메인
       credentials: true,
     })
   );
@@ -84,7 +84,9 @@ app.use(
     secret: process.env.COOKIE_SECRET!,
     cookie: {
       httpOnly: true,
-      secure: false,
+      secure: false, // 추후 https를 사용할 때 true로 변경.
+      domain:
+        process.env.NODE_ENV === "production" ? ".snsnora.store" : undefined, // .을 사용해야 api.snsnora.store랑 snsnora.store랑 쿠기가 공유된다.
     },
   })
 );
