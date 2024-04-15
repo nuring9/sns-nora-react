@@ -49,22 +49,26 @@ const PostForm: React.FC = () => {
     []
   );
 
-  const onSubmit = useCallback(() => {
-    if (!text || !text.trim()) {
-      return alert("게시글을 작성하세요.");
-    }
-    const formData = new FormData();
-    // multer의 미들웨어 none을 사용하기 위해 formData를 만들어서 작성.
-    imagePaths.forEach((p) => {
-      formData.append("image", p);
-    });
-    formData.append("content", text);
-    formData.append("userId", (id || 0).toString());
-    // formData로 서버로 보낼땐 append로 다 쪼개서 보내야 함!!
+  const onSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (!text || !text.trim()) {
+        return alert("게시글을 작성하세요.");
+      }
+      const formData = new FormData();
+      // multer의 미들웨어 none을 사용하기 위해 formData를 만들어서 작성.
+      imagePaths.forEach((p) => {
+        formData.append("image", p);
+      });
+      formData.append("content", text);
+      formData.append("userId", (id || 0).toString());
+      // formData로 서버로 보낼땐 append로 다 쪼개서 보내야 함!!
 
-    console.log("onsubmitdata", formData);
-    return dispatch(addPost(formData));
-  }, [dispatch, imagePaths, text, id]);
+      console.log("onsubmitdata", formData);
+      return dispatch(addPost(formData));
+    },
+    [dispatch, imagePaths, text, id]
+  );
 
   const onChangeImages = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
